@@ -19,7 +19,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 // These routes are deliberately independent of the generated operation manifest.

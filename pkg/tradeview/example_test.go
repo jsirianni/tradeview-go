@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	tradeview "github.com/jsirianni/tradeview-go/pkg/tradeview"
+	"github.com/jsirianni/tradeview-go/pkg/tradeview"
 )
 
 func ExampleClientWithResponses_GetAccountsWithResponse() {
