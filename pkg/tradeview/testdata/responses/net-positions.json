@@ -1,0 +1,13 @@
+{
+  "s": "ok",
+  "d": [
+    {
+      "id": "position-1",
+      "instrument": "EURUSD",
+      "qty": 2.5,
+      "avgPrice": 1.23456789012345,
+      "longQty": 2.5,
+      "shortQty": 0
+    }
+  ]
+}

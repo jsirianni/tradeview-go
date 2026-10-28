@@ -1,0 +1,42 @@
+{
+  "s": "ok",
+  "d": {
+    "confirmId": "confirm-1",
+    "sections": [
+      {
+        "header": "Estimate",
+        "rows": [
+          {
+            "title": "Commission",
+            "value": "0.125"
+          }
+        ]
+      },
+      {
+        "rows": []
+      }
+    ],
+    "warnings": [
+      "Warning",
+      [
+        "Read ",
+        {
+          "text": "terms",
+          "url": "https://broker.example/terms"
+        },
+        "."
+      ]
+    ],
+    "errors": [
+      "Error",
+      [
+        "Read ",
+        {
+          "text": "terms",
+          "url": "https://broker.example/terms"
+        },
+        "."
+      ]
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "s": "ok",
+  "d": [
+    {
+      "id": "account-1",
+      "name": "Trading account",
+      "type": "demo",
+      "currency": "USD",
+      "isVerified": false,
+      "config": {
+        "supportPositions": true,
+        "supportLeverage": false
+      },
+      "tradingOptionsSets": {
+        "forex": {
+          "allowedOrderTypes": [
+            "market",
+            "limit"
+          ],
+          "supportCryptoExchange": false
+        }
+      },
+      "ui": {
+        "orderDialogLinks": [
+          {
+            "text": "Terms",
+            "url": "https://broker.example/terms"
+          }
+        ]
+      }
+    },
+    {
+      "id": "account-2",
+      "name": "Second account",
+      "type": "live",
+      "config": {}
+    }
+  ]
+}

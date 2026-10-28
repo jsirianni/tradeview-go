@@ -1,0 +1,13 @@
+{
+  "symbols": [
+    {
+      "f": [
+        "EURUSD"
+      ],
+      "s": "FX_IDC:EURUSD"
+    }
+  ],
+  "fields": [
+    "brokerSymbol"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "s": "ok",
+  "d": {
+    "pullingInterval": {
+      "quotes": 250,
+      "orders": 500
+    },
+    "orderInfoConfig": {
+      "dependencies": [
+        "qty",
+        "side"
+      ],
+      "dependantCustomFieldIds": [
+        "routing"
+      ]
+    }
+  }
+}

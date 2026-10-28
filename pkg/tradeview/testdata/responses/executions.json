@@ -1,0 +1,23 @@
+{
+  "s": "ok",
+  "d": [
+    {
+      "id": "execution-1",
+      "instrument": "EURUSD",
+      "orderId": "order-1",
+      "positionId": "position-1",
+      "price": 1.23456789012345,
+      "qty": 2.5,
+      "side": "buy",
+      "isClose": false,
+      "time": 1793153400,
+      "commission": 0,
+      "fee": 0.125,
+      "grossPnl": 10.5,
+      "netPnl": 10.375,
+      "swap": -0.25,
+      "conversion": 1.1
+    }
+  ],
+  "nextPageCursor": "next+/= cursor"
+}

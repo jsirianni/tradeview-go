@@ -1,0 +1,17 @@
+{
+  "s": "ok",
+  "d": {
+    "id": "close-1",
+    "rows": [
+      {
+        "title": "Closing cost",
+        "value": "2.50",
+        "currency": "USD"
+      },
+      {
+        "type": "separator"
+      }
+    ],
+    "disclaimer": "Plain disclaimer"
+  }
+}

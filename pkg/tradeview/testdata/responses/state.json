@@ -1,0 +1,20 @@
+{
+  "s": "ok",
+  "d": {
+    "balance": 1234.56789012345,
+    "unrealizedPl": -2.25,
+    "equity": 0,
+    "accountSummaryRowData": [
+      "USD",
+      "active"
+    ],
+    "amData": [
+      [
+        [
+          "EURUSD",
+          "2.5"
+        ]
+      ]
+    ]
+  }
+}

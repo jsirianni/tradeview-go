@@ -1,0 +1,9 @@
+{
+  "s": "ok",
+  "d": {
+    "infos": [
+      "New margin: 2.50"
+    ],
+    "warnings": ["Leverage increases risk"]
+  }
+}

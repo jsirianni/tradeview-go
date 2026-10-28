@@ -1,0 +1,16 @@
+{
+  "s": "ok",
+  "d": [
+    {
+      "id": "position-1",
+      "instrument": "EURUSD",
+      "date": "2026-10-28T12:00:00Z",
+      "qty": 2.5,
+      "side": "buy",
+      "price": 1.23456789012345,
+      "canBeClosed": false,
+      "unrealizedPl": 0,
+      "lastModified": 1793153400
+    }
+  ]
+}
