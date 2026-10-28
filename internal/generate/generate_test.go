@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 func TestRewriteClientPreservesRawStreamsAndRemovesFiniteReaders(t *testing.T) {
@@ -246,7 +246,7 @@ func TestGenerateRejectsInvalidReferences(t *testing.T) {
 			if err := yaml.Unmarshal(source, &schema); err != nil {
 				t.Fatal(err)
 			}
-			components := schema["components"].(map[string]any)
+			components := testObject(t, schema["components"])
 			switch tc.schema {
 			case "info":
 				schema["info"] = false
@@ -255,13 +255,13 @@ func TestGenerateRejectsInvalidReferences(t *testing.T) {
 			case "parameters":
 				components["parameters"] = false
 			case "parameter":
-				components["parameters"].(map[string]any)["orderIds"] = false
+				testObject(t, components["parameters"])["orderIds"] = false
 			case "parameter schema":
-				components["parameters"].(map[string]any)["orderIds"].(map[string]any)["schema"] = false
+				testObject(t, testObject(t, components["parameters"])["orderIds"])["schema"] = false
 			case "schemas":
 				components["schemas"] = false
 			case "component":
-				components["schemas"].(map[string]any)["OrderStatus"] = false
+				testObject(t, components["schemas"])["OrderStatus"] = false
 			case "paths":
 				schema["paths"] = false
 			case "path":
@@ -321,4 +321,13 @@ func writeGenerationInputs(t *testing.T, root string, source, overlayData []byte
 			t.Fatal(err)
 		}
 	}
+}
+
+func testObject(t *testing.T, value any) map[string]any {
+	t.Helper()
+	object, ok := value.(map[string]any)
+	if !ok {
+		t.Fatalf("fixture value has type %T, want object", value)
+	}
+	return object
 }
