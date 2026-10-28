@@ -31,7 +31,7 @@ func symbolInfoExpansionCost(remaining int64, count int, rawBytes int) (int64, b
 	if perElement > remaining-2 || perElement > MaxSymbolInfoExpandedBytes {
 		return 0, false
 	}
-	perElement += 33 // comma plus destination element storage
+	perElement += 65 // comma plus destination element storage (including object pointers)
 	if int64(count) > (remaining-2)/perElement {
 		return 0, false
 	}

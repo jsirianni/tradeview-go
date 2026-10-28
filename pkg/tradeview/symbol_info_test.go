@@ -290,15 +290,15 @@ func TestSymbolInfoExpansionArithmetic(t *testing.T) {
 		remaining  int64
 		count, raw int
 	}{
-		{math.MaxInt64, math.MaxInt, math.MaxInt},
-		{MaxSymbolInfoExpandedBytes, math.MaxInt, 1},
-		{-1, 1, 1}, {34, 1, 1},
+		{remaining: math.MaxInt64, count: math.MaxInt, raw: math.MaxInt},
+		{remaining: MaxSymbolInfoExpandedBytes, count: math.MaxInt, raw: 1},
+		{remaining: -1, count: 1, raw: 1}, {remaining: 66, count: 1, raw: 1},
 	} {
 		if cost, ok := symbolInfoExpansionCost(tc.remaining, tc.count, tc.raw); ok {
 			t.Fatalf("accepted oversized arithmetic: %+v cost=%d", tc, cost)
 		}
 	}
-	if cost, ok := symbolInfoExpansionCost(36, 1, 1); !ok || cost != 36 {
+	if cost, ok := symbolInfoExpansionCost(68, 1, 1); !ok || cost != 68 {
 		t.Fatalf("boundary cost=%d ok=%v", cost, ok)
 	}
 }
