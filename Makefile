@@ -2,13 +2,15 @@ GO ?= go
 GOFMT ?= gofmt
 STATICCHECK_VERSION := v0.8.2
 STATICCHECK_PACKAGES ?= ./...
+GOSEC = $(GO) run github.com/securego/gosec/v2/cmd/gosec@v2.30.0
+GOSEC_FLAGS = -exclude-generated -nosec-require-rules -nosec-require-justification -fmt=text
 REVIVE = $(GO) run github.com/mgechev/revive@v1.17.1
 GOVULNCHECK_VERSION := v1.9.0
 TEST_ARGS ?=
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build test test-race coverage coverage-html fmt fmt-check vet staticcheck govulncheck lint lint-smoke generate generate-check deps tidy check ci clean
+.PHONY: help build test test-race coverage coverage-html fmt fmt-check vet staticcheck govulncheck lint lint-smoke security security-smoke generate generate-check deps tidy check ci clean
 
 help:
 	@echo make build - Build all Go packages
@@ -23,6 +25,8 @@ help:
 	@echo make govulncheck - Check reachable known vulnerabilities
 	@echo make lint - Run pinned Revive rules on handwritten Go code
 	@echo make lint-smoke - Prove configured Revive rules reject violations
+	@echo make security - Run pinned gosec on handwritten production packages
+	@echo make security-smoke - Verify unsuppressed security findings fail
 	@echo make generate - Regenerate bindings from the pinned schema
 	@echo make generate-check - Regenerate and check committed bindings
 	@echo make deps - Download module dependencies
@@ -73,6 +77,11 @@ lint:
 
 lint-smoke:
 	sh scripts/check-revive.sh $(REVIVE)
+security:
+	$(GOSEC) $(GOSEC_FLAGS) ./...
+
+security-smoke:
+	sh scripts/check-gosec.sh $(GOSEC)
 
 generate:
 	$(GO) generate ./...
@@ -87,7 +96,7 @@ deps:
 tidy:
 	$(GO) mod tidy
 
-check: fmt-check vet staticcheck lint test
+check: fmt-check vet staticcheck lint security security-smoke test
 
 # Finish generation before readers start, even when invoked with make -j.
 ci: generate-check

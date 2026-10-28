@@ -49,6 +49,7 @@ func Generate(root string) error {
 		return fmt.Errorf("resolve repository root: %w", err)
 	}
 	schemaPath := filepath.Join(root, "api", "broker-rest-api.yaml")
+	// #nosec G304 -- The developer selects the trusted repository root; this input name is fixed.
 	source, err := os.ReadFile(schemaPath)
 	if err != nil {
 		return err
@@ -58,6 +59,7 @@ func Generate(root string) error {
 		SHA256  string `json:"sha256"`
 	}
 	metadataPath := filepath.Join(root, "api", "upstream.json")
+	// #nosec G304 -- The developer selects the trusted repository root; this metadata name is fixed.
 	metadataBytes, err := os.ReadFile(metadataPath)
 	if err != nil {
 		return err
@@ -82,6 +84,7 @@ func Generate(root string) error {
 	}
 	var rules overlay
 	overlayPath := filepath.Join(root, "api", "overlay.yaml")
+	// #nosec G304 -- The developer selects the trusted repository root; this overlay name is fixed.
 	data, err := os.ReadFile(overlayPath)
 	if err != nil {
 		return err
@@ -204,16 +207,17 @@ func Generate(root string) error {
 	tempName := temporary.Name()
 	defer os.Remove(tempName)
 	if _, err := temporary.Write(effective); err != nil {
-		temporary.Close()
-		return err
+		return errors.Join(err, temporary.Close())
 	}
 	if err := temporary.Close(); err != nil {
 		return err
 	}
 	outputPath := filepath.Join(root, "pkg", "tradeview", "api.gen.go")
+	// #nosec G301 -- Generated public source directories are intentionally readable by other local users.
 	if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
 		return err
 	}
+	// #nosec G204 -- Fixed executable and pinned Go tool; only the CreateTemp path varies, with no shell.
 	command := exec.Command("go", "tool", "oapi-codegen", "--config", "api/oapi-codegen.yaml", tempName)
 	command.Dir = root
 	command.Stdout = os.Stdout
@@ -232,6 +236,7 @@ func Generate(root string) error {
 		return err
 	}
 	inventory = append(inventory, '\n')
+	// #nosec G306 -- The committed operation inventory is public source metadata, intentionally mode 0644.
 	if err := os.WriteFile(filepath.Join(root, "api", "operations.json"), inventory, 0644); err != nil {
 		return err
 	}
@@ -264,6 +269,7 @@ func applyNumbers(value any, format string) {
 	}
 }
 func postprocess(path string, streamNames map[string]bool) error {
+	// #nosec G304 -- Called only with the fixed generated output path beneath the trusted repository root.
 	source, err := os.ReadFile(path)
 	if err != nil {
 		return err
@@ -272,6 +278,7 @@ func postprocess(path string, streamNames map[string]bool) error {
 	if err != nil {
 		return err
 	}
+	// #nosec G703 G306 -- Fixed generated output under the trusted repository root; public source is intentionally mode 0644.
 	return os.WriteFile(path, output, 0644)
 }
 func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {

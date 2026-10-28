@@ -17,6 +17,7 @@ import (
 // addSymbolInfoDecoders implements the compatibility rule without changing the
 // upstream schema or the generated public slice fields.
 func addSymbolInfoDecoders(path string, models []string) error {
+	// #nosec G304 -- Called only with the fixed generated output path beneath the developer-selected repository root.
 	source, err := os.ReadFile(path)
 	if err != nil {
 		return err
@@ -25,6 +26,7 @@ func addSymbolInfoDecoders(path string, models []string) error {
 	if err != nil {
 		return err
 	}
+	// #nosec G703 G306 -- Fixed generated output under the trusted repository root; public source is intentionally mode 0644.
 	return os.WriteFile(path, output, 0644)
 }
 
