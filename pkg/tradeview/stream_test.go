@@ -295,7 +295,7 @@ func TestTypedStreamEndpoints(t *testing.T) {
 					t.Errorf("query=%v", request.URL.Query())
 				}
 				if request.Header.Get("Authorization") != "Bearer token" || request.Header.Get("X-Stream-Test") != "edited" {
-					t.Errorf("missing authentication/request editor")
+					t.Error("missing authentication/request editor")
 				}
 				writer.Header().Set("Content-Type", "application/json")
 				fmt.Fprintln(writer, test.frame)
