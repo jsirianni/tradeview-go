@@ -92,8 +92,8 @@ func WithTokenSource(source TokenSource) ClientOption {
 	}
 }
 
-// WithLocale supplies locale only when it is absent from the operation's query.
-// Explicit per-request locale values always take precedence.
+// WithLocale supplies locale when the operation's query has no locale or an empty value.
+// Explicit nonempty per-request locale values always take precedence.
 func WithLocale(locale string) ClientOption {
 	return func(client *Client) error {
 		if strings.TrimSpace(locale) == "" {
@@ -101,7 +101,7 @@ func WithLocale(locale string) ClientOption {
 		}
 		client.RequestEditors = append(client.RequestEditors, func(_ context.Context, request *http.Request) error {
 			query := request.URL.Query()
-			if !query.Has("locale") {
+			if query.Get("locale") == "" {
 				query.Set("locale", locale)
 				request.URL.RawQuery = query.Encode()
 			}
