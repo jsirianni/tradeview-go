@@ -31,10 +31,11 @@ make test TEST_ARGS="-run TestOperationTransport -count=1"
 | `coverage-html` | Write `coverage.html` without opening a browser. |
 | `fmt` / `fmt-check` | Format Go sources or check formatting. |
 | `vet` | Run Go's static checks. |
+| `staticcheck` | Run pinned Staticcheck analysis on all packages and normal tests. |
 | `generate` | Regenerate bindings and the operation inventory. |
 | `generate-check` | Regenerate and reject differences in tracked generated outputs. |
 | `deps` / `tidy` | Download dependencies or tidy module metadata. |
-| `check` | Check formatting, vet, and tests. |
+| `check` | Check formatting, vet, Staticcheck, and tests. |
 | `ci` | Check generation, then run checks, build, and race tests. |
 | `clean` | Clean package build artifacts and remove coverage reports. |
 
@@ -51,6 +52,12 @@ The generator uses `oapi-codegen` **v2.8.1**, pinned as a Go tool dependency. `m
 Generation uses the committed schema and does not fetch a new API revision. To update the contract, replace the upstream schema deliberately, record its version/source/checksum, review the compatibility overlay, regenerate, and update the operation inventory and transport fixtures together. Review all resulting API changes before committing.
 
 CI runs one Linux job with Go 1.27. It runs `make ci`, records market-stream decoding benchmarks, and verifies that the checkout stays clean. Tests use local HTTP fixtures and do not require broker credentials.
+
+## Staticcheck
+
+`make staticcheck` runs Staticcheck **v0.8.2** through a versioned `go run`, independently of client dependencies. It analyzes `./...`, including the runtime, generator, and normal tests, with recommended default checks and no exclusions or custom configuration. Diagnostics and analyzer failures fail `make check` and the required PR/main CI job. `STATICCHECK_PACKAGES` defaults to `./...`; CI overrides it only for a temporary negative fixture that must report SA1000 for an invalid regular expression. The fixture is removed afterward.
+
+When upgrading Go, update the pinned analyzer to a compatible release and verify both the clean baseline and the negative fixture. Keep suppressions narrow and document their justification.
 
 ## Market stream benchmarks
 

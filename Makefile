@@ -1,10 +1,12 @@
 GO ?= go
 GOFMT ?= gofmt
+STATICCHECK_VERSION := v0.8.2
+STATICCHECK_PACKAGES ?= ./...
 TEST_ARGS ?=
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build test test-race coverage coverage-html fmt fmt-check vet generate generate-check deps tidy check ci clean
+.PHONY: help build test test-race coverage coverage-html fmt fmt-check vet staticcheck generate generate-check deps tidy check ci clean
 
 help:
 	@echo make build - Build all Go packages
@@ -15,11 +17,12 @@ help:
 	@echo make fmt - Format Go source files
 	@echo make fmt-check - Check formatting without changing files
 	@echo make vet - Run Go static analysis
+	@echo make staticcheck - Run pinned Staticcheck analysis
 	@echo make generate - Regenerate bindings from the pinned schema
 	@echo make generate-check - Regenerate and check committed bindings
 	@echo make deps - Download module dependencies
 	@echo make tidy - Update go.mod and go.sum
-	@echo make check - Check formatting, vet, and tests
+	@echo make check - Check formatting, vet, Staticcheck, and tests
 	@echo make ci - Check generated bindings, build, and run all checks
 	@echo make clean - Remove local build and coverage artifacts
 
@@ -51,6 +54,9 @@ fmt-check:
 vet:
 	$(GO) vet ./...
 
+staticcheck:
+	$(GO) run honnef.co/go/tools/cmd/staticcheck@$(STATICCHECK_VERSION) $(STATICCHECK_PACKAGES)
+
 generate:
 	$(GO) generate ./...
 
@@ -64,7 +70,7 @@ deps:
 tidy:
 	$(GO) mod tidy
 
-check: fmt-check vet test
+check: fmt-check vet staticcheck test
 
 # Finish generation before readers start, even when invoked with make -j.
 ci: generate-check
