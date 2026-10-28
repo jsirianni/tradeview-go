@@ -110,7 +110,7 @@ func TestMarketHeaderEligibility(t *testing.T) {
 	}
 	// Every mixed-case heartbeat spelling must use exact-key map lookups.
 	const heartbeat = "heartbeat"
-	for mask := 0; mask < 1<<len(heartbeat); mask++ {
+	for mask := range 1 << len(heartbeat) {
 		spelling := []byte(heartbeat)
 		for i := range spelling {
 			if mask&(1<<i) != 0 {

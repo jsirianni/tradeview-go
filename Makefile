@@ -10,7 +10,7 @@ TEST_ARGS ?=
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build test test-race coverage coverage-html fmt fmt-check vet staticcheck govulncheck lint lint-smoke security security-smoke generate generate-check deps tidy check ci clean
+.PHONY: help build test test-race coverage coverage-html fmt fmt-check fix fix-check fix-gate-test vet staticcheck govulncheck lint lint-smoke security security-smoke generate generate-check deps tidy check ci clean
 
 help:
 	@echo make build - Build all Go packages
@@ -59,6 +59,17 @@ fmt-check:
 	$(if $(filter 0,$(.SHELLSTATUS)),,$(error gofmt failed with status $(.SHELLSTATUS)))
 	$(if $(strip $(format_files)),$(error Run make fmt; unformatted files: $(format_files)))
 	@echo Go formatting is clean
+# Report the selected toolchain because modernization rules can change by patch.
+fix:
+	$(GO) version
+	$(GO) fix ./...
+
+fix-check: fix
+	git diff --exit-code
+	git diff --cached --exit-code
+
+fix-gate-test:
+	+sh scripts/test-fix-gate.sh "$(GO)" "$(MAKE)"
 
 vet:
 	$(GO) vet ./...
@@ -100,7 +111,8 @@ check: fmt-check vet staticcheck lint security security-smoke test
 
 # Finish generation before readers start, even when invoked with make -j.
 ci: generate-check
-	$(MAKE) check build test-race govulncheck
+	$(MAKE) fix-check
+	$(MAKE) check build test-race govulncheck fix-gate-test
 
 clean:
 	$(GO) clean ./...

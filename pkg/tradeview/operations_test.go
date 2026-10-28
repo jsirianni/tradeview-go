@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"mime"
 	"net/http"
 	"net/http/httptest"
@@ -138,8 +139,8 @@ func TestOperationInventory(t *testing.T) {
 	if len(paths) != 43 || len(contract.operations) != 47 || len(contract.manifest) != 47 || len(_operationFixtures) != 47 {
 		t.Fatalf("coverage count mismatch: paths=%d operations=%d manifest=%d fixtures=%d", len(paths), len(contract.operations), len(contract.manifest), len(_operationFixtures))
 	}
-	rawType := reflect.TypeOf((*Client)(nil))
-	typedType := reflect.TypeOf((*ClientWithResponses)(nil))
+	rawType := reflect.TypeFor[*Client]()
+	typedType := reflect.TypeFor[*ClientWithResponses]()
 	seen := make(map[string]bool, len(_operationFixtures))
 	finite, streams := 0, 0
 	for _, fixture := range _operationFixtures {
@@ -370,7 +371,7 @@ func (c fixtureContract) resolve(value map[string]any) map[string]any {
 			return value
 		}
 		var node any = c.source
-		for _, key := range strings.Split(strings.TrimPrefix(ref, "#/"), "/") {
+		for key := range strings.SplitSeq(strings.TrimPrefix(ref, "#/"), "/") {
 			node = fixtureValue[map[string]any](c.t, node)[strings.ReplaceAll(strings.ReplaceAll(key, "~1", "/"), "~0", "~")]
 		}
 		value = fixtureValue[map[string]any](c.t, node)
@@ -456,9 +457,7 @@ func (c fixtureContract) sample(schema map[string]any, depth int) any {
 		merged := make(map[string]any)
 		for _, variant := range variants {
 			if value, ok := c.sample(fixtureValue[map[string]any](c.t, variant), depth+1).(map[string]any); ok {
-				for key, item := range value {
-					merged[key] = item
-				}
+				maps.Copy(merged, value)
 			}
 		}
 		return merged
