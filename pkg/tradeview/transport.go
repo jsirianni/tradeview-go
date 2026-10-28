@@ -306,15 +306,15 @@ func encodeForm(body any) (string, error) {
 			if err := json.Unmarshal(value, &items); err != nil {
 				return "", err
 			}
-			complex := false
+			hasNestedValues := false
 			for _, item := range items {
 				item = bytes.TrimSpace(item)
 				if len(item) > 0 && (item[0] == '{' || item[0] == '[') {
-					complex = true
+					hasNestedValues = true
 					break
 				}
 			}
-			if complex {
+			if hasNestedValues {
 				form.Set(key, string(value))
 				continue
 			}
