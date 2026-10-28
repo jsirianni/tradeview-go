@@ -33,14 +33,16 @@ type AccountEvent[T any] struct {
 	Raw   json.RawMessage
 }
 
-type StateEvent = AccountEvent[AccountStateMessage]
-type OrdersEvent = AccountEvent[OrdersMessage]
-type PositionsEvent = AccountEvent[StreamPositionsMessage]
-type NetPositionsEvent = AccountEvent[StreamNetPositionsMessage]
-type IndividualPositionsEvent = AccountEvent[StreamIndividualPositionsMessage]
-type NotificationsEvent = AccountEvent[StreamNotificationsMessage]
-type QuotesEvent = AccountEvent[QuotesMessage]
-type DepthEvent = AccountEvent[Depth]
+type (
+	StateEvent               = AccountEvent[AccountStateMessage]
+	OrdersEvent              = AccountEvent[OrdersMessage]
+	PositionsEvent           = AccountEvent[StreamPositionsMessage]
+	NetPositionsEvent        = AccountEvent[StreamNetPositionsMessage]
+	IndividualPositionsEvent = AccountEvent[StreamIndividualPositionsMessage]
+	NotificationsEvent       = AccountEvent[StreamNotificationsMessage]
+	QuotesEvent              = AccountEvent[QuotesMessage]
+	DepthEvent               = AccountEvent[Depth]
+)
 
 func decodeAccountEvent[T any](frame []byte) (AccountEvent[T], error) {
 	event := AccountEvent[T]{Raw: append(json.RawMessage(nil), frame...)}
