@@ -81,7 +81,7 @@ func TestRewriteClientPreservesRawStreamsAndRemovesFiniteReaders(t *testing.T) {
 	if !foundRaw || !foundUnion || !foundFinite {
 		t.Fatalf("lost raw stream=%v, stream union=%v, finite parser=%v", foundRaw, foundUnion, foundFinite)
 	}
-	if strings.Count(string(output), "finiteResponseError(bodyBytes, rsp)") != 1 {
+	if strings.Contains(string(output), "io.ReadAll(rsp.Body)") || strings.Count(string(output), "readFiniteResponse(rsp)") != 1 || strings.Count(string(output), "finiteResponseError(bodyBytes, rsp)") != 1 {
 		t.Fatalf("missing finite response validation:\n%s", output)
 	}
 	if !strings.Contains(string(output), "newProtocolError(bodyBytes, rsp, err)") || strings.Contains(string(output), `strings.Contains(rsp.Header.Get("Content-Type"), "json")`) {

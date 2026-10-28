@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime"
@@ -11,6 +12,66 @@ import (
 	"net/url"
 	"strings"
 )
+
+// DefaultFiniteResponseLimit bounds decoded bytes read by finite response parsers.
+const DefaultFiniteResponseLimit int64 = 16 << 20
+
+type finiteResponseLimitKey struct{}
+
+// ResponseSizeError reports a finite response exceeding its decoded byte budget.
+// Oversized payloads are not retained. The response body is closed by the parser.
+type ResponseSizeError struct {
+	Limit      int64
+	StatusCode int
+}
+
+func (e *ResponseSizeError) Error() string {
+	return fmt.Sprintf("tradeview: HTTP %d response exceeds %d byte limit", e.StatusCode, e.Limit)
+}
+
+// WithFiniteResponseLimit sets the positive decoded byte budget for typed finite
+// responses. Raw methods remain unbounded. Standalone parsers use the default
+// unless their response carries a request configured by this client option.
+func WithFiniteResponseLimit(limit int64) ClientOption {
+	return func(client *Client) error {
+		if limit <= 0 || limit == int64(^uint64(0)>>1) {
+			return errors.New("tradeview: finite response limit must be positive and less than MaxInt64")
+		}
+		client.RequestEditors = append(client.RequestEditors, func(_ context.Context, request *http.Request) error {
+			*request = *request.WithContext(context.WithValue(request.Context(), finiteResponseLimitKey{}, limit))
+			return nil
+		})
+		return nil
+	}
+}
+
+// doRequest preserves response request metadata for custom doers as well as the
+// standard HTTP client. It does not read, wrap, or limit raw response bodies.
+func doRequest(client HttpRequestDoer, request *http.Request) (*http.Response, error) {
+	response, err := client.Do(request)
+	if response != nil {
+		if response.Request == nil {
+			response.Request = request
+		} else if limit, ok := request.Context().Value(finiteResponseLimitKey{}).(int64); ok {
+			response.Request = response.Request.WithContext(context.WithValue(response.Request.Context(), finiteResponseLimitKey{}, limit))
+		}
+	}
+	return response, err
+}
+
+func readFiniteResponse(response *http.Response) ([]byte, error) {
+	limit := DefaultFiniteResponseLimit
+	if response.Request != nil {
+		if configured, ok := response.Request.Context().Value(finiteResponseLimitKey{}).(int64); ok {
+			limit = configured
+		}
+	}
+	body, err := io.ReadAll(io.LimitReader(response.Body, limit+1))
+	if int64(len(body)) > limit {
+		return nil, &ResponseSizeError{Limit: limit, StatusCode: response.StatusCode}
+	}
+	return body, err
+}
 
 // APIError is an error envelope returned by a broker, including HTTP 200 errors.
 // Code preserves the broker's errtype, including values introduced after this API version.
