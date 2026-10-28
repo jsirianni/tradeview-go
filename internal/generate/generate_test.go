@@ -35,6 +35,12 @@ func TestRewriteClientPreservesRawStreamsAndRemovesFiniteReaders(t *testing.T) {
   bodyBytes,err := io.ReadAll(rsp.Body)
   if err != nil {return nil,err}
   response := &GetAccountsResponse{}
+  switch {
+  case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+   var dest GetAccounts200JSONResponseBody
+   if err := json.Unmarshal(bodyBytes, &dest); err != nil {return nil,err}
+   response.JSON200 = &dest
+  }
   return response,nil
  }
  `)
@@ -75,11 +81,34 @@ func TestRewriteClientPreservesRawStreamsAndRemovesFiniteReaders(t *testing.T) {
 	if !foundRaw || !foundUnion || !foundFinite {
 		t.Fatalf("lost raw stream=%v, stream union=%v, finite parser=%v", foundRaw, foundUnion, foundFinite)
 	}
-	if strings.Count(string(output), "responseError(bodyBytes, rsp)") != 1 {
-		t.Fatalf("missing finite error-envelope check:\n%s", output)
+	if strings.Count(string(output), "finiteResponseError(bodyBytes, rsp)") != 1 {
+		t.Fatalf("missing finite response validation:\n%s", output)
+	}
+	if !strings.Contains(string(output), "newProtocolError(bodyBytes, rsp, err)") || strings.Contains(string(output), `strings.Contains(rsp.Header.Get("Content-Type"), "json")`) {
+		t.Fatalf("finite parser retained unsafe media/decode handling:\n%s", output)
 	}
 	if strings.Contains(string(output), "StreamOrdersWithResponse") {
 		t.Error("finite stream interface method survived")
+	}
+}
+
+func TestRewriteClientRejectsUnknownFiniteParserShape(t *testing.T) {
+	input := []byte(`package tradeview
+ func ParseGetAccountsResponse(rsp *http.Response) (*GetAccountsResponse,error) {
+  bodyBytes,err := io.ReadAll(rsp.Body)
+  if err != nil {return nil,err}
+  response := &GetAccountsResponse{}
+  switch {
+  case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+   var dest GetAccounts200JSONResponseBody
+   if err := json.Unmarshal(bodyBytes, &dest); err != nil {return nil,err}
+   response.JSON200 = &dest
+  }
+  return response,nil
+ }
+ `)
+	if _, err := rewriteClient(input, nil); err == nil || !strings.Contains(err.Error(), "unsupported finite parser shape") {
+		t.Fatalf("accepted a new response contract without updating finite validation: %v", err)
 	}
 }
 
