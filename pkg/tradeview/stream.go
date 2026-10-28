@@ -147,7 +147,6 @@ func (stream *Stream[T]) Next() bool {
 		stream.mu.Unlock()
 		if err := streamAPIError(frame, stream.response.StatusCode); err != nil {
 			// #nosec G104 -- finish saves the body close error for Close; Err retains this terminal cause.
-			// #nosec G104 -- finish saves the body close error for Close; Err retains this terminal cause.
 			stream.finish(err)
 		}
 		return true
