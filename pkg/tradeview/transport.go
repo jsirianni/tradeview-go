@@ -238,7 +238,7 @@ func WithExtraOrderFields(fields url.Values) RequestEditorFn {
 			return fmt.Errorf("tradeview: extra order fields require a form request")
 		}
 		for key := range extras {
-			if key == "" || standardOrderFields[key] {
+			if key == "" || _standardOrderFields[key] {
 				return fmt.Errorf("tradeview: extra order field %q conflicts with a standard field", key)
 			}
 		}
@@ -272,7 +272,7 @@ func WithExtraOrderFields(fields url.Values) RequestEditorFn {
 	}
 }
 
-var standardOrderFields = map[string]bool{
+var _standardOrderFields = map[string]bool{
 	"instrument": true, "qty": true, "side": true, "type": true, "id": true,
 	"limitPrice": true, "stopPrice": true, "durationType": true, "durationDateTime": true,
 	"stopLoss": true, "trailingStopPips": true, "guaranteedStop": true, "takeProfit": true,

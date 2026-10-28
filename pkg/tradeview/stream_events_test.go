@@ -146,7 +146,7 @@ func TestMarketEventOwnsRawFrame(t *testing.T) {
 	}
 }
 
-var marketBenchmarkSink MarketEvent
+var _marketBenchmarkSink MarketEvent
 
 func BenchmarkDecodeMarketEvent(b *testing.B) {
 	fixtures := []struct {
@@ -181,7 +181,7 @@ func BenchmarkDecodeMarketEvent(b *testing.B) {
 					if err := streamAPIError(frame, 200); err != nil {
 						b.Fatal(err)
 					}
-					marketBenchmarkSink = event
+					_marketBenchmarkSink = event
 				}
 			})
 		}
