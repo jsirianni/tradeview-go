@@ -56,7 +56,7 @@ Optional fields retain presence information. Set a pointer to zero or false when
 - `WithTokenSource(source)` asks the caller's `Token(context.Context) (string, error)` implementation for a token on each request.
 - `WithHTTPClient(client)` supplies an HTTP client or compatible doer.
 - `WithRequestEditorFn(editor)` adds a request editor; generated methods also accept per-request editors.
-- `WithLocale(locale)` supplies a locale default when the request has no locale parameter.
+- `WithLocale(locale)` supplies a locale default when the request locale is absent or empty, including when other filters or pagination parameters are supplied. Explicit nonempty per-request locales take precedence.
 
 Bindings include `/authorize` and `/logout`. Your application owns OAuth/PKCE/JWT token acquisition and renewal. Token endpoints and credentials depend on the broker. The package does not persist credentials or select a broker endpoint.
 
