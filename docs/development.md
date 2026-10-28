@@ -34,11 +34,13 @@ make test TEST_ARGS="-run TestOperationTransport -count=1"
 | `staticcheck` | Run pinned Staticcheck analysis on all packages and normal tests. |
 | `lint` | Run Revive v1.17.1 with the committed three-rule configuration. |
 | `lint-smoke` | Prove each configured Revive rule rejects a violation. |
+| `security` | Run gosec v2.30.0 on handwritten production code. |
+| `security-smoke` | Prove an unsuppressed finding fails beside a narrow accepted case. |
 | `govulncheck` | Record tool versions and scan all packages for reachable known vulnerabilities. |
 | `generate` | Regenerate bindings and the operation inventory. |
 | `generate-check` | Regenerate and reject differences in tracked generated outputs. |
 | `deps` / `tidy` | Download dependencies or tidy module metadata. |
-| `check` | Check formatting, vet, Staticcheck, Revive, and tests. |
+| `check` | Check formatting, vet, Staticcheck, Revive, gosec, and tests. |
 | `ci` | Check generation, then run checks, build, race tests, and govulncheck. |
 | `clean` | Clean package build artifacts and remove coverage reports. |
 
@@ -64,6 +66,9 @@ The scan is part of `make ci` on PRs and main. CI also runs every Monday at 09:2
 
 Source analysis does not execute the application or discover new application-specific vulnerabilities. `./...` covers this module's packages, not every dependency of the separately invoked `oapi-codegen` binary or the analysis tool itself. Review those tools separately when updating their pinned versions. No advisories are suppressed; any future exception must name the advisory, rationale, owner, and review date or expiry condition. Keep the Go patch baseline and scanner compatible and current when upgrading.
 
+## Security analysis
+
+`make security` runs `github.com/securego/gosec/v2/cmd/gosec@v2.30.0` with default rules and severities. It scans handwritten production code; generated files are covered by reproducible generation checks and test fixtures remain outside the production scan. Each accepted `#nosec` location names its rule and explains the trusted path. `make security-smoke` confirms that an unsuppressed file access fails alongside a narrowly accepted location.
 ## Revive
 
 `make lint` runs pinned Revive with the configured unchecked assertion, builtin shadowing, and unnecessary formatting rules. The smoke target requires the expected diagnostic for each intentional violation and checks corrected code.

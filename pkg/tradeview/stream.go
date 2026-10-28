@@ -106,6 +106,7 @@ func openHTTPStream[T any](ctx context.Context, response *http.Response, request
 	scanner.Buffer(make([]byte, initial), config.maxFrameBytes+2)
 	stream := &Stream[T]{ctx: ctx, response: response, scanner: scanner, decode: decode, maxFrameBytes: config.maxFrameBytes}
 	stream.mu.Lock()
+	// #nosec G104 -- finish saves the body close error for Close; Err retains the cancellation cause.
 	stream.stopCancel = context.AfterFunc(ctx, func() { stream.finish(ctx.Err()) })
 	stream.mu.Unlock()
 	return stream, nil
@@ -123,6 +124,7 @@ func (stream *Stream[T]) Next() bool {
 	for stream.scanner.Scan() {
 		rawFrame := stream.scanner.Bytes()
 		if len(rawFrame) > stream.maxFrameBytes {
+			// #nosec G104 -- finish saves the body close error for Close; Err retains this terminal cause.
 			stream.finish(fmt.Errorf("tradeview: stream frame exceeds %d bytes", stream.maxFrameBytes))
 			return false
 		}
@@ -132,6 +134,7 @@ func (stream *Stream[T]) Next() bool {
 		}
 		value, err := stream.decode(frame)
 		if err != nil {
+			// #nosec G104 -- finish saves the body close error for Close; Err retains this terminal cause.
 			stream.finish(fmt.Errorf("tradeview: decode stream frame: %w", err))
 			return false
 		}
@@ -143,6 +146,8 @@ func (stream *Stream[T]) Next() bool {
 		stream.value = value
 		stream.mu.Unlock()
 		if err := streamAPIError(frame, stream.response.StatusCode); err != nil {
+			// #nosec G104 -- finish saves the body close error for Close; Err retains this terminal cause.
+			// #nosec G104 -- finish saves the body close error for Close; Err retains this terminal cause.
 			stream.finish(err)
 		}
 		return true
@@ -154,6 +159,7 @@ func (stream *Stream[T]) Next() bool {
 	if stream.ctx.Err() != nil {
 		err = stream.ctx.Err()
 	}
+	// #nosec G104 -- finish saves the body close error for Close; Err retains this terminal cause.
 	stream.finish(err)
 	return false
 }
