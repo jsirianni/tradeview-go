@@ -2,10 +2,7 @@ package tradeview
 
 import (
 	"context"
-	"errors"
-	"io"
 	"net/http"
-	"sync"
 	"time"
 
 	"go.opentelemetry.io/otel"
@@ -77,24 +74,11 @@ type telemetry struct {
 	frames     metric.Int64Counter
 }
 
-type typedTelemetryKey struct{}
-
-func typedTelemetryContext(ctx context.Context) context.Context {
-	return context.WithValue(ctx, typedTelemetryKey{}, true)
-}
-
 type operationTelemetry struct {
-	owner    *telemetry
-	ctx      context.Context
-	span     trace.Span
-	start    time.Time
-	attrs    []attribute.KeyValue
-	typed    bool
-	once     sync.Once
-	mu       sync.Mutex
-	status   int
-	bytes    int64
-	closeErr error
+	owner *telemetry
+	ctx   context.Context
+	span  trace.Span
+	attrs []attribute.KeyValue
 }
 
 func (client *Client) startTelemetry(ctx context.Context, operation, method, route string, streaming bool) (context.Context, *operationTelemetry) {
@@ -109,145 +93,35 @@ func (client *Client) startTelemetry(ctx context.Context, operation, method, rou
 		attribute.Bool("tradeview.streaming", streaming),
 	}
 	ctx, span := t.tracer.Start(ctx, "tradeview."+operation, trace.WithSpanKind(trace.SpanKindClient), trace.WithAttributes(attrs...))
-	typed := ctx.Value(typedTelemetryKey{}) == true
-	o := &operationTelemetry{owner: t, ctx: ctx, span: span, start: time.Now(), attrs: attrs, typed: typed}
 	t.active.Add(ctx, 1, metric.WithAttributes(attrs...))
-	return ctx, o
+	return ctx, &operationTelemetry{owner: t, ctx: ctx, span: span, attrs: attrs}
 }
 
-func doObservedRequest(client HttpRequestDoer, request *http.Request, observation *operationTelemetry) (*http.Response, error) {
-	if observation != nil {
-		// Keep request-editor context values and cancellation while supplying the
-		// operation span to the doer, even if an editor replaced the context.
-		request = request.WithContext(trace.ContextWithSpan(request.Context(), observation.span))
-		observation.owner.propagator.Inject(request.Context(), propagation.HeaderCarrier(request.Header))
-	}
-	return doRequest(client, request)
-}
-
-func (o *operationTelemetry) response(response *http.Response, err error) {
-	if o == nil {
-		return
-	}
-	if response != nil {
-		o.status = response.StatusCode
-	}
-	if err != nil {
-		o.finish(err)
-		return
-	}
-	if response == nil || response.Body == nil {
-		o.finish(errors.New("empty response"))
-		return
-	}
-	response.Body = &telemetryBody{ReadCloser: response.Body, observation: o}
-}
-
-type telemetryBody struct {
-	io.ReadCloser
-	observation *operationTelemetry
-}
-
-func (body *telemetryBody) Read(p []byte) (int, error) {
-	n, err := body.ReadCloser.Read(p)
-	o := body.observation
-	o.mu.Lock()
-	o.bytes += int64(n)
-	o.mu.Unlock()
-	if err != nil && !o.typed {
-		o.finish(err)
-	}
-	return n, err
-}
-
-func (body *telemetryBody) Close() error {
-	err := body.ReadCloser.Close()
-	if err != nil {
-		body.observation.mu.Lock()
-		body.observation.closeErr = err
-		body.observation.mu.Unlock()
-	}
-	if !body.observation.typed {
-		body.observation.finish(err)
-	}
-	return err
-}
-
-func responseTelemetry(response *http.Response) *operationTelemetry {
-	if response != nil {
-		if body, ok := response.Body.(*telemetryBody); ok {
-			return body.observation
-		}
-	}
-	return nil
-}
-
-func finishResponseTelemetry(response *http.Response, err error) {
-	responseTelemetry(response).finish(err)
+func (o *operationTelemetry) prepare(request *http.Request) *http.Request {
+	// Keep request-editor context values and cancellation while supplying the
+	// operation span to the doer, even if an editor replaced the context.
+	request = request.WithContext(trace.ContextWithSpan(request.Context(), o.span))
+	o.owner.propagator.Inject(request.Context(), propagation.HeaderCarrier(request.Header))
+	return request
 }
 
 func (o *operationTelemetry) frame() {
-	if o != nil {
-		o.owner.frames.Add(o.ctx, 1, metric.WithAttributes(o.attrs...))
-	}
+	o.owner.frames.Add(o.ctx, 1, metric.WithAttributes(o.attrs...))
 }
 
-func (o *operationTelemetry) finish(err error) {
-	if o == nil {
-		return
+func (o *operationTelemetry) finish(status int, size int64, duration time.Duration, category string) {
+	attrs := append([]attribute.KeyValue(nil), o.attrs...)
+	if status != 0 {
+		attrs = append(attrs, attribute.Int("http.response.status_code", status))
 	}
-	o.once.Do(func() {
-		o.mu.Lock()
-		if err == nil || err == io.EOF {
-			err = o.closeErr
-		}
-		size := o.bytes
-		o.mu.Unlock()
-		category := telemetryErrorType(err)
-		if category == "" && o.status >= 400 {
-			category = "http"
-		}
-		attrs := append([]attribute.KeyValue(nil), o.attrs...)
-		if o.status != 0 {
-			attrs = append(attrs, attribute.Int("http.response.status_code", o.status))
-		}
-		if category != "" {
-			attrs = append(attrs, attribute.String("error.type", category))
-			o.span.SetStatus(codes.Error, category)
-		}
-		o.span.SetAttributes(attrs...)
-		o.owner.completed.Add(o.ctx, 1, metric.WithAttributes(attrs...))
-		o.owner.duration.Record(o.ctx, time.Since(o.start).Seconds(), metric.WithAttributes(attrs...))
-		o.owner.bytes.Record(o.ctx, size, metric.WithAttributes(attrs...))
-		o.owner.active.Add(o.ctx, -1, metric.WithAttributes(o.attrs...))
-		o.span.End()
-	})
-}
-
-func telemetryErrorType(err error) string {
-	if err == nil || err == io.EOF {
-		return ""
+	if category != "" {
+		attrs = append(attrs, attribute.String("error.type", category))
+		o.span.SetStatus(codes.Error, category)
 	}
-	if errors.Is(err, context.Canceled) {
-		return "canceled"
-	}
-	if errors.Is(err, context.DeadlineExceeded) {
-		return "deadline_exceeded"
-	}
-	var apiErr *APIError
-	var httpErr *HTTPError
-	var protocolErr *ProtocolError
-	var sizeErr *ResponseSizeError
-	switch {
-	case errors.As(err, &apiErr):
-		return "api"
-	case errors.As(err, &httpErr):
-		return "http"
-	case errors.As(err, &protocolErr):
-		return "protocol"
-	case errors.As(err, &sizeErr):
-		return "response_size"
-	default:
-		return "client"
-	}
+	o.span.SetAttributes(attrs...)
+	o.owner.completed.Add(o.ctx, 1, metric.WithAttributes(attrs...))
+	o.owner.duration.Record(o.ctx, duration.Seconds(), metric.WithAttributes(attrs...))
+	o.owner.bytes.Record(o.ctx, size, metric.WithAttributes(attrs...))
+	o.owner.active.Add(o.ctx, -1, metric.WithAttributes(o.attrs...))
+	o.span.End()
 }

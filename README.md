@@ -11,5 +11,6 @@ A Go client for the official TradingView broker REST API, connecting application
 - Typed requests, responses, and API errors.
 - Bearer authentication, configurable HTTP clients, request cancellation, and custom order fields.
 - Optional OpenTelemetry tracing and metrics across finite requests and live streams.
+- Optional structured logging to stdout or files with standard Go `slog`.
 
-[Usage](docs/usage.md) | [OpenTelemetry](docs/telemetry.md) | [Development](docs/development.md)
+[Usage](docs/usage.md) | [Logging](docs/logging.md) | [OpenTelemetry](docs/telemetry.md) | [Development](docs/development.md)

@@ -3,10 +3,26 @@ package tradeview_test
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"os"
 	"time"
 
 	"github.com/jsirianni/tradeview-go/pkg/tradeview"
 )
+
+func ExampleWithLogger() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}))
+	client, err := tradeview.NewClientWithResponses("https://broker.example/api",
+		tradeview.WithLogger(logger),
+	)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	_ = client // Use the configured client for finite calls or streams.
+}
 
 func ExampleClientWithResponses_GetAccountsWithResponse() {
 	client, err := tradeview.NewClientWithResponses(

@@ -13,8 +13,8 @@ import (
 	"strings"
 )
 
-// addTelemetry emits static operation metadata so runtime instrumentation never
-// infers route names from URLs containing account or order identifiers.
+// addTelemetry emits shared observation hooks with static operation metadata so
+// logging and telemetry never infer routes from URLs containing identifiers.
 func addTelemetry(path string, operations []operation) error {
 	// #nosec G304 -- Fixed generated output beneath the developer-selected repository root.
 	source, err := os.ReadFile(path)
@@ -52,13 +52,19 @@ func addTelemetry(path string, operations []operation) error {
 	for _, decl := range file.Decls {
 		switch d := decl.(type) {
 		case *ast.GenDecl:
+			if d.Tok == token.IMPORT {
+				if !d.Lparen.IsValid() {
+					return errors.New("generated imports must use a block")
+				}
+				insert(d.Lparen+1, "\n\"log/slog\"")
+			}
 			for _, spec := range d.Specs {
 				if typ, ok := spec.(*ast.TypeSpec); ok && typ.Name.Name == "Client" {
 					st, ok := typ.Type.(*ast.StructType)
 					if !ok {
 						return errors.New("client must be a struct")
 					}
-					insert(st.Fields.Closing, "\ntelemetry *telemetry\n")
+					insert(st.Fields.Closing, "\ntelemetry *telemetry\nlogger *slog.Logger\n")
 					clients++
 				}
 			}
@@ -83,17 +89,17 @@ func addTelemetry(path string, operations []operation) error {
 				if err := namedResults(d); err != nil {
 					return err
 				}
-				insert(d.Body.Lbrace+1, fmt.Sprintf("\nctx, observation := c.startTelemetry(ctx, %q, %q, %q, %t)\ndefer func() { observation.response(result, resultErr) }()\n", op.ID, op.Method, op.Path, op.Streaming))
+				insert(d.Body.Lbrace+1, fmt.Sprintf("\nctx, observation := c.startObservation(ctx, %q, %q, %q, %t)\ndefer func() { observation.response(result, resultErr) }()\n", op.ID, op.Method, op.Path, op.Streaming))
 				seen[op.ID] = true
 			}
 			if receiver == "ClientWithResponses" && strings.HasSuffix(d.Name.Name, "WithResponse") {
-				insert(d.Body.Lbrace+1, "\nctx = typedTelemetryContext(ctx)\n")
+				insert(d.Body.Lbrace+1, "\nctx = typedOperationContext(ctx)\n")
 			}
 			if receiver == "" && strings.HasPrefix(d.Name.Name, "Parse") && strings.HasSuffix(d.Name.Name, "Response") {
 				if err := namedResults(d); err != nil {
 					return err
 				}
-				insert(d.Body.Lbrace+1, "\ndefer func() { finishResponseTelemetry(rsp, resultErr) }()\n")
+				insert(d.Body.Lbrace+1, "\ndefer func() { finishResponseObservation(rsp, resultErr) }()\n")
 				parsers++
 			}
 		}
