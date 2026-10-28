@@ -10,15 +10,15 @@ Go **1.26 or newer** is required. This repository is private; Git must be authen
 gh auth login
 gh auth setup-git
 go env -w GOPRIVATE=github.com/jsirianni/tradeview-go
-go get github.com/jsirianni/tradeview-go@<tag-or-commit>
+go get github.com/jsirianni/tradeview-go/pkg/tradeview@<tag-or-commit>
 ```
 
 Include any existing `GOPRIVATE` patterns in the comma-separated value. Replace `<tag-or-commit>` with the revision you want to consume.
 
-The import path and package name differ:
+Import the public client package:
 
 ```go
-import tradeview "github.com/jsirianni/tradeview-go"
+import "github.com/jsirianni/tradeview-go/pkg/tradeview"
 ```
 
 ## Finite requests

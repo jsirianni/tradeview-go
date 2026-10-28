@@ -1,5 +1,4 @@
-// Command generate applies local schema rules and regenerates the broker client.
-package main
+package generate
 
 import (
 	"bytes"
@@ -13,6 +12,7 @@ import (
 	"go/token"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -38,14 +38,15 @@ type operation struct {
 	Test        string `json:"test"`
 }
 
-func main() {
-	if err := run(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+// Generate applies the pinned schema rules and regenerates the broker package.
+// Root is the repository directory; generation does not change the process's
+// working directory or fetch a new API schema.
+func Generate(root string) error {
+	root, err := filepath.Abs(root)
+	if err != nil {
+		return fmt.Errorf("resolve repository root: %w", err)
 	}
-}
-func run() error {
-	source, err := os.ReadFile("api/broker-rest-api.yaml")
+	source, err := os.ReadFile(filepath.Join(root, "api/broker-rest-api.yaml"))
 	if err != nil {
 		return err
 	}
@@ -53,7 +54,7 @@ func run() error {
 		Version string `json:"version"`
 		SHA256  string `json:"sha256"`
 	}
-	metadataBytes, err := os.ReadFile("api/upstream.json")
+	metadataBytes, err := os.ReadFile(filepath.Join(root, "api/upstream.json"))
 	if err != nil {
 		return err
 	}
@@ -72,7 +73,7 @@ func run() error {
 		return fmt.Errorf("upstream schema version mismatch")
 	}
 	var rules overlay
-	data, err := os.ReadFile("api/overlay.yaml")
+	data, err := os.ReadFile(filepath.Join(root, "api/overlay.yaml"))
 	if err != nil {
 		return err
 	}
@@ -159,13 +160,18 @@ func run() error {
 	if err := temporary.Close(); err != nil {
 		return err
 	}
+	outputPath := filepath.Join(root, "pkg", "tradeview", "api.gen.go")
+	if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
+		return err
+	}
 	command := exec.Command("go", "tool", "oapi-codegen", "--config", "api/oapi-codegen.yaml", tempName)
+	command.Dir = root
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	if err := command.Run(); err != nil {
 		return err
 	}
-	if err := postprocess(streamNames); err != nil {
+	if err := postprocess(outputPath, streamNames); err != nil {
 		return err
 	}
 	inventory, err := json.MarshalIndent(operations, "", "  ")
@@ -173,7 +179,7 @@ func run() error {
 		return err
 	}
 	inventory = append(inventory, '\n')
-	if err := os.WriteFile("api/operations.json", inventory, 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(root, "api", "operations.json"), inventory, 0644); err != nil {
 		return err
 	}
 	fmt.Printf("Generated %d operations (%d finite, %d streaming).\n", len(operations), len(operations)-len(streamNames), len(streamNames))
@@ -194,8 +200,8 @@ func applyNumbers(value any, format string) {
 		}
 	}
 }
-func postprocess(streamNames map[string]bool) error {
-	source, err := os.ReadFile("api.gen.go")
+func postprocess(path string, streamNames map[string]bool) error {
+	source, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -203,7 +209,7 @@ func postprocess(streamNames map[string]bool) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile("api.gen.go", output, 0644)
+	return os.WriteFile(path, output, 0644)
 }
 func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 	source = bytes.ReplaceAll(source, []byte("runtime.MarshalForm(body, nil)"), []byte("encodeForm(body)"))

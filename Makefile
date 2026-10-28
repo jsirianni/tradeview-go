@@ -61,8 +61,8 @@ generate:
 	$(GO) generate ./...
 
 generate-check: generate
-	git diff --exit-code -- api.gen.go api/operations.json
-	git diff --cached --exit-code -- api.gen.go api/operations.json
+	git diff --exit-code -- pkg/tradeview/api.gen.go api/operations.json
+	git diff --cached --exit-code -- pkg/tradeview/api.gen.go api/operations.json
 
 deps:
 	$(GO) mod download

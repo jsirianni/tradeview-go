@@ -2,6 +2,14 @@
 
 Use Go 1.26 or newer, Git, and GNU Make 4.2 or newer on your PATH. The Makefile works with native Windows command shells and Linux. On Windows, GNU Make is available through Chocolatey (`choco install make --version=4.4.1`).
 
+## Packages
+
+- `pkg/tradeview/` contains the public client, generated bindings, and client tests.
+- `internal/generate/` contains schema generation support and its tests.
+- `api/` contains the pinned schema, generation rules, and operation inventory.
+
+The repository root holds module metadata, build tasks, and documentation. All Go source belongs to packages; there is no application entry point.
+
 ## Common tasks
 
 Run commands from the repository root:
@@ -36,9 +44,9 @@ Override `GO` and `GOFMT` to select tool executables. `TEST_ARGS` passes additio
 
 The upstream YAML, source metadata, compatibility overlay, generator configuration, and operation inventory are committed under `api/`. See [schema maintenance](../api/README.md) for the exact files and overlay rules. The original upstream file remains unchanged; generation applies documented local corrections separately.
 
-The generator is pinned to `oapi-codegen` **v2.8.1** as a Go tool dependency. Generated files are committed so module consumers do not need to run it.
+The generator uses `oapi-codegen` **v2.8.1**, pinned as a Go tool dependency. `make generate` explicitly invokes the regeneration hook in the `internal/generate` package. Ordinary test runs leave generated files unchanged. Generated files are committed so module consumers do not need to regenerate them.
 
-`make generate-check` runs generation and checks only the tracked generated files, `api.gen.go` and `api/operations.json`. Both staged and unstaged differences cause it to fail. Other working-tree changes do not affect that target. `make ci` completes generation checking before starting readers of the generated code, including when Make runs with parallel jobs.
+`make generate-check` runs generation and checks only the tracked generated files, `pkg/tradeview/api.gen.go` and `api/operations.json`. Both staged and unstaged differences cause it to fail. Other working-tree changes do not affect that target. `make ci` completes generation checking before starting readers of the generated code, including when Make runs with parallel jobs.
 
 Generation uses the committed schema and does not fetch a new API revision. To update the contract, replace the upstream schema deliberately, record its version/source/checksum, review the compatibility overlay, regenerate, and update the operation inventory and transport fixtures together. Review all resulting API changes before committing.
 

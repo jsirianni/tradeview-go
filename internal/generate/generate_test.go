@@ -1,9 +1,15 @@
-package main
+package generate
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"flag"
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -90,5 +96,56 @@ func TestRewriteClientProtectsDotPathIdentifiers(t *testing.T) {
 	expected := `fmt.Sprintf("/accounts/%s/orders/%s", escapeDotPathSegment(pathParam0), escapeDotPathSegment(pathParam1))`
 	if !strings.Contains(string(output), expected) {
 		t.Fatalf("path parameters lack dot-segment protection:\n%s", output)
+	}
+}
+
+var writeBindings = flag.Bool("write", false, "regenerate committed broker bindings")
+
+// TestRegenerateBindings writes generated source only when explicitly requested
+// by go generate. The ordinary test suite keeps the checkout read-only.
+func TestRegenerateBindings(t *testing.T) {
+	if !*writeBindings {
+		t.Skip("regeneration requires -write; use go generate ./...")
+	}
+	if err := Generate(filepath.Join("..", "..")); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGenerateChecksExplicitRootBeforeWriting(t *testing.T) {
+	root := t.TempDir()
+	api := filepath.Join(root, "api")
+	if err := os.MkdirAll(api, 0755); err != nil {
+		t.Fatal(err)
+	}
+	schema := []byte("openapi: 3.0.0\n")
+	if err := os.WriteFile(filepath.Join(api, "broker-rest-api.yaml"), schema, 0644); err != nil {
+		t.Fatal(err)
+	}
+	wrongDigest := sha256.Sum256([]byte("different schema"))
+	metadata, err := json.Marshal(map[string]string{"version": "1.21.0", "sha256": hex.EncodeToString(wrongDigest[:])})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(api, "upstream.json"), metadata, 0644); err != nil {
+		t.Fatal(err)
+	}
+	before, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = Generate(root)
+	if err == nil || !strings.Contains(err.Error(), "checksum mismatch") {
+		t.Fatalf("Generate(root) error = %v, want checksum mismatch from the supplied root", err)
+	}
+	after, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if after != before {
+		t.Fatalf("Generate changed working directory: %s -> %s", before, after)
+	}
+	if _, err := os.Stat(filepath.Join(root, "pkg")); !os.IsNotExist(err) {
+		t.Fatalf("Generate wrote package output before source verification: %v", err)
 	}
 }

@@ -92,7 +92,7 @@ type fixtureContract struct {
 
 func loadFixtureContract(t *testing.T) fixtureContract {
 	t.Helper()
-	data, err := os.ReadFile("api/broker-rest-api.yaml")
+	data, err := os.ReadFile("../../api/broker-rest-api.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -113,7 +113,7 @@ func loadFixtureContract(t *testing.T) fixtureContract {
 			}
 		}
 	}
-	data, err = os.ReadFile("api/operations.json")
+	data, err = os.ReadFile("../../api/operations.json")
 	if err != nil {
 		t.Fatal(err)
 	}

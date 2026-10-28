@@ -1,5 +1,5 @@
 package: tradeview
-output: api.gen.go
+output: pkg/tradeview/api.gen.go
 generate:
   models: true
   client: true
