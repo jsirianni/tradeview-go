@@ -19139,7 +19139,7 @@ func ParseGetAccountsResponse(rsp *http.Response) (*GetAccountsResponse, error) 
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetAccountsResponse{
@@ -19148,10 +19148,10 @@ func ParseGetAccountsResponse(rsp *http.Response) (*GetAccountsResponse, error) 
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetAccounts200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19168,7 +19168,7 @@ func ParseGetBalancesResponse(rsp *http.Response) (*GetBalancesResponse, error) 
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetBalancesResponse{
@@ -19177,10 +19177,10 @@ func ParseGetBalancesResponse(rsp *http.Response) (*GetBalancesResponse, error) 
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetBalances200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19197,7 +19197,7 @@ func ParseGetExecutionsResponse(rsp *http.Response) (*GetExecutionsResponse, err
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetExecutionsResponse{
@@ -19206,10 +19206,10 @@ func ParseGetExecutionsResponse(rsp *http.Response) (*GetExecutionsResponse, err
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetExecutions200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19226,7 +19226,7 @@ func ParseGetLeverageResponse(rsp *http.Response) (*GetLeverageResponse, error) 
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetLeverageResponse{
@@ -19235,10 +19235,10 @@ func ParseGetLeverageResponse(rsp *http.Response) (*GetLeverageResponse, error) 
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetLeverage200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19255,7 +19255,7 @@ func ParseGetIndividualPositionsResponse(rsp *http.Response) (*GetIndividualPosi
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetIndividualPositionsResponse{
@@ -19264,10 +19264,10 @@ func ParseGetIndividualPositionsResponse(rsp *http.Response) (*GetIndividualPosi
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetIndividualPositions200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19284,7 +19284,7 @@ func ParseCloseIndividualPositionResponse(rsp *http.Response) (*CloseIndividualP
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &CloseIndividualPositionResponse{
@@ -19293,10 +19293,10 @@ func ParseCloseIndividualPositionResponse(rsp *http.Response) (*CloseIndividualP
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest CloseIndividualPosition200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19313,7 +19313,7 @@ func ParseModifyIndividualPositionResponse(rsp *http.Response) (*ModifyIndividua
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &ModifyIndividualPositionResponse{
@@ -19322,10 +19322,10 @@ func ParseModifyIndividualPositionResponse(rsp *http.Response) (*ModifyIndividua
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest ModifyIndividualPosition200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19342,7 +19342,7 @@ func ParseGetInstrumentsResponse(rsp *http.Response) (*GetInstrumentsResponse, e
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetInstrumentsResponse{
@@ -19351,10 +19351,10 @@ func ParseGetInstrumentsResponse(rsp *http.Response) (*GetInstrumentsResponse, e
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetInstruments200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19371,7 +19371,7 @@ func ParseGetNetPositionsResponse(rsp *http.Response) (*GetNetPositionsResponse,
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetNetPositionsResponse{
@@ -19380,10 +19380,10 @@ func ParseGetNetPositionsResponse(rsp *http.Response) (*GetNetPositionsResponse,
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetNetPositions200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19400,7 +19400,7 @@ func ParseCloseNetPositionResponse(rsp *http.Response) (*CloseNetPositionRespons
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &CloseNetPositionResponse{
@@ -19409,10 +19409,10 @@ func ParseCloseNetPositionResponse(rsp *http.Response) (*CloseNetPositionRespons
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest CloseNetPosition200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19429,7 +19429,7 @@ func ParseOrderInfoResponse(rsp *http.Response) (*OrderInfoResponse, error) {
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &OrderInfoResponse{
@@ -19438,10 +19438,10 @@ func ParseOrderInfoResponse(rsp *http.Response) (*OrderInfoResponse, error) {
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest OrderInfo200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19458,7 +19458,7 @@ func ParseGetOrdersResponse(rsp *http.Response) (*GetOrdersResponse, error) {
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetOrdersResponse{
@@ -19467,10 +19467,10 @@ func ParseGetOrdersResponse(rsp *http.Response) (*GetOrdersResponse, error) {
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetOrders200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19487,7 +19487,7 @@ func ParsePlaceOrderResponse(rsp *http.Response) (*PlaceOrderResponse, error) {
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &PlaceOrderResponse{
@@ -19496,10 +19496,10 @@ func ParsePlaceOrderResponse(rsp *http.Response) (*PlaceOrderResponse, error) {
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest PlaceOrder200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19516,7 +19516,7 @@ func ParseCancelAllOrdersResponse(rsp *http.Response) (*CancelAllOrdersResponse,
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &CancelAllOrdersResponse{
@@ -19525,10 +19525,10 @@ func ParseCancelAllOrdersResponse(rsp *http.Response) (*CancelAllOrdersResponse,
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest CancelAllOrders200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19545,7 +19545,7 @@ func ParseCancelOrderResponse(rsp *http.Response) (*CancelOrderResponse, error) 
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &CancelOrderResponse{
@@ -19554,10 +19554,10 @@ func ParseCancelOrderResponse(rsp *http.Response) (*CancelOrderResponse, error) 
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest CancelOrder200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19574,7 +19574,7 @@ func ParseModifyOrderResponse(rsp *http.Response) (*ModifyOrderResponse, error) 
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &ModifyOrderResponse{
@@ -19583,10 +19583,10 @@ func ParseModifyOrderResponse(rsp *http.Response) (*ModifyOrderResponse, error) 
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest ModifyOrder200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19603,7 +19603,7 @@ func ParseGetOrdersHistoryResponse(rsp *http.Response) (*GetOrdersHistoryRespons
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetOrdersHistoryResponse{
@@ -19612,10 +19612,10 @@ func ParseGetOrdersHistoryResponse(rsp *http.Response) (*GetOrdersHistoryRespons
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetOrdersHistory200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19632,7 +19632,7 @@ func ParseGetPositionsResponse(rsp *http.Response) (*GetPositionsResponse, error
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetPositionsResponse{
@@ -19641,10 +19641,10 @@ func ParseGetPositionsResponse(rsp *http.Response) (*GetPositionsResponse, error
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetPositions200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19661,7 +19661,7 @@ func ParseClosePositionResponse(rsp *http.Response) (*ClosePositionResponse, err
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &ClosePositionResponse{
@@ -19670,10 +19670,10 @@ func ParseClosePositionResponse(rsp *http.Response) (*ClosePositionResponse, err
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest ClosePosition200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19690,7 +19690,7 @@ func ParseModifyPositionResponse(rsp *http.Response) (*ModifyPositionResponse, e
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &ModifyPositionResponse{
@@ -19699,10 +19699,10 @@ func ParseModifyPositionResponse(rsp *http.Response) (*ModifyPositionResponse, e
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest ModifyPosition200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19719,7 +19719,7 @@ func ParsePreviewClosePositionResponse(rsp *http.Response) (*PreviewClosePositio
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &PreviewClosePositionResponse{
@@ -19728,10 +19728,10 @@ func ParsePreviewClosePositionResponse(rsp *http.Response) (*PreviewClosePositio
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest PreviewClosePosition200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19748,7 +19748,7 @@ func ParsePreviewLeverageResponse(rsp *http.Response) (*PreviewLeverageResponse,
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &PreviewLeverageResponse{
@@ -19757,10 +19757,10 @@ func ParsePreviewLeverageResponse(rsp *http.Response) (*PreviewLeverageResponse,
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest PreviewLeverage200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19777,7 +19777,7 @@ func ParsePreviewOrderResponse(rsp *http.Response) (*PreviewOrderResponse, error
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &PreviewOrderResponse{
@@ -19786,10 +19786,10 @@ func ParsePreviewOrderResponse(rsp *http.Response) (*PreviewOrderResponse, error
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest PreviewOrder200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19806,7 +19806,7 @@ func ParseSetLeverageResponse(rsp *http.Response) (*SetLeverageResponse, error) 
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &SetLeverageResponse{
@@ -19815,10 +19815,10 @@ func ParseSetLeverageResponse(rsp *http.Response) (*SetLeverageResponse, error) 
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest SetLeverage200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19835,7 +19835,7 @@ func ParseGetStateResponse(rsp *http.Response) (*GetStateResponse, error) {
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetStateResponse{
@@ -19844,10 +19844,10 @@ func ParseGetStateResponse(rsp *http.Response) (*GetStateResponse, error) {
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetState200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19864,7 +19864,7 @@ func ParseTrackLatencyResponse(rsp *http.Response) (*TrackLatencyResponse, error
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &TrackLatencyResponse{
@@ -19873,10 +19873,10 @@ func ParseTrackLatencyResponse(rsp *http.Response) (*TrackLatencyResponse, error
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest SuccessResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19893,7 +19893,7 @@ func ParseAuthorizeResponse(rsp *http.Response) (*AuthorizeResponse, error) {
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &AuthorizeResponse{
@@ -19902,10 +19902,10 @@ func ParseAuthorizeResponse(rsp *http.Response) (*AuthorizeResponse, error) {
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest Authorize200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19922,7 +19922,7 @@ func ParseGetConfigurationResponse(rsp *http.Response) (*GetConfigurationRespons
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetConfigurationResponse{
@@ -19931,10 +19931,10 @@ func ParseGetConfigurationResponse(rsp *http.Response) (*GetConfigurationRespons
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetConfiguration200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19951,7 +19951,7 @@ func ParseGetDepthResponse(rsp *http.Response) (*GetDepthResponse, error) {
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetDepthResponse{
@@ -19960,10 +19960,10 @@ func ParseGetDepthResponse(rsp *http.Response) (*GetDepthResponse, error) {
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetDepth200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -19980,7 +19980,7 @@ func ParseGetGroupsResponse(rsp *http.Response) (*GetGroupsResponse, error) {
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetGroupsResponse{
@@ -19989,10 +19989,10 @@ func ParseGetGroupsResponse(rsp *http.Response) (*GetGroupsResponse, error) {
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetGroups200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -20009,7 +20009,7 @@ func ParseGetHistoryResponse(rsp *http.Response) (*GetHistoryResponse, error) {
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetHistoryResponse{
@@ -20018,10 +20018,10 @@ func ParseGetHistoryResponse(rsp *http.Response) (*GetHistoryResponse, error) {
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetHistory200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -20038,7 +20038,7 @@ func ParseLogoutResponse(rsp *http.Response) (*LogoutResponse, error) {
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &LogoutResponse{
@@ -20047,10 +20047,10 @@ func ParseLogoutResponse(rsp *http.Response) (*LogoutResponse, error) {
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest Logout200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -20067,7 +20067,7 @@ func ParseGetMappingResponse(rsp *http.Response) (*GetMappingResponse, error) {
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetMappingResponse{
@@ -20076,10 +20076,10 @@ func ParseGetMappingResponse(rsp *http.Response) (*GetMappingResponse, error) {
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest MappingResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -20096,7 +20096,7 @@ func ParseGetPermissionsResponse(rsp *http.Response) (*GetPermissionsResponse, e
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetPermissionsResponse{
@@ -20105,10 +20105,10 @@ func ParseGetPermissionsResponse(rsp *http.Response) (*GetPermissionsResponse, e
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetPermissions200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -20125,7 +20125,7 @@ func ParsePostPromotionReportResponse(rsp *http.Response) (*PostPromotionReportR
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &PostPromotionReportResponse{
@@ -20134,10 +20134,10 @@ func ParsePostPromotionReportResponse(rsp *http.Response) (*PostPromotionReportR
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest PostPromotionReport200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -20154,7 +20154,7 @@ func ParseGetQuotesResponse(rsp *http.Response) (*GetQuotesResponse, error) {
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetQuotesResponse{
@@ -20163,10 +20163,10 @@ func ParseGetQuotesResponse(rsp *http.Response) (*GetQuotesResponse, error) {
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetQuotes200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -20183,7 +20183,7 @@ func ParseGetSymbolInfoResponse(rsp *http.Response) (*GetSymbolInfoResponse, err
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetSymbolInfoResponse{
@@ -20192,10 +20192,10 @@ func ParseGetSymbolInfoResponse(rsp *http.Response) (*GetSymbolInfoResponse, err
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetSymbolInfo200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 
@@ -20212,7 +20212,7 @@ func ParseGetUserInfoResponse(rsp *http.Response) (*GetUserInfoResponse, error) 
 		return nil, err
 	}
 
-	if err := responseError(bodyBytes, rsp); err != nil {
+	if err := finiteResponseError(bodyBytes, rsp); err != nil {
 		return nil, err
 	}
 	response := &GetUserInfoResponse{
@@ -20221,10 +20221,10 @@ func ParseGetUserInfoResponse(rsp *http.Response) (*GetUserInfoResponse, error) 
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+	case rsp.StatusCode == http.StatusOK:
 		var dest GetUserInfo200JSONResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
+			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
 		response.JSON200 = &dest
 

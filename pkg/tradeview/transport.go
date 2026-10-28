@@ -39,6 +39,58 @@ func (e *HTTPError) Error() string {
 	return fmt.Sprintf("tradeview: HTTP %d %s", e.StatusCode, http.StatusText(e.StatusCode))
 }
 
+// ProtocolError reports a response that cannot be decoded as a declared finite
+// response. Body retains the original payload; Err describes the failure.
+// Unwrap preserves access to underlying JSON decoding errors.
+type ProtocolError struct {
+	StatusCode  int
+	ContentType string
+	Body        []byte
+	Err         error
+}
+
+func (e *ProtocolError) Error() string {
+	return fmt.Sprintf("tradeview: invalid HTTP %d response: %v", e.StatusCode, e.Err)
+}
+
+func (e *ProtocolError) Unwrap() error { return e.Err }
+
+func newProtocolError(body []byte, response *http.Response, err error) *ProtocolError {
+	return &ProtocolError{
+		StatusCode: response.StatusCode, ContentType: response.Header.Get("Content-Type"),
+		Body: bytes.Clone(body), Err: err,
+	}
+}
+
+// finiteResponseError validates the pinned contract's HTTP 200 JSON response.
+// Streams have their own status/frame handling and use responseError directly.
+func finiteResponseError(body []byte, response *http.Response) error {
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		return responseError(body, response)
+	}
+	if response.StatusCode != http.StatusOK {
+		return newProtocolError(body, response, fmt.Errorf("unexpected success status; expected HTTP 200"))
+	}
+	// Preserve broker errors even when a proxy supplies an incorrect media type.
+	if err := responseError(body, response); err != nil {
+		return err
+	}
+	if !isJSONMediaType(response.Header.Get("Content-Type")) {
+		return newProtocolError(body, response, fmt.Errorf("expected a JSON Content-Type, received %q", response.Header.Get("Content-Type")))
+	}
+	return nil
+}
+
+func isJSONMediaType(contentType string) bool {
+	mediaType, _, err := mime.ParseMediaType(contentType)
+	if err != nil {
+		return false
+	}
+	mediaType = strings.ToLower(mediaType)
+	return mediaType == "application/json" ||
+		(strings.HasPrefix(mediaType, "application/") && strings.HasSuffix(mediaType, "+json") && len(mediaType) > len("application/+json"))
+}
+
 func responseError(body []byte, response *http.Response) error {
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return &HTTPError{StatusCode: response.StatusCode, Status: response.Status, Body: bytes.Clone(body)}

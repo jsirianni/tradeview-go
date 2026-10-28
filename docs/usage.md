@@ -101,7 +101,7 @@ Account events retain typed data, ping and error variants, plus the raw JSON fra
 
 ## Errors and form fields
 
-Typed finite methods return `*APIError` for an `s: "error"` response, including HTTP-200 errors. Its fields are `StatusCode`, `Code` (the upstream `errtype`), `Message` (the upstream `errmsg`), and `Body`. Non-success HTTP responses return `*HTTPError` with `StatusCode`, `Status`, and `Body`. Use `errors.As` to inspect either type. Malformed responses and transport failures also return errors.
+Typed finite methods return `*APIError` for an `s: "error"` response, including HTTP-200 errors. Its fields are `StatusCode`, `Code` (the upstream `errtype`), `Message` (the upstream `errmsg`), and `Body`. Non-success HTTP responses return `*HTTPError` with `StatusCode`, `Status`, and `Body`. Use `errors.As` to inspect these types. Undeclared successful status codes, missing or non-JSON content types, and malformed JSON return `*ProtocolError` with `StatusCode`, `ContentType`, `Body`, and `Err`. Its `Unwrap` method preserves underlying JSON errors. Typed finite responses require HTTP 200 and `application/json` or an application media type ending in `+json`; media-type parameters are supported. Raw methods remain available for inspecting arbitrary responses. Transport failures also return errors.
 
 Generated forms cover POST, PUT, and DELETE requests. Scalar arrays use repeated form keys; nested values such as `exitLevels` use a compact JSON field. Instrument `symbols` queries use comma-separated values as documented upstream.
 

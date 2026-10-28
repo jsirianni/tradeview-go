@@ -256,16 +256,66 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 				continue
 			}
 			if strings.HasPrefix(d.Name.Name, "Parse") && strings.HasSuffix(d.Name.Name, "Response") {
+				guards, cases, decoders := 0, 0, 0
 				// Each finite parser reads bodyBytes before constructing its response wrapper.
 				for _, stmt := range d.Body.List {
 					if assign, ok := stmt.(*ast.AssignStmt); ok {
 						for _, lhs := range assign.Lhs {
 							if identifier, ok := lhs.(*ast.Ident); ok && identifier.Name == "response" {
 								offset := fset.Position(stmt.Pos()).Offset
-								edits = append(edits, edit{offset, offset, "if err := responseError(bodyBytes, rsp); err != nil { return nil, err }\n"})
+								edits = append(edits, edit{offset, offset, "if err := finiteResponseError(bodyBytes, rsp); err != nil { return nil, err }\n"})
+								guards++
 							}
 						}
 					}
+				}
+				ast.Inspect(d.Body, func(node ast.Node) bool {
+					switch n := node.(type) {
+					case *ast.CaseClause:
+						if len(n.List) != 1 {
+							return true
+						}
+						var condition bytes.Buffer
+						if err := format.Node(&condition, fset, n.List[0]); err != nil {
+							return true
+						}
+						if condition.String() == `strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200` {
+							// The guard uses parsed media types, including JSON suffixes and parameters.
+							edits = append(edits, edit{fset.Position(n.List[0].Pos()).Offset, fset.Position(n.List[0].End()).Offset, "rsp.StatusCode == http.StatusOK"})
+							cases++
+						}
+					case *ast.IfStmt:
+						assignment, ok := n.Init.(*ast.AssignStmt)
+						if !ok || len(assignment.Rhs) != 1 || len(n.Body.List) != 1 {
+							return true
+						}
+						call, ok := assignment.Rhs[0].(*ast.CallExpr)
+						if !ok {
+							return true
+						}
+						selector, ok := call.Fun.(*ast.SelectorExpr)
+						if !ok || selector.Sel.Name != "Unmarshal" {
+							return true
+						}
+						pkg, ok := selector.X.(*ast.Ident)
+						if !ok || pkg.Name != "json" {
+							return true
+						}
+						result, ok := n.Body.List[0].(*ast.ReturnStmt)
+						if !ok || len(result.Results) != 2 {
+							return true
+						}
+						cause, ok := result.Results[1].(*ast.Ident)
+						if !ok || cause.Name != "err" {
+							return true
+						}
+						edits = append(edits, edit{fset.Position(cause.Pos()).Offset, fset.Position(cause.End()).Offset, "newProtocolError(bodyBytes, rsp, err)"})
+						decoders++
+					}
+					return true
+				})
+				if guards != 1 || cases != 1 || decoders != 1 {
+					return nil, fmt.Errorf("unsupported finite parser shape in %s: guards=%d cases=%d decoders=%d", d.Name.Name, guards, cases, decoders)
 				}
 			}
 		case *ast.GenDecl:
