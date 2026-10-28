@@ -32,11 +32,13 @@ make test TEST_ARGS="-run TestOperationTransport -count=1"
 | `fmt` / `fmt-check` | Format Go sources or check formatting. |
 | `vet` | Run Go's static checks. |
 | `staticcheck` | Run pinned Staticcheck analysis on all packages and normal tests. |
+| `lint` | Run Revive v1.17.1 with the committed three-rule configuration. |
+| `lint-smoke` | Prove each configured Revive rule rejects a violation. |
 | `govulncheck` | Record tool versions and scan all packages for reachable known vulnerabilities. |
 | `generate` | Regenerate bindings and the operation inventory. |
 | `generate-check` | Regenerate and reject differences in tracked generated outputs. |
 | `deps` / `tidy` | Download dependencies or tidy module metadata. |
-| `check` | Check formatting, vet, Staticcheck, and tests. |
+| `check` | Check formatting, vet, Staticcheck, Revive, and tests. |
 | `ci` | Check generation, then run checks, build, race tests, and govulncheck. |
 | `clean` | Clean package build artifacts and remove coverage reports. |
 
@@ -61,6 +63,10 @@ CI runs one Linux job with Go 1.27, selecting the latest available patch at or a
 The scan is part of `make ci` on PRs and main. CI also runs every Monday at 09:23 UTC and can be dispatched manually, so new advisories are checked without source changes. CI explicitly selects the live database at `https://vuln.go.dev` and retains scanner output in job logs. Reachable vulnerability findings, scanner failures, database failures, and package-loading failures fail the job. Imported-but-unreachable advisories are informational and are not evidence of an exploitable application path.
 
 Source analysis does not execute the application or discover new application-specific vulnerabilities. `./...` covers this module's packages, not every dependency of the separately invoked `oapi-codegen` binary or the analysis tool itself. Review those tools separately when updating their pinned versions. No advisories are suppressed; any future exception must name the advisory, rationale, owner, and review date or expiry condition. Keep the Go patch baseline and scanner compatible and current when upgrading.
+
+## Revive
+
+`make lint` runs pinned Revive with the configured unchecked assertion, builtin shadowing, and unnecessary formatting rules. The smoke target requires the expected diagnostic for each intentional violation and checks corrected code.
 
 ## Staticcheck
 

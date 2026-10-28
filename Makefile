@@ -2,12 +2,13 @@ GO ?= go
 GOFMT ?= gofmt
 STATICCHECK_VERSION := v0.8.2
 STATICCHECK_PACKAGES ?= ./...
+REVIVE = $(GO) run github.com/mgechev/revive@v1.17.1
 GOVULNCHECK_VERSION := v1.9.0
 TEST_ARGS ?=
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build test test-race coverage coverage-html fmt fmt-check vet staticcheck govulncheck generate generate-check deps tidy check ci clean
+.PHONY: help build test test-race coverage coverage-html fmt fmt-check vet staticcheck govulncheck lint lint-smoke generate generate-check deps tidy check ci clean
 
 help:
 	@echo make build - Build all Go packages
@@ -20,6 +21,8 @@ help:
 	@echo make vet - Run Go static analysis
 	@echo make staticcheck - Run pinned Staticcheck analysis
 	@echo make govulncheck - Check reachable known vulnerabilities
+	@echo make lint - Run pinned Revive rules on handwritten Go code
+	@echo make lint-smoke - Prove configured Revive rules reject violations
 	@echo make generate - Regenerate bindings from the pinned schema
 	@echo make generate-check - Regenerate and check committed bindings
 	@echo make deps - Download module dependencies
@@ -64,6 +67,13 @@ govulncheck:
 	$(GO) run golang.org/x/vuln/cmd/govulncheck@$(GOVULNCHECK_VERSION) -version
 	$(GO) run golang.org/x/vuln/cmd/govulncheck@$(GOVULNCHECK_VERSION) ./...
 
+lint:
+	$(REVIVE) -config revive.toml -formatter friendly ./...
+	sh scripts/check-revive.sh $(REVIVE)
+
+lint-smoke:
+	sh scripts/check-revive.sh $(REVIVE)
+
 generate:
 	$(GO) generate ./...
 
@@ -77,7 +87,7 @@ deps:
 tidy:
 	$(GO) mod tidy
 
-check: fmt-check vet staticcheck test
+check: fmt-check vet staticcheck lint test
 
 # Finish generation before readers start, even when invoked with make -j.
 ci: generate-check

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime"
@@ -85,6 +86,7 @@ type operationEntry struct {
 	Test        string `json:"test"`
 }
 type fixtureContract struct {
+	t          *testing.T
 	source     map[string]any
 	operations map[string]map[string]any
 	manifest   map[string]operationEntry
@@ -100,9 +102,9 @@ func loadFixtureContract(t *testing.T) fixtureContract {
 	if err := yaml.Unmarshal(data, &source); err != nil {
 		t.Fatal(err)
 	}
-	result := fixtureContract{source: source, operations: make(map[string]map[string]any, len(_operationFixtures)), manifest: make(map[string]operationEntry, len(_operationFixtures))}
-	for _, pathValue := range source["paths"].(map[string]any) {
-		for _, operationValue := range pathValue.(map[string]any) {
+	result := fixtureContract{t: t, source: source, operations: make(map[string]map[string]any, len(_operationFixtures)), manifest: make(map[string]operationEntry, len(_operationFixtures))}
+	for _, pathValue := range fixtureValue[map[string]any](t, source["paths"]) {
+		for _, operationValue := range fixtureValue[map[string]any](t, pathValue) {
 			operation, ok := operationValue.(map[string]any)
 			if !ok {
 				continue
@@ -132,7 +134,7 @@ func loadFixtureContract(t *testing.T) fixtureContract {
 
 func TestOperationInventory(t *testing.T) {
 	contract := loadFixtureContract(t)
-	paths := contract.source["paths"].(map[string]any)
+	paths := fixtureValue[map[string]any](t, contract.source["paths"])
 	if len(paths) != 43 || len(contract.operations) != 47 || len(contract.manifest) != 47 || len(_operationFixtures) != 47 {
 		t.Fatalf("coverage count mismatch: paths=%d operations=%d manifest=%d fixtures=%d", len(paths), len(contract.operations), len(contract.manifest), len(_operationFixtures))
 	}
@@ -149,7 +151,7 @@ func TestOperationInventory(t *testing.T) {
 		if !exists {
 			t.Fatalf("fixture %q missing upstream", fixture.id)
 		}
-		pathOperation := paths[fixture.path].(map[string]any)[strings.ToLower(fixture.method)].(map[string]any)
+		pathOperation := fixtureValue[map[string]any](t, fixtureValue[map[string]any](t, paths[fixture.path])[strings.ToLower(fixture.method)])
 		if pathOperation["operationId"] != fixture.id {
 			t.Errorf("%s does not match its upstream route", fixture.id)
 		}
@@ -220,10 +222,10 @@ func TestOperationTransport(t *testing.T) {
 					t.Errorf("query: got %v want %v", r.URL.Query(), expectedQuery)
 				}
 				if r.Header.Get("Authorization") != "Bearer fixture-token" {
-					t.Errorf("missing bearer token")
+					t.Error("missing bearer token")
 				}
 				if r.Header.Get("X-Fixture-Context") != fixture.id {
-					t.Errorf("request context did not reach request editor")
+					t.Error("request context did not reach request editor")
 				}
 				assertFixtureBody(t, r, mediaType, bodySample)
 				w.Header().Set("Content-Type", "application/json")
@@ -231,7 +233,10 @@ func TestOperationTransport(t *testing.T) {
 			}))
 			defer server.Close()
 			client, err := NewClient(server.URL+"/fixture-api", WithBearerToken("fixture-token"), WithRequestEditorFn(func(ctx context.Context, r *http.Request) error {
-				id, _ := ctx.Value(fixtureContextKey{}).(string)
+				id, ok := ctx.Value(fixtureContextKey{}).(string)
+				if !ok {
+					return errors.New("fixture context ID must be a string")
+				}
 				r.Header.Set("X-Fixture-Context", id)
 				return nil
 			}))
@@ -243,7 +248,7 @@ func TestOperationTransport(t *testing.T) {
 			if !results[1].IsNil() {
 				t.Fatal(results[1].Interface().(error))
 			}
-			response := results[0].Interface().(*http.Response)
+			response := fixtureValue[*http.Response](t, results[0].Interface())
 			data, err := io.ReadAll(response.Body)
 			closeErr := response.Body.Close()
 			if err != nil || closeErr != nil {
@@ -366,23 +371,26 @@ func (c fixtureContract) resolve(value map[string]any) map[string]any {
 		}
 		var node any = c.source
 		for _, key := range strings.Split(strings.TrimPrefix(ref, "#/"), "/") {
-			node = node.(map[string]any)[strings.ReplaceAll(strings.ReplaceAll(key, "~1", "/"), "~0", "~")]
+			node = fixtureValue[map[string]any](c.t, node)[strings.ReplaceAll(strings.ReplaceAll(key, "~1", "/"), "~0", "~")]
 		}
-		value = node.(map[string]any)
+		value = fixtureValue[map[string]any](c.t, node)
 	}
 }
 
 func (c fixtureContract) queryFixture(id string, operation map[string]any) (map[string]any, url.Values) {
-	parameters, _ := operation["parameters"].([]any)
+	parameters, ok := operation["parameters"].([]any)
+	if !ok && operation["parameters"] != nil {
+		c.t.Fatal("fixture parameters must be an array")
+	}
 	values := make(map[string]any, len(parameters))
 	expected := make(url.Values, len(parameters))
 	for _, parameterValue := range parameters {
-		parameter := c.resolve(parameterValue.(map[string]any))
+		parameter := c.resolve(fixtureValue[map[string]any](c.t, parameterValue))
 		if parameter["in"] != "query" {
 			continue
 		}
-		name := parameter["name"].(string)
-		schema := parameter["schema"].(map[string]any)
+		name := fixtureValue[string](c.t, parameter["name"])
+		schema := fixtureValue[map[string]any](c.t, parameter["schema"])
 		sample := c.sample(schema, 0)
 		if name == "locale" {
 			sample = "en"
@@ -414,10 +422,10 @@ func (c fixtureContract) requestBody(operation map[string]any) (string, any) {
 		return "", nil
 	}
 	body = c.resolve(body)
-	content := body["content"].(map[string]any)
+	content := fixtureValue[map[string]any](c.t, body["content"])
 	for _, mediaType := range []string{"application/x-www-form-urlencoded", "application/json"} {
 		if item, ok := content[mediaType].(map[string]any); ok {
-			return mediaType, c.sample(item["schema"].(map[string]any), 0)
+			return mediaType, c.sample(fixtureValue[map[string]any](c.t, item["schema"]), 0)
 		}
 	}
 	panic("unexpected request media type")
@@ -441,13 +449,13 @@ func (c fixtureContract) sample(schema map[string]any, depth int) any {
 	}
 	for _, key := range []string{"oneOf", "anyOf"} {
 		if variants, ok := schema[key].([]any); ok && len(variants) > 0 {
-			return c.sample(variants[0].(map[string]any), depth+1)
+			return c.sample(fixtureValue[map[string]any](c.t, variants[0]), depth+1)
 		}
 	}
 	if variants, ok := schema["allOf"].([]any); ok {
 		merged := make(map[string]any)
 		for _, variant := range variants {
-			if value, ok := c.sample(variant.(map[string]any), depth+1).(map[string]any); ok {
+			if value, ok := c.sample(fixtureValue[map[string]any](c.t, variant), depth+1).(map[string]any); ok {
 				for key, item := range value {
 					merged[key] = item
 				}
@@ -478,7 +486,7 @@ func (c fixtureContract) sample(schema map[string]any, depth int) any {
 		}
 		sort.Strings(keys)
 		for _, key := range keys {
-			result[key] = c.sample(properties[key].(map[string]any), depth+1)
+			result[key] = c.sample(fixtureValue[map[string]any](c.t, properties[key]), depth+1)
 		}
 		return result
 	}
@@ -499,7 +507,10 @@ func fixtureScalar(value any) string {
 }
 
 func fixtureForm(sample any) url.Values {
-	object := sample.(map[string]any)
+	object, ok := sample.(map[string]any)
+	if !ok {
+		panic(fmt.Sprintf("fixture form must be an object, got %T", sample))
+	}
 	expected := make(url.Values, len(object))
 	for key, value := range object {
 		switch value := value.(type) {
@@ -570,4 +581,13 @@ func assertFixtureBody(t *testing.T, r *http.Request, mediaType string, sample a
 			t.Errorf("JSON body: got %s want %s", body, data)
 		}
 	}
+}
+
+func fixtureValue[T any](t *testing.T, value any) T {
+	t.Helper()
+	result, ok := value.(T)
+	if !ok {
+		t.Fatalf("fixture value has type %T, want %T", value, result)
+	}
+	return result
 }

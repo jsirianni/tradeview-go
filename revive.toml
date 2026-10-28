@@ -1,0 +1,10 @@
+severity = "warning"
+errorCode = 1
+warningCode = 1
+
+# Generated bindings are verified by regeneration, rather than style rewrites.
+ignoreGeneratedHeader = false
+
+[rule.redefines-builtin-id]
+[rule.unchecked-type-assertion]
+[rule.unnecessary-format]
