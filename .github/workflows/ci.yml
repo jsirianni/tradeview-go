@@ -24,16 +24,14 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
           cache-dependency-path: go.sum
-      - name: Check formatting
-        shell: bash
-        run: |
-          files=$(gofmt -l .)
-          if [ -n "$files" ]; then
-            printf '%s\n' "$files"
-            exit 1
-          fi
-      - run: go vet ./...
-      - run: go test ./...
+      - name: Install GNU Make
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: choco install make --version=4.4.1 --yes --no-progress
+      - name: List development tasks
+        run: make
+      - name: Check and build
+        run: make check build
 
   generation:
     name: Reproducible generation and race tests
@@ -44,10 +42,9 @@ jobs:
         with:
           go-version: '1.27.x'
           cache-dependency-path: go.sum
-      - run: go generate ./...
-      - name: Check generated files
+      - run: make ci
+      - name: Check clean checkout
         shell: bash
         run: |
           git diff --exit-code
           test -z "$(git status --porcelain)"
-      - run: go test -race ./...

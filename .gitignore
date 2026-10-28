@@ -1,5 +1,6 @@
 *.exe
 *.test
 coverage.out
+coverage.html
 .env
 .tools/
