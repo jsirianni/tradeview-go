@@ -84,17 +84,17 @@ func typedTelemetryContext(ctx context.Context) context.Context {
 }
 
 type operationTelemetry struct {
-	owner   *telemetry
-	ctx     context.Context
-	span    trace.Span
-	start   time.Time
-	attrs   []attribute.KeyValue
-	typed   bool
-	once    sync.Once
-	mu      sync.Mutex
-	status  int
-	bytes   int64
-	readErr error
+	owner    *telemetry
+	ctx      context.Context
+	span     trace.Span
+	start    time.Time
+	attrs    []attribute.KeyValue
+	typed    bool
+	once     sync.Once
+	mu       sync.Mutex
+	status   int
+	bytes    int64
+	closeErr error
 }
 
 func (client *Client) startTelemetry(ctx context.Context, operation, method, route string, streaming bool) (context.Context, *operationTelemetry) {
@@ -153,9 +153,6 @@ func (body *telemetryBody) Read(p []byte) (int, error) {
 	o := body.observation
 	o.mu.Lock()
 	o.bytes += int64(n)
-	if err != nil && err != io.EOF {
-		o.readErr = err
-	}
 	o.mu.Unlock()
 	if err != nil && !o.typed {
 		o.finish(err)
@@ -167,7 +164,7 @@ func (body *telemetryBody) Close() error {
 	err := body.ReadCloser.Close()
 	if err != nil {
 		body.observation.mu.Lock()
-		body.observation.readErr = err
+		body.observation.closeErr = err
 		body.observation.mu.Unlock()
 	}
 	if !body.observation.typed {
@@ -202,7 +199,7 @@ func (o *operationTelemetry) finish(err error) {
 	o.once.Do(func() {
 		o.mu.Lock()
 		if err == nil || err == io.EOF {
-			err = o.readErr
+			err = o.closeErr
 		}
 		size := o.bytes
 		o.mu.Unlock()

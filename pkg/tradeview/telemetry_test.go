@@ -275,7 +275,7 @@ func TestTelemetryStreamLifecycle(t *testing.T) {
 				if mode == "decode" {
 					_, _ = io.WriteString(w, "{\n")
 				}
-				if mode == "cancel" {
+				if mode == "cancel" || mode == "close" {
 					w.(http.Flusher).Flush()
 					<-r.Context().Done()
 				}
@@ -301,11 +301,14 @@ func TestTelemetryStreamLifecycle(t *testing.T) {
 				cancel()
 			}
 			if mode == "close" {
+				nextDone := make(chan struct{})
+				go func() { stream.Next(); close(nextDone) }()
 				var wg sync.WaitGroup
 				for range 8 {
 					wg.Go(func() { _ = stream.Close() })
 				}
 				wg.Wait()
+				<-nextDone
 			} else {
 				for stream.Next() {
 				}
