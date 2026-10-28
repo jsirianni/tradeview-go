@@ -235,6 +235,33 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 	for _, decl := range file.Decls {
 		switch d := decl.(type) {
 		case *ast.FuncDecl:
+			if d.Name.Name == "NewClient" {
+				defaults := 0
+				ast.Inspect(d.Body, func(node ast.Node) bool {
+					value, ok := node.(*ast.UnaryExpr)
+					if !ok || value.Op != token.AND {
+						return true
+					}
+					literal, ok := value.X.(*ast.CompositeLit)
+					if !ok {
+						return true
+					}
+					selector, ok := literal.Type.(*ast.SelectorExpr)
+					if !ok || selector.Sel.Name != "Client" {
+						return true
+					}
+					pkg, ok := selector.X.(*ast.Ident)
+					if !ok || pkg.Name != "http" {
+						return true
+					}
+					edits = append(edits, edit{fset.Position(value.Pos()).Offset, fset.Position(value.End()).Offset, "defaultHTTPClient()"})
+					defaults++
+					return false
+				})
+				if defaults != 1 {
+					return nil, fmt.Errorf("expected one default HTTP client initializer, got %d", defaults)
+				}
+			}
 			removeReceiver := false
 			if d.Recv != nil {
 				for _, field := range d.Recv.List {

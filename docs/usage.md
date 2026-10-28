@@ -60,6 +60,8 @@ Optional fields retain presence information. Set a pointer to zero or false when
 
 Bindings include `/authorize` and `/logout`. Your application owns OAuth/PKCE/JWT token acquisition and renewal. Token endpoints and credentials depend on the broker. The package does not persist credentials or select a broker endpoint.
 
+The library-created HTTP client rejects HTTPS-to-HTTP redirects and stops after ten redirects. A client supplied through `WithHTTPClient` retains its own redirect policy; configure it to reject HTTPS-to-HTTP redirects before sending credentials.
+
 Set finite-request deadlines through contexts or your HTTP client. Streaming contexts must remain active for the desired connection lifetime. An HTTP client's overall timeout also limits a streaming connection.
 
 ## HTTP streaming
