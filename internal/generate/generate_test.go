@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 )
 
 func TestRewriteClientPreservesRawStreamsAndRemovesFiniteReaders(t *testing.T) {
@@ -201,5 +203,122 @@ func TestRewriteClientProtectsDefaultRedirects(t *testing.T) {
 	_, err = rewriteClient([]byte(`package tradeview; func NewClient() {}`), nil)
 	if err == nil {
 		t.Fatal("accepted missing generator default initializer")
+	}
+}
+
+func TestGenerateRejectsInvalidReferences(t *testing.T) {
+	cases := []struct {
+		name    string
+		schema  string
+		overlay string
+		want    string
+	}{
+		{name: "missing parameter", overlay: "nonexistentParameter", want: "move-parameter-items-to-schema parameter nonexistentParameter"},
+		{name: "missing schema", overlay: "nonexistentSchema", want: "schema-go-names component nonexistentSchema"},
+		{name: "info type", schema: "info", want: "schema info"},
+		{name: "components type", schema: "components", want: "schema components"},
+		{name: "parameter collection type", schema: "parameters", want: "components.parameters"},
+		{name: "parameter type", schema: "parameter", want: "move-parameter-items-to-schema parameter orderIds"},
+		{name: "parameter schema type", schema: "parameter schema", want: "parameter orderIds schema"},
+		{name: "schema collection type", schema: "schemas", want: "components.schemas"},
+		{name: "component type", schema: "component", want: "schema-go-names component OrderStatus"},
+		{name: "paths type", schema: "paths", want: "schema paths"},
+		{name: "path type", schema: "path", want: "schema path /invalid"},
+		{name: "operation type", schema: "operation", want: "schema operation get /invalid"},
+		{name: "missing operation ID", schema: "missing ID", want: "nonempty operationId"},
+		{name: "empty operation ID", schema: "empty ID", want: "nonempty operationId"},
+		{name: "operation ID type", schema: "ID type", want: "nonempty operationId"},
+		{name: "CSV parameters type", schema: "CSV parameters", want: "csv-query-parameters operation getInstruments parameters"},
+		{name: "CSV parameter type", schema: "CSV parameter", want: "csv-query-parameters operation getInstruments parameter symbols"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			root := t.TempDir()
+			source, err := os.ReadFile(filepath.Join("..", "..", "api", "broker-rest-api.yaml"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			overlayData, err := os.ReadFile(filepath.Join("..", "..", "api", "overlay.yaml"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			var schema map[string]any
+			if err := yaml.Unmarshal(source, &schema); err != nil {
+				t.Fatal(err)
+			}
+			components := schema["components"].(map[string]any)
+			switch tc.schema {
+			case "info":
+				schema["info"] = false
+			case "components":
+				schema["components"] = false
+			case "parameters":
+				components["parameters"] = false
+			case "parameter":
+				components["parameters"].(map[string]any)["orderIds"] = false
+			case "parameter schema":
+				components["parameters"].(map[string]any)["orderIds"].(map[string]any)["schema"] = false
+			case "schemas":
+				components["schemas"] = false
+			case "component":
+				components["schemas"].(map[string]any)["OrderStatus"] = false
+			case "paths":
+				schema["paths"] = false
+			case "path":
+				schema["paths"] = map[string]any{"/invalid": false}
+			case "operation":
+				schema["paths"] = map[string]any{"/invalid": map[string]any{"get": false}}
+			case "missing ID", "empty ID", "ID type", "CSV parameters", "CSV parameter":
+				op := map[string]any{}
+				switch tc.schema {
+				case "empty ID":
+					op["operationId"] = ""
+				case "ID type":
+					op["operationId"] = false
+				case "CSV parameters":
+					op["operationId"] = "getInstruments"
+					op["parameters"] = false
+				case "CSV parameter":
+					op["operationId"] = "getInstruments"
+					op["parameters"] = []any{false}
+				}
+				schema["paths"] = map[string]any{"/invalid": map[string]any{"get": op}}
+			}
+			switch tc.overlay {
+			case "nonexistentParameter":
+				overlayData = []byte(strings.ReplaceAll(string(overlayData), "- orderIds", "- nonexistentParameter"))
+			case "nonexistentSchema":
+				overlayData = []byte(strings.ReplaceAll(string(overlayData), "  OrderStatus:", "  nonexistentSchema:"))
+			}
+			source, err = yaml.Marshal(schema)
+			if err != nil {
+				t.Fatal(err)
+			}
+			writeGenerationInputs(t, root, source, overlayData)
+			if err := Generate(root); err == nil || !strings.Contains(err.Error(), tc.want) {
+				t.Fatalf("Generate error = %v, want %q", err, tc.want)
+			}
+			if _, err := os.Stat(filepath.Join(root, "pkg")); !os.IsNotExist(err) {
+				t.Fatalf("invalid inputs wrote output: %v", err)
+			}
+		})
+	}
+}
+
+func writeGenerationInputs(t *testing.T, root string, source, overlayData []byte) {
+	t.Helper()
+	api := filepath.Join(root, "api")
+	if err := os.MkdirAll(api, 0755); err != nil {
+		t.Fatal(err)
+	}
+	digest := sha256.Sum256(source)
+	metadata, err := json.Marshal(map[string]string{"version": "1.21.0", "sha256": hex.EncodeToString(digest[:])})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for name, data := range map[string][]byte{"broker-rest-api.yaml": source, "upstream.json": metadata, "overlay.yaml": overlayData} {
+		if err := os.WriteFile(filepath.Join(api, name), data, 0644); err != nil {
+			t.Fatal(err)
+		}
 	}
 }
