@@ -1,0 +1,425 @@
+[
+  {
+    "operationId": "authorize",
+    "method": "POST",
+    "path": "/authorize",
+    "rawMethod": "AuthorizeWithFormdataBody",
+    "typedMethod": "AuthorizeWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/authorize"
+  },
+  {
+    "operationId": "cancelAllOrders",
+    "method": "POST",
+    "path": "/accounts/{accountId}/orders/cancelAll",
+    "rawMethod": "CancelAllOrdersWithFormdataBody",
+    "typedMethod": "CancelAllOrdersWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/cancelAllOrders"
+  },
+  {
+    "operationId": "cancelOrder",
+    "method": "DELETE",
+    "path": "/accounts/{accountId}/orders/{orderId}",
+    "rawMethod": "CancelOrder",
+    "typedMethod": "CancelOrderWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/cancelOrder"
+  },
+  {
+    "operationId": "closeIndividualPosition",
+    "method": "DELETE",
+    "path": "/accounts/{accountId}/individualPositions/{individualPositionId}",
+    "rawMethod": "CloseIndividualPositionWithFormdataBody",
+    "typedMethod": "CloseIndividualPositionWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/closeIndividualPosition"
+  },
+  {
+    "operationId": "closeNetPosition",
+    "method": "DELETE",
+    "path": "/accounts/{accountId}/netPositions/{netPositionId}",
+    "rawMethod": "CloseNetPositionWithFormdataBody",
+    "typedMethod": "CloseNetPositionWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/closeNetPosition"
+  },
+  {
+    "operationId": "closePosition",
+    "method": "DELETE",
+    "path": "/accounts/{accountId}/positions/{positionId}",
+    "rawMethod": "ClosePositionWithFormdataBody",
+    "typedMethod": "ClosePositionWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/closePosition"
+  },
+  {
+    "operationId": "getAccounts",
+    "method": "GET",
+    "path": "/accounts",
+    "rawMethod": "GetAccounts",
+    "typedMethod": "GetAccountsWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getAccounts"
+  },
+  {
+    "operationId": "getBalances",
+    "method": "GET",
+    "path": "/accounts/{accountId}/balances",
+    "rawMethod": "GetBalances",
+    "typedMethod": "GetBalancesWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getBalances"
+  },
+  {
+    "operationId": "getConfiguration",
+    "method": "GET",
+    "path": "/config",
+    "rawMethod": "GetConfiguration",
+    "typedMethod": "GetConfigurationWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getConfiguration"
+  },
+  {
+    "operationId": "getDepth",
+    "method": "GET",
+    "path": "/depth",
+    "rawMethod": "GetDepth",
+    "typedMethod": "GetDepthWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getDepth"
+  },
+  {
+    "operationId": "getExecutions",
+    "method": "GET",
+    "path": "/accounts/{accountId}/executions",
+    "rawMethod": "GetExecutions",
+    "typedMethod": "GetExecutionsWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getExecutions"
+  },
+  {
+    "operationId": "getGroups",
+    "method": "GET",
+    "path": "/groups",
+    "rawMethod": "GetGroups",
+    "typedMethod": "GetGroupsWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getGroups"
+  },
+  {
+    "operationId": "getHistory",
+    "method": "GET",
+    "path": "/history",
+    "rawMethod": "GetHistory",
+    "typedMethod": "GetHistoryWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getHistory"
+  },
+  {
+    "operationId": "getIndividualPositions",
+    "method": "GET",
+    "path": "/accounts/{accountId}/individualPositions",
+    "rawMethod": "GetIndividualPositions",
+    "typedMethod": "GetIndividualPositionsWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getIndividualPositions"
+  },
+  {
+    "operationId": "getInstruments",
+    "method": "GET",
+    "path": "/accounts/{accountId}/instruments",
+    "rawMethod": "GetInstruments",
+    "typedMethod": "GetInstrumentsWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getInstruments"
+  },
+  {
+    "operationId": "getLeverage",
+    "method": "POST",
+    "path": "/accounts/{accountId}/getLeverage",
+    "rawMethod": "GetLeverageWithFormdataBody",
+    "typedMethod": "GetLeverageWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getLeverage"
+  },
+  {
+    "operationId": "getMapping",
+    "method": "GET",
+    "path": "/mapping",
+    "rawMethod": "GetMapping",
+    "typedMethod": "GetMappingWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getMapping"
+  },
+  {
+    "operationId": "getNetPositions",
+    "method": "GET",
+    "path": "/accounts/{accountId}/netPositions",
+    "rawMethod": "GetNetPositions",
+    "typedMethod": "GetNetPositionsWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getNetPositions"
+  },
+  {
+    "operationId": "getOrders",
+    "method": "GET",
+    "path": "/accounts/{accountId}/orders",
+    "rawMethod": "GetOrders",
+    "typedMethod": "GetOrdersWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getOrders"
+  },
+  {
+    "operationId": "getOrdersHistory",
+    "method": "GET",
+    "path": "/accounts/{accountId}/ordersHistory",
+    "rawMethod": "GetOrdersHistory",
+    "typedMethod": "GetOrdersHistoryWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getOrdersHistory"
+  },
+  {
+    "operationId": "getPermissions",
+    "method": "GET",
+    "path": "/permissions",
+    "rawMethod": "GetPermissions",
+    "typedMethod": "GetPermissionsWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getPermissions"
+  },
+  {
+    "operationId": "getPositions",
+    "method": "GET",
+    "path": "/accounts/{accountId}/positions",
+    "rawMethod": "GetPositions",
+    "typedMethod": "GetPositionsWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getPositions"
+  },
+  {
+    "operationId": "getQuotes",
+    "method": "GET",
+    "path": "/quotes",
+    "rawMethod": "GetQuotes",
+    "typedMethod": "GetQuotesWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getQuotes"
+  },
+  {
+    "operationId": "getState",
+    "method": "GET",
+    "path": "/accounts/{accountId}/state",
+    "rawMethod": "GetState",
+    "typedMethod": "GetStateWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getState"
+  },
+  {
+    "operationId": "getSymbolInfo",
+    "method": "GET",
+    "path": "/symbol_info",
+    "rawMethod": "GetSymbolInfo",
+    "typedMethod": "GetSymbolInfoWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getSymbolInfo"
+  },
+  {
+    "operationId": "getUserInfo",
+    "method": "GET",
+    "path": "/userInfo",
+    "rawMethod": "GetUserInfo",
+    "typedMethod": "GetUserInfoWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/getUserInfo"
+  },
+  {
+    "operationId": "logout",
+    "method": "POST",
+    "path": "/logout",
+    "rawMethod": "Logout",
+    "typedMethod": "LogoutWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/logout"
+  },
+  {
+    "operationId": "modifyIndividualPosition",
+    "method": "PUT",
+    "path": "/accounts/{accountId}/individualPositions/{individualPositionId}",
+    "rawMethod": "ModifyIndividualPositionWithFormdataBody",
+    "typedMethod": "ModifyIndividualPositionWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/modifyIndividualPosition"
+  },
+  {
+    "operationId": "modifyOrder",
+    "method": "PUT",
+    "path": "/accounts/{accountId}/orders/{orderId}",
+    "rawMethod": "ModifyOrderWithFormdataBody",
+    "typedMethod": "ModifyOrderWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/modifyOrder"
+  },
+  {
+    "operationId": "modifyPosition",
+    "method": "PUT",
+    "path": "/accounts/{accountId}/positions/{positionId}",
+    "rawMethod": "ModifyPositionWithFormdataBody",
+    "typedMethod": "ModifyPositionWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/modifyPosition"
+  },
+  {
+    "operationId": "orderInfo",
+    "method": "POST",
+    "path": "/accounts/{accountId}/orderInfo",
+    "rawMethod": "OrderInfoWithFormdataBody",
+    "typedMethod": "OrderInfoWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/orderInfo"
+  },
+  {
+    "operationId": "placeOrder",
+    "method": "POST",
+    "path": "/accounts/{accountId}/orders",
+    "rawMethod": "PlaceOrderWithFormdataBody",
+    "typedMethod": "PlaceOrderWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/placeOrder"
+  },
+  {
+    "operationId": "postPromotionReport",
+    "method": "POST",
+    "path": "/promotionReport",
+    "rawMethod": "PostPromotionReport",
+    "typedMethod": "PostPromotionReportWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/postPromotionReport"
+  },
+  {
+    "operationId": "previewClosePosition",
+    "method": "POST",
+    "path": "/accounts/{accountId}/previewClosePosition",
+    "rawMethod": "PreviewClosePositionWithFormdataBody",
+    "typedMethod": "PreviewClosePositionWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/previewClosePosition"
+  },
+  {
+    "operationId": "previewLeverage",
+    "method": "POST",
+    "path": "/accounts/{accountId}/previewLeverage",
+    "rawMethod": "PreviewLeverageWithFormdataBody",
+    "typedMethod": "PreviewLeverageWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/previewLeverage"
+  },
+  {
+    "operationId": "previewOrder",
+    "method": "POST",
+    "path": "/accounts/{accountId}/previewOrder",
+    "rawMethod": "PreviewOrderWithFormdataBody",
+    "typedMethod": "PreviewOrderWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/previewOrder"
+  },
+  {
+    "operationId": "setLeverage",
+    "method": "POST",
+    "path": "/accounts/{accountId}/setLeverage",
+    "rawMethod": "SetLeverageWithFormdataBody",
+    "typedMethod": "SetLeverageWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/setLeverage"
+  },
+  {
+    "operationId": "streamDepth",
+    "method": "GET",
+    "path": "/stream/depth",
+    "rawMethod": "StreamDepth",
+    "typedMethod": "OpenStreamDepth",
+    "streaming": true,
+    "test": "TestOperationTransport/streamDepth"
+  },
+  {
+    "operationId": "streamIndividualPositions",
+    "method": "GET",
+    "path": "/accounts/{accountId}/stream/individualPositions",
+    "rawMethod": "StreamIndividualPositions",
+    "typedMethod": "OpenStreamIndividualPositions",
+    "streaming": true,
+    "test": "TestOperationTransport/streamIndividualPositions"
+  },
+  {
+    "operationId": "streamNetPositions",
+    "method": "GET",
+    "path": "/accounts/{accountId}/stream/netPositions",
+    "rawMethod": "StreamNetPositions",
+    "typedMethod": "OpenStreamNetPositions",
+    "streaming": true,
+    "test": "TestOperationTransport/streamNetPositions"
+  },
+  {
+    "operationId": "streamNotifications",
+    "method": "GET",
+    "path": "/accounts/{accountId}/stream/notifications",
+    "rawMethod": "StreamNotifications",
+    "typedMethod": "OpenStreamNotifications",
+    "streaming": true,
+    "test": "TestOperationTransport/streamNotifications"
+  },
+  {
+    "operationId": "streamOrders",
+    "method": "GET",
+    "path": "/accounts/{accountId}/stream/orders",
+    "rawMethod": "StreamOrders",
+    "typedMethod": "OpenStreamOrders",
+    "streaming": true,
+    "test": "TestOperationTransport/streamOrders"
+  },
+  {
+    "operationId": "streamPositions",
+    "method": "GET",
+    "path": "/accounts/{accountId}/stream/positions",
+    "rawMethod": "StreamPositions",
+    "typedMethod": "OpenStreamPositions",
+    "streaming": true,
+    "test": "TestOperationTransport/streamPositions"
+  },
+  {
+    "operationId": "streamQuotes",
+    "method": "GET",
+    "path": "/stream/quotes",
+    "rawMethod": "StreamQuotes",
+    "typedMethod": "OpenStreamQuotes",
+    "streaming": true,
+    "test": "TestOperationTransport/streamQuotes"
+  },
+  {
+    "operationId": "streamState",
+    "method": "GET",
+    "path": "/accounts/{accountId}/stream/state",
+    "rawMethod": "StreamState",
+    "typedMethod": "OpenStreamState",
+    "streaming": true,
+    "test": "TestOperationTransport/streamState"
+  },
+  {
+    "operationId": "streaming",
+    "method": "GET",
+    "path": "/streaming",
+    "rawMethod": "Streaming",
+    "typedMethod": "OpenStreaming",
+    "streaming": true,
+    "test": "TestOperationTransport/streaming"
+  },
+  {
+    "operationId": "trackLatency",
+    "method": "POST",
+    "path": "/accounts/{accountId}/trackLatency",
+    "rawMethod": "TrackLatencyWithFormdataBody",
+    "typedMethod": "TrackLatencyWithFormdataBodyWithResponse",
+    "streaming": false,
+    "test": "TestOperationTransport/trackLatency"
+  }
+]
