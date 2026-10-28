@@ -32,8 +32,8 @@ func TestEveryFiniteMethodRejectsUnexpectedResponses(t *testing.T) {
 				name, contentType, payload string
 				status                     int
 			}{
-				{"HTML", "text/html", "<html>Login required</html>", http.StatusOK},
-				{"undeclared status", "application/json", `{"s":"ok"}`, http.StatusCreated},
+				{name: "HTML", contentType: "text/html", payload: "<html>Login required</html>", status: http.StatusOK},
+				{name: "undeclared status", contentType: "application/json", payload: `{"s":"ok"}`, status: http.StatusCreated},
 			} {
 				t.Run(tc.name, func(t *testing.T) {
 					body := &finiteObservedBody{Reader: strings.NewReader(tc.payload)}
@@ -71,27 +71,27 @@ func TestFiniteProtocolResponses(t *testing.T) {
 		status                           int
 		syntaxError                      bool
 	}{
-		{"JSON", "application/json", success, "", 200, false},
-		{"JSON parameters and case", "Application/JSON; Charset=utf-8", success, "", 200, false},
-		{"JSON suffix", "application/vnd.broker+json; charset=UTF-8", success, "", 200, false},
-		{"JSON problem media type", "application/problem+json", success, "", 200, false},
-		{"HTML", "text/html", "<html>Login required</html>", "protocol", 200, false},
-		{"absent media type", "", success, "protocol", 200, false},
-		{"wrong media type", "text/plain", success, "protocol", 200, false},
-		{"misleading media type", "application/notjson", success, "protocol", 200, false},
-		{"malformed media type", "application/json; charset", success, "protocol", 200, false},
-		{"empty JSON suffix subtype", "application/+json", success, "protocol", 200, false},
-		{"malformed JSON", "application/json", `{"s":`, "protocol", 200, true},
-		{"empty JSON", "application/json", "", "protocol", 200, true},
-		{"malformed HTML payload", "text/html", `{`, "protocol", 200, false},
-		{"created", "application/json", success, "protocol", 201, false},
-		{"no content", "application/json", "", "protocol", 204, false},
-		{"partial content", "application/json", success, "protocol", 206, false},
-		{"undeclared broker error", "application/json", brokerError, "protocol", 201, false},
-		{"broker error", "application/json", brokerError, "API", 200, false},
-		{"broker error media precedence", "text/html", brokerError, "API", 200, false},
-		{"HTTP error", "text/html", "<html>Unavailable</html>", "HTTP", 503, false},
-		{"HTTP error envelope", "application/json", brokerError, "HTTP", 403, false},
+		{name: "JSON", contentType: "application/json", payload: success, kind: "", status: 200, syntaxError: false},
+		{name: "JSON parameters and case", contentType: "Application/JSON; Charset=utf-8", payload: success, kind: "", status: 200, syntaxError: false},
+		{name: "JSON suffix", contentType: "application/vnd.broker+json; charset=UTF-8", payload: success, kind: "", status: 200, syntaxError: false},
+		{name: "JSON problem media type", contentType: "application/problem+json", payload: success, kind: "", status: 200, syntaxError: false},
+		{name: "HTML", contentType: "text/html", payload: "<html>Login required</html>", kind: "protocol", status: 200, syntaxError: false},
+		{name: "absent media type", contentType: "", payload: success, kind: "protocol", status: 200, syntaxError: false},
+		{name: "wrong media type", contentType: "text/plain", payload: success, kind: "protocol", status: 200, syntaxError: false},
+		{name: "misleading media type", contentType: "application/notjson", payload: success, kind: "protocol", status: 200, syntaxError: false},
+		{name: "malformed media type", contentType: "application/json; charset", payload: success, kind: "protocol", status: 200, syntaxError: false},
+		{name: "empty JSON suffix subtype", contentType: "application/+json", payload: success, kind: "protocol", status: 200, syntaxError: false},
+		{name: "malformed JSON", contentType: "application/json", payload: `{"s":`, kind: "protocol", status: 200, syntaxError: true},
+		{name: "empty JSON", contentType: "application/json", payload: "", kind: "protocol", status: 200, syntaxError: true},
+		{name: "malformed HTML payload", contentType: "text/html", payload: `{`, kind: "protocol", status: 200, syntaxError: false},
+		{name: "created", contentType: "application/json", payload: success, kind: "protocol", status: 201, syntaxError: false},
+		{name: "no content", contentType: "application/json", payload: "", kind: "protocol", status: 204, syntaxError: false},
+		{name: "partial content", contentType: "application/json", payload: success, kind: "protocol", status: 206, syntaxError: false},
+		{name: "undeclared broker error", contentType: "application/json", payload: brokerError, kind: "protocol", status: 201, syntaxError: false},
+		{name: "broker error", contentType: "application/json", payload: brokerError, kind: "API", status: 200, syntaxError: false},
+		{name: "broker error media precedence", contentType: "text/html", payload: brokerError, kind: "API", status: 200, syntaxError: false},
+		{name: "HTTP error", contentType: "text/html", payload: "<html>Unavailable</html>", kind: "HTTP", status: 503, syntaxError: false},
+		{name: "HTTP error envelope", contentType: "application/json", payload: brokerError, kind: "HTTP", status: 403, syntaxError: false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			body := &finiteObservedBody{Reader: strings.NewReader(tc.payload)}
