@@ -1,3 +1,5 @@
+	}
+}
 package generate
 
 import (
@@ -5,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/format"
@@ -66,7 +69,7 @@ func Generate(root string) error {
 	}
 	digest := sha256.Sum256(source)
 	if hex.EncodeToString(digest[:]) != metadata.SHA256 {
-		return fmt.Errorf("upstream schema checksum mismatch")
+		return errors.New("upstream schema checksum mismatch")
 	}
 	var schema map[string]any
 	if err := yaml.Unmarshal(source, &schema); err != nil {
@@ -77,7 +80,7 @@ func Generate(root string) error {
 		return err
 	}
 	if info["version"] != metadata.Version {
-		return fmt.Errorf("upstream schema version mismatch")
+		return errors.New("upstream schema version mismatch")
 	}
 	var rules overlay
 	overlayPath := filepath.Join(root, "api", "overlay.yaml")
