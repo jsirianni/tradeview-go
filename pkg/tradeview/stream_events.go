@@ -98,15 +98,12 @@ type MarketEvent struct {
 
 func decodeMarketEvent(frame []byte) (MarketEvent, error) {
 	event := MarketEvent{Raw: append(json.RawMessage(nil), frame...)}
-	var header map[string]json.RawMessage
-	if err := json.Unmarshal(frame, &header); err != nil {
+	header, err := decodeMarketHeader(frame)
+	if err != nil {
 		return event, err
 	}
-	if header == nil {
-		return event, fmt.Errorf("null is not a stream message")
-	}
 	var status, discriminator string
-	_ = json.Unmarshal(header["s"], &status)
+	_ = json.Unmarshal(header.Status, &status)
 	if status == "error" {
 		var message ErrorMessage
 		if err := json.Unmarshal(frame, &message); err != nil {
@@ -115,7 +112,7 @@ func decodeMarketEvent(frame []byte) (MarketEvent, error) {
 		event.Kind, event.Error = StreamError, &message
 		return event, nil
 	}
-	if raw, exists := header["heartbeat"]; exists {
+	if raw := header.Heartbeat; raw != nil {
 		if bytes.Equal(raw, []byte("null")) {
 			return event, fmt.Errorf("heartbeat must be an integer")
 		}
@@ -126,7 +123,7 @@ func decodeMarketEvent(frame []byte) (MarketEvent, error) {
 		event.Kind, event.Heartbeat = StreamHeartbeat, &message
 		return event, nil
 	}
-	if err := json.Unmarshal(header["f"], &discriminator); err != nil {
+	if err := json.Unmarshal(header.Discriminator, &discriminator); err != nil {
 		return event, fmt.Errorf("missing or invalid market message discriminator: %w", err)
 	}
 	switch discriminator {
@@ -164,4 +161,70 @@ func decodeMarketEvent(frame []byte) (MarketEvent, error) {
 		return event, fmt.Errorf("unknown market message discriminator %q", discriminator)
 	}
 	return event, nil
+}
+
+// marketHeader retains null separately from an absent field. Using RawMessage
+// also leaves type validation to the existing event-specific decoders.
+type marketHeader struct {
+	Status        json.RawMessage `json:"s"`
+	Discriminator json.RawMessage `json:"f"`
+	Heartbeat     json.RawMessage `json:"heartbeat"`
+}
+
+func decodeMarketHeader(frame []byte) (marketHeader, error) {
+	var header marketHeader
+	if bytes.Equal(bytes.TrimSpace(frame), []byte("null")) {
+		return header, fmt.Errorf("null is not a stream message")
+	}
+	if marketHeaderNeedsMap(frame) {
+		// A struct accepts case-folded keys, while the original map dispatcher
+		// uses exact keys. Keep that behavior for potentially ambiguous frames.
+		var fields map[string]json.RawMessage
+		if err := json.Unmarshal(frame, &fields); err != nil {
+			return header, err
+		}
+		header.Status = fields["s"]
+		header.Discriminator = fields["f"]
+		header.Heartbeat = fields["heartbeat"]
+		return header, nil
+	}
+	if err := json.Unmarshal(frame, &header); err != nil {
+		return header, err
+	}
+	return header, nil
+}
+
+// marketHeaderNeedsMap conservatively finds anything that could make struct
+// field matching differ from exact map lookups. It deliberately also matches
+// values and nested keys: false positives only select the compatible slow path.
+// No JSON parsing is performed here; json.Unmarshal still validates the frame.
+func marketHeaderNeedsMap(frame []byte) bool {
+	const heartbeat = "heartbeat"
+	for i, value := range frame {
+		if value == '\\' || value >= 0x80 {
+			return true
+		}
+		if value != '"' {
+			continue
+		}
+		if i+2 < len(frame) && frame[i+2] == '"' && (frame[i+1] == 'S' || frame[i+1] == 'F') {
+			return true
+		}
+		if i+len(heartbeat)+1 >= len(frame) || frame[i+len(heartbeat)+1] != '"' {
+			continue
+		}
+		folded, uppercase := true, false
+		for j := range heartbeat {
+			letter := frame[i+j+1]
+			if letter|0x20 != heartbeat[j] {
+				folded = false
+				break
+			}
+			uppercase = uppercase || letter != heartbeat[j]
+		}
+		if folded && uppercase {
+			return true
+		}
+	}
+	return false
 }

@@ -50,4 +50,14 @@ The generator uses `oapi-codegen` **v2.8.1**, pinned as a Go tool dependency. `m
 
 Generation uses the committed schema and does not fetch a new API revision. To update the contract, replace the upstream schema deliberately, record its version/source/checksum, review the compatibility overlay, regenerate, and update the operation inventory and transport fixtures together. Review all resulting API changes before committing.
 
-CI runs one Linux job with Go 1.27. It runs `make ci` and verifies that the checkout stays clean. Tests use local HTTP fixtures and do not require broker credentials.
+CI runs one Linux job with Go 1.27. It runs `make ci`, records market-stream decoding benchmarks, and verifies that the checkout stays clean. Tests use local HTTP fixtures and do not require broker credentials.
+
+## Market stream benchmarks
+
+Compare the compact market-header decoder with the original map dispatcher on Linux with Go 1.27:
+
+```sh
+go test -run '^$' -bench '^BenchmarkDecodeMarketEvent$' -benchmem -benchtime=300ms -count=3 ./pkg/tradeview
+```
+
+Both benchmark paths preserve the raw frame, decode the typed message, and perform the error-envelope check used by `Stream.Next`. Quote, trade, daily-bar, and heartbeat results report time, allocated bytes, and allocation count per frame. CI records all three runs; compare allocated bytes and allocation counts between `compact_header` and `map_baseline`. Timing is diagnostic and has no fixed pass threshold. These decoder microbenchmarks do not measure broker or network throughput.

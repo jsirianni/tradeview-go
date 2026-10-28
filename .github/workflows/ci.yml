@@ -23,6 +23,8 @@ jobs:
         run: make
       - name: Validate packages
         run: make ci
+      - name: Benchmark market stream decoding
+        run: go test -run '^$' -bench '^BenchmarkDecodeMarketEvent$' -benchmem -benchtime=300ms -count=3 ./pkg/tradeview
       - name: Check clean checkout
         run: |
           git diff --exit-code
