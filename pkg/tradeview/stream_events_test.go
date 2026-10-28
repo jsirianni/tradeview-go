@@ -3,6 +3,7 @@ package tradeview
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -197,7 +198,7 @@ func decodeMarketEventMapBaseline(frame []byte) (MarketEvent, error) {
 		return event, err
 	}
 	if header == nil {
-		return event, fmt.Errorf("null is not a stream message")
+		return event, errors.New("null is not a stream message")
 	}
 	var status, discriminator string
 	_ = json.Unmarshal(header["s"], &status)
@@ -211,7 +212,7 @@ func decodeMarketEventMapBaseline(frame []byte) (MarketEvent, error) {
 	}
 	if raw, exists := header["heartbeat"]; exists {
 		if bytes.Equal(raw, []byte("null")) {
-			return event, fmt.Errorf("heartbeat must be an integer")
+			return event, errors.New("heartbeat must be an integer")
 		}
 		var message StreamingHeartbeatResponse
 		if err := json.Unmarshal(frame, &message); err != nil {

@@ -3,6 +3,7 @@ package tradeview
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -47,10 +48,10 @@ type (
 func decodeAccountEvent[T any](frame []byte) (AccountEvent[T], error) {
 	event := AccountEvent[T]{Raw: append(json.RawMessage(nil), frame...)}
 	if bytes.Equal(frame, []byte("null")) {
-		return event, fmt.Errorf("null is not a stream message")
+		return event, errors.New("null is not a stream message")
 	}
 	if len(frame) == 0 {
-		return event, fmt.Errorf("empty stream message")
+		return event, errors.New("empty stream message")
 	}
 	if frame[0] == '{' {
 		var header map[string]json.RawMessage
@@ -116,7 +117,7 @@ func decodeMarketEvent(frame []byte) (MarketEvent, error) {
 	}
 	if raw := header.Heartbeat; raw != nil {
 		if bytes.Equal(raw, []byte("null")) {
-			return event, fmt.Errorf("heartbeat must be an integer")
+			return event, errors.New("heartbeat must be an integer")
 		}
 		var message StreamingHeartbeatResponse
 		if err := json.Unmarshal(frame, &message); err != nil {
@@ -176,7 +177,7 @@ type marketHeader struct {
 func decodeMarketHeader(frame []byte) (marketHeader, error) {
 	var header marketHeader
 	if bytes.Equal(bytes.TrimSpace(frame), []byte("null")) {
-		return header, fmt.Errorf("null is not a stream message")
+		return header, errors.New("null is not a stream message")
 	}
 	if marketHeaderNeedsMap(frame) {
 		// A struct accepts case-folded keys, while the original map dispatcher

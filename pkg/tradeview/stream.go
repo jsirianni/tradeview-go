@@ -27,7 +27,7 @@ type streamConfig struct {
 func WithMaxFrameBytes(size int) StreamOption {
 	return func(config *streamConfig) error {
 		if size <= 0 || size > int(^uint(0)>>1)-2 {
-			return fmt.Errorf("tradeview: maximum frame size must be positive and leave room for a line ending")
+			return errors.New("tradeview: maximum frame size must be positive and leave room for a line ending")
 		}
 		config.maxFrameBytes = size
 		return nil
@@ -38,7 +38,7 @@ func WithMaxFrameBytes(size int) StreamOption {
 func WithStreamRequestEditor(editor RequestEditorFn) StreamOption {
 	return func(config *streamConfig) error {
 		if editor == nil {
-			return fmt.Errorf("tradeview: stream request editor must not be nil")
+			return errors.New("tradeview: stream request editor must not be nil")
 		}
 		config.requestEditors = append(config.requestEditors, editor)
 		return nil
@@ -49,7 +49,7 @@ func configureStream(options []StreamOption) (streamConfig, error) {
 	config := streamConfig{maxFrameBytes: DefaultMaxFrameBytes}
 	for _, option := range options {
 		if option == nil {
-			return config, fmt.Errorf("tradeview: stream option must not be nil")
+			return config, errors.New("tradeview: stream option must not be nil")
 		}
 		if err := option(&config); err != nil {
 			return config, err

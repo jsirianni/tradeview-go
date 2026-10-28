@@ -130,7 +130,7 @@ func finiteResponseError(body []byte, response *http.Response) error {
 		return responseError(body, response)
 	}
 	if response.StatusCode != http.StatusOK {
-		return newProtocolError(body, response, fmt.Errorf("unexpected success status; expected HTTP 200"))
+		return newProtocolError(body, response, errors.New("unexpected success status; expected HTTP 200"))
 	}
 	// Preserve broker errors even when a proxy supplies an incorrect media type.
 	if err := responseError(body, response); err != nil {
@@ -188,7 +188,7 @@ func WithBearerToken(token string) ClientOption {
 func WithTokenSource(source TokenSource) ClientOption {
 	return func(client *Client) error {
 		if source == nil {
-			return fmt.Errorf("tradeview: nil token source")
+			return errors.New("tradeview: nil token source")
 		}
 		client.RequestEditors = append(client.RequestEditors, func(ctx context.Context, request *http.Request) error {
 			token, err := source.Token(ctx)
@@ -196,7 +196,7 @@ func WithTokenSource(source TokenSource) ClientOption {
 				return fmt.Errorf("tradeview: bearer token: %w", err)
 			}
 			if strings.TrimSpace(token) == "" || strings.ContainsAny(token, "\r\n") {
-				return fmt.Errorf("tradeview: bearer token must be non-empty and contain no line breaks")
+				return errors.New("tradeview: bearer token must be non-empty and contain no line breaks")
 			}
 			request.Header.Set("Authorization", "Bearer "+token)
 			return nil
@@ -210,7 +210,7 @@ func WithTokenSource(source TokenSource) ClientOption {
 func WithLocale(locale string) ClientOption {
 	return func(client *Client) error {
 		if strings.TrimSpace(locale) == "" {
-			return fmt.Errorf("tradeview: locale must be non-empty")
+			return errors.New("tradeview: locale must be non-empty")
 		}
 		client.RequestEditors = append(client.RequestEditors, func(_ context.Context, request *http.Request) error {
 			query := request.URL.Query()
@@ -235,7 +235,7 @@ func WithExtraOrderFields(fields url.Values) RequestEditorFn {
 	return func(_ context.Context, request *http.Request) error {
 		mediaType, _, err := mime.ParseMediaType(request.Header.Get("Content-Type"))
 		if err != nil || mediaType != "application/x-www-form-urlencoded" {
-			return fmt.Errorf("tradeview: extra order fields require a form request")
+			return errors.New("tradeview: extra order fields require a form request")
 		}
 		for key := range extras {
 			if key == "" || _standardOrderFields[key] {
@@ -243,7 +243,7 @@ func WithExtraOrderFields(fields url.Values) RequestEditorFn {
 			}
 		}
 		if request.Body == nil {
-			return fmt.Errorf("tradeview: extra order fields require a request body")
+			return errors.New("tradeview: extra order fields require a request body")
 		}
 		body, err := io.ReadAll(request.Body)
 		closeErr := request.Body.Close()
@@ -293,7 +293,7 @@ func encodeForm(body any) (string, error) {
 		return "", fmt.Errorf("tradeview: form body must be an object: %w", err)
 	}
 	if object == nil {
-		return "", fmt.Errorf("tradeview: form body must be an object")
+		return "", errors.New("tradeview: form body must be an object")
 	}
 	form := make(url.Values, len(object))
 	for key, raw := range object {
