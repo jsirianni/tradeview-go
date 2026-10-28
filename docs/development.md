@@ -58,6 +58,12 @@ Generation uses the committed schema and does not fetch a new API revision. To u
 
 CI runs one Linux job with Go 1.27, selecting the latest available patch at or above 1.27.3. It runs `make ci`, records market-stream decoding benchmarks, and verifies that the checkout stays clean. Tests use local HTTP fixtures and do not require broker credentials.
 
+The [finite response fixtures](../pkg/tradeview/testdata/responses/README.md) cover
+all 38 finite endpoints with realistic JSON, public union accessors, and request
+expectations. Their inventory test requires every declared success alternative
+to have a fixture. Add explicit decoded-value assertions when extending this
+suite; a non-nil response wrapper alone does not verify a union's contents.
+
 ## Known vulnerability scanning
 
 `make govulncheck` runs **govulncheck v1.9.0** through a versioned `go run`, independently of client dependencies. It prints the actual Go and scanner versions and scans `./...`, including runtime and generator packages, using the live Go vulnerability database. The supported development baseline is Go **1.27.3**, which fixes standard-library advisories reported with Go 1.27.0. The module directive remains a language/toolchain minimum; consumers should use a supported patched toolchain.

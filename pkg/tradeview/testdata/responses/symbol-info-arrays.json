@@ -1,0 +1,47 @@
+{
+  "s": "ok",
+  "symbol": [
+    "EURUSD",
+    "GBPUSD"
+  ],
+  "description": [
+    "Euro / US dollar",
+    "Pound / US dollar"
+  ],
+  "exchange-listed": [
+    "BROKER",
+    "BROKER"
+  ],
+  "exchange-traded": [
+    "BROKER",
+    "BROKER"
+  ],
+  "currency": [
+    "USD",
+    "USD"
+  ],
+  "minmovement": [
+    1,
+    1
+  ],
+  "pricescale": [
+    100000,
+    100000
+  ],
+  "session-regular": [
+    "24x7",
+    "24x7"
+  ],
+  "timezone": [
+    "Etc/UTC",
+    "Etc/UTC"
+  ],
+  "type": [
+    "forex",
+    "forex"
+  ],
+  "has-daily": [
+    false,
+    false
+  ]
+}

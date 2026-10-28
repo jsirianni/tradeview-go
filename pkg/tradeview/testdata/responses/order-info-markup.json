@@ -1,0 +1,28 @@
+{
+  "s": "ok",
+  "d": {
+    "id": "info-1",
+    "rows": [
+      {
+        "title": "Fee",
+        "value": "1.25",
+        "currency": "USD"
+      },
+      {
+        "type": "separator"
+      },
+      {
+        "type": "subheading",
+        "value": "Details"
+      }
+    ],
+    "disclaimer": [
+      "Read ",
+      {
+        "text": "terms",
+        "url": "https://broker.example/terms"
+      },
+      "."
+    ]
+  }
+}

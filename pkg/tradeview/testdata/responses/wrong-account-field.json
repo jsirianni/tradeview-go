@@ -1,0 +1,11 @@
+{
+  "s": "ok",
+  "d": [
+    {
+      "id": 42,
+      "name": "Wrong ID type",
+      "type": "demo",
+      "config": {}
+    }
+  ]
+}
