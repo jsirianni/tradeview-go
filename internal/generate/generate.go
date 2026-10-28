@@ -70,7 +70,11 @@ func Generate(root string) error {
 	if err := yaml.Unmarshal(source, &schema); err != nil {
 		return err
 	}
-	if schema["info"].(map[string]any)["version"] != metadata.Version {
+	info, err := object(schema["info"], "schema info")
+	if err != nil {
+		return err
+	}
+	if info["version"] != metadata.Version {
 		return fmt.Errorf("upstream schema version mismatch")
 	}
 	var rules overlay
@@ -82,35 +86,76 @@ func Generate(root string) error {
 		return err
 	}
 	applyNumbers(schema, rules.NumberFormat)
-	parameters := schema["components"].(map[string]any)["parameters"].(map[string]any)
+	components, err := object(schema["components"], "schema components")
+	if err != nil {
+		return err
+	}
+	parameters, err := object(components["parameters"], "schema components.parameters")
+	if err != nil {
+		return err
+	}
 	for _, name := range rules.MoveItems {
-		parameter := parameters[name].(map[string]any)
+		parameter, err := object(parameters[name], "overlay move-parameter-items-to-schema parameter "+name)
+		if err != nil {
+			return err
+		}
 		if items, ok := parameter["items"]; ok {
-			parameter["schema"].(map[string]any)["items"] = items
+			parameterSchema, err := object(parameter["schema"], "overlay move-parameter-items-to-schema parameter "+name+" schema")
+			if err != nil {
+				return err
+			}
+			parameterSchema["items"] = items
 			delete(parameter, "items")
 		} else {
 			return fmt.Errorf("overlay parameter %s no longer needs items repair", name)
 		}
 	}
+	schemas, err := object(components["schemas"], "schema components.schemas")
+	if err != nil {
+		return err
+	}
 	for component, name := range rules.SchemaNames {
-		schemas := schema["components"].(map[string]any)["schemas"].(map[string]any)
-		schemas[component].(map[string]any)["x-go-name"] = name
+		componentSchema, err := object(schemas[component], "overlay schema-go-names component "+component)
+		if err != nil {
+			return err
+		}
+		componentSchema["x-go-name"] = name
 	}
 	var operations []operation
 	streamNames := map[string]bool{}
-	for path, pathValue := range schema["paths"].(map[string]any) {
-		pathItem := pathValue.(map[string]any)
+	paths, err := object(schema["paths"], "schema paths")
+	if err != nil {
+		return err
+	}
+	for path, pathValue := range paths {
+		pathItem, err := object(pathValue, "schema path "+path)
+		if err != nil {
+			return err
+		}
 		for method, value := range pathItem {
 			if !strings.Contains(" get post put patch delete head options trace ", " "+method+" ") {
 				continue
 			}
-			op := value.(map[string]any)
-			id := op["operationId"].(string)
+			op, err := object(value, "schema operation "+method+" "+path)
+			if err != nil {
+				return err
+			}
+			id, ok := op["operationId"].(string)
+			if !ok || strings.TrimSpace(id) == "" {
+				return fmt.Errorf("schema operation %s %s requires a nonempty operationId", method, path)
+			}
 			for _, rule := range rules.CSV {
 				if rule.Operation == id {
 					found := false
-					for _, paramValue := range op["parameters"].([]any) {
-						param := paramValue.(map[string]any)
+					params, ok := op["parameters"].([]any)
+					if !ok {
+						return fmt.Errorf("overlay csv-query-parameters operation %s parameters must be an array", id)
+					}
+					for _, paramValue := range params {
+						param, err := object(paramValue, "overlay csv-query-parameters operation "+id+" parameter "+rule.Name)
+						if err != nil {
+							return err
+						}
 						if param["name"] == rule.Name {
 							param["style"] = "form"
 							param["explode"] = false
@@ -189,6 +234,16 @@ func Generate(root string) error {
 	fmt.Printf("Generated %d operations (%d finite, %d streaming).\n", len(operations), len(operations)-len(streamNames), len(streamNames))
 	return nil
 }
+
+// object checks repository-controlled schema and overlay references before use.
+func object(value any, context string) (map[string]any, error) {
+	result, ok := value.(map[string]any)
+	if !ok || result == nil {
+		return nil, fmt.Errorf("%s must reference an object", context)
+	}
+	return result, nil
+}
+
 func applyNumbers(value any, format string) {
 	switch v := value.(type) {
 	case map[string]any:
