@@ -179,3 +179,40 @@ func TestRedirectOriginComparison(t *testing.T) {
 		})
 	}
 }
+
+func TestDefaultClientPermitsSameOriginCredentialRedirects(t *testing.T) {
+	for _, status := range []int{307, 308} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			var contacts atomic.Int32
+			secure := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				contacts.Add(1)
+				if r.URL.Path == "/authorize" {
+					http.Redirect(w, r, "/redirected", status)
+					return
+				}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					t.Error(err)
+				}
+				if r.Method != http.MethodPost || string(body) != "login=test-user&password=test-password" {
+					t.Errorf("redirected method=%s body=%q", r.Method, body)
+				}
+				io.WriteString(w, `{"s":"ok"}`)
+			}))
+			defer secure.Close()
+			client, err := NewClient(secure.URL)
+			if err != nil {
+				t.Fatal(err)
+			}
+			client.Client.(*http.Client).Transport = secure.Client().Transport
+			response, err := client.AuthorizeWithFormdataBody(context.Background(), AuthorizeFormdataRequestBody{Login: "test-user", Password: "test-password"})
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer response.Body.Close()
+			if response.StatusCode != http.StatusOK || contacts.Load() != 2 {
+				t.Fatalf("status=%d contacts=%d", response.StatusCode, contacts.Load())
+			}
+		})
+	}
+}
