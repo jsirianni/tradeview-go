@@ -20,12 +20,12 @@ func TestResponseError(t *testing.T) {
 		api    bool
 		http   bool
 	}{
-		{"success", 200, `{"s":"ok","d":[]}`, false, false},
-		{"broker error", 200, `{"s":"error","errtype":"invalid_cursor","errmsg":"cursor expired"}`, true, false},
-		{"unknown error code", 200, `{"s":"error","errtype":"new_code","errmsg":"message"}`, true, false},
-		{"HTTP error", 429, `{"s":"error","errtype":"rate_limit","errmsg":"slow down"}`, false, true},
-		{"plain HTTP error", 503, `unavailable`, false, true},
-		{"bad JSON left to parser", 200, `{`, false, false},
+		{name: "success", status: 200, body: `{"s":"ok","d":[]}`, api: false, http: false},
+		{name: "broker error", status: 200, body: `{"s":"error","errtype":"invalid_cursor","errmsg":"cursor expired"}`, api: true, http: false},
+		{name: "unknown error code", status: 200, body: `{"s":"error","errtype":"new_code","errmsg":"message"}`, api: true, http: false},
+		{name: "HTTP error", status: 429, body: `{"s":"error","errtype":"rate_limit","errmsg":"slow down"}`, api: false, http: true},
+		{name: "plain HTTP error", status: 503, body: `unavailable`, api: false, http: true},
+		{name: "bad JSON left to parser", status: 200, body: `{`, api: false, http: false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

@@ -182,7 +182,7 @@ func Generate(root string) error {
 				streamNames[name] = true
 				typed = "Open" + name
 			}
-			operations = append(operations, operation{id, strings.ToUpper(method), path, rawName, typed, streaming, "TestOperationTransport/" + id})
+			operations = append(operations, operation{ID: id, Method: strings.ToUpper(method), Path: path, RawMethod: rawName, TypedMethod: typed, Streaming: streaming, Test: "TestOperationTransport/" + id})
 		}
 	}
 	sort.Slice(operations, func(i, j int) bool { return operations[i].ID < operations[j].ID })
@@ -313,7 +313,7 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 					if !ok || pkg.Name != "http" {
 						return true
 					}
-					edits = append(edits, edit{fset.Position(value.Pos()).Offset, fset.Position(value.End()).Offset, "defaultHTTPClient()"})
+					edits = append(edits, edit{start: fset.Position(value.Pos()).Offset, end: fset.Position(value.End()).Offset, text: "defaultHTTPClient()"})
 					defaults++
 					return false
 				})
@@ -358,7 +358,7 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 				if d.Doc != nil {
 					start = fset.Position(d.Doc.Pos()).Offset
 				}
-				edits = append(edits, edit{start, fset.Position(d.End()).Offset, ""})
+				edits = append(edits, edit{start: start, end: fset.Position(d.End()).Offset, text: ""})
 				continue
 			}
 			if strings.HasPrefix(d.Name.Name, "Parse") && strings.HasSuffix(d.Name.Name, "Response") {
@@ -394,7 +394,7 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 						}
 						if condition.String() == `strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200` {
 							// The guard uses parsed media types, including JSON suffixes and parameters.
-							edits = append(edits, edit{fset.Position(n.List[0].Pos()).Offset, fset.Position(n.List[0].End()).Offset, "rsp.StatusCode == http.StatusOK"})
+							edits = append(edits, edit{start: fset.Position(n.List[0].Pos()).Offset, end: fset.Position(n.List[0].End()).Offset, text: "rsp.StatusCode == http.StatusOK"})
 							cases++
 						}
 					case *ast.IfStmt:
@@ -422,7 +422,7 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 						if !ok || cause.Name != "err" {
 							return true
 						}
-						edits = append(edits, edit{fset.Position(cause.Pos()).Offset, fset.Position(cause.End()).Offset, "newProtocolError(bodyBytes, rsp, err)"})
+						edits = append(edits, edit{start: fset.Position(cause.Pos()).Offset, end: fset.Position(cause.End()).Offset, text: "newProtocolError(bodyBytes, rsp, err)"})
 						decoders++
 					}
 					return true
@@ -439,7 +439,7 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 					if strings.HasSuffix(typ.Name.Name, "RequestBody") && !typ.Assign.IsValid() {
 						if _, ok := typ.Type.(*ast.Ident); ok {
 							offset := fset.Position(typ.Type.Pos()).Offset
-							edits = append(edits, edit{offset, offset, "= "})
+							edits = append(edits, edit{start: offset, end: offset, text: "= "})
 						}
 					}
 					if removeName(typ.Name.Name) {
@@ -447,7 +447,7 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 						if d.Doc != nil {
 							start = fset.Position(d.Doc.Pos()).Offset
 						}
-						edits = append(edits, edit{start, fset.Position(d.End()).Offset, ""})
+						edits = append(edits, edit{start: start, end: fset.Position(d.End()).Offset, text: ""})
 						continue
 					}
 					if iface, ok := typ.Type.(*ast.InterfaceType); ok {
@@ -458,7 +458,7 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 									if field.Doc != nil {
 										start = fset.Position(field.Doc.Pos()).Offset
 									}
-									edits = append(edits, edit{start, fset.Position(field.End()).Offset, ""})
+									edits = append(edits, edit{start: start, end: fset.Position(field.End()).Offset, text: ""})
 								}
 							}
 						}
@@ -485,7 +485,7 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 		for _, argument := range call.Args {
 			name, ok := argument.(*ast.Ident)
 			if ok && strings.HasPrefix(name.Name, "pathParam") {
-				edits = append(edits, edit{fset.Position(name.Pos()).Offset, fset.Position(name.End()).Offset, "escapeDotPathSegment(" + name.Name + ")"})
+				edits = append(edits, edit{start: fset.Position(name.Pos()).Offset, end: fset.Position(name.End()).Offset, text: "escapeDotPathSegment(" + name.Name + ")"})
 			}
 		}
 		return true
