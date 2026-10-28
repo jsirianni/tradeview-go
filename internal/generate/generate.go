@@ -25,8 +25,9 @@ type overlay struct {
 		Operation string `yaml:"operation"`
 		Name      string `yaml:"name"`
 	} `yaml:"csv-query-parameters"`
-	MoveItems   []string          `yaml:"move-parameter-items-to-schema"`
-	SchemaNames map[string]string `yaml:"schema-go-names"`
+	MoveItems              []string          `yaml:"move-parameter-items-to-schema"`
+	SchemaNames            map[string]string `yaml:"schema-go-names"`
+	SymbolInfoScalarModels []string          `yaml:"symbol-info-scalar-models"`
 }
 type operation struct {
 	ID          string `json:"operationId"`
@@ -172,6 +173,9 @@ func Generate(root string) error {
 		return err
 	}
 	if err := postprocess(outputPath, streamNames); err != nil {
+		return err
+	}
+	if err := addSymbolInfoDecoders(outputPath, rules.SymbolInfoScalarModels); err != nil {
 		return err
 	}
 	inventory, err := json.MarshalIndent(operations, "", "  ")

@@ -20,3 +20,8 @@ schema-go-names:
   PreviewOrderResponse: PreviewOrderPayload
   SetLeverageResponse: SetLeveragePayload
   AuthorizeResponse: AuthorizePayload
+
+# The symbol-info prose permits shared scalar metadata; retain slice Go fields.
+symbol-info-scalar-models:
+  - SymbolInfoArrays
+  - SymbolInfoResponse
