@@ -19,7 +19,7 @@ func (f finiteResponseDoer) Do(request *http.Request) (*http.Response, error) { 
 func TestEveryFiniteMethodRejectsUnexpectedResponses(t *testing.T) {
 	contract := loadFixtureContract(t)
 	finiteCount := 0
-	for _, fixture := range operationFixtures {
+	for _, fixture := range _operationFixtures {
 		entry := contract.manifest[fixture.id]
 		if entry.Streaming {
 			continue

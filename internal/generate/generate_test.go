@@ -128,12 +128,12 @@ func TestRewriteClientProtectsDotPathIdentifiers(t *testing.T) {
 	}
 }
 
-var writeBindings = flag.Bool("write", false, "regenerate committed broker bindings")
+var _writeBindings = flag.Bool("write", false, "regenerate committed broker bindings")
 
 // TestRegenerateBindings writes generated source only when explicitly requested
 // by go generate. The ordinary test suite keeps the checkout read-only.
 func TestRegenerateBindings(t *testing.T) {
-	if !*writeBindings {
+	if !*_writeBindings {
 		t.Skip("regeneration requires -write; use go generate ./...")
 	}
 	if err := Generate(filepath.Join("..", "..")); err != nil {

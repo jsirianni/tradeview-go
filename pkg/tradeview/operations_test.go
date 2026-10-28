@@ -24,7 +24,7 @@ import (
 
 // These routes are deliberately independent of the generated operation manifest.
 // A changed upstream contract requires review of the fixture expectations.
-var operationFixtures = []operationFixture{
+var _operationFixtures = []operationFixture{
 	{"authorize", "POST", "/authorize"},
 	{"cancelAllOrders", "POST", "/accounts/{accountId}/orders/cancelAll"},
 	{"cancelOrder", "DELETE", "/accounts/{accountId}/orders/{orderId}"},
@@ -133,14 +133,14 @@ func loadFixtureContract(t *testing.T) fixtureContract {
 func TestOperationInventory(t *testing.T) {
 	contract := loadFixtureContract(t)
 	paths := contract.source["paths"].(map[string]any)
-	if len(paths) != 43 || len(contract.operations) != 47 || len(contract.manifest) != 47 || len(operationFixtures) != 47 {
-		t.Fatalf("coverage count mismatch: paths=%d operations=%d manifest=%d fixtures=%d", len(paths), len(contract.operations), len(contract.manifest), len(operationFixtures))
+	if len(paths) != 43 || len(contract.operations) != 47 || len(contract.manifest) != 47 || len(_operationFixtures) != 47 {
+		t.Fatalf("coverage count mismatch: paths=%d operations=%d manifest=%d fixtures=%d", len(paths), len(contract.operations), len(contract.manifest), len(_operationFixtures))
 	}
 	rawType := reflect.TypeOf((*Client)(nil))
 	typedType := reflect.TypeOf((*ClientWithResponses)(nil))
 	seen := map[string]bool{}
 	finite, streams := 0, 0
-	for _, fixture := range operationFixtures {
+	for _, fixture := range _operationFixtures {
 		if seen[fixture.id] {
 			t.Fatalf("duplicate fixture %q", fixture.id)
 		}
@@ -197,7 +197,7 @@ type fixtureContextKey struct{}
 
 func TestOperationTransport(t *testing.T) {
 	contract := loadFixtureContract(t)
-	for _, fixture := range operationFixtures {
+	for _, fixture := range _operationFixtures {
 		t.Run(fixture.id, func(t *testing.T) {
 			operation := contract.operations[fixture.id]
 			entry := contract.manifest[fixture.id]
@@ -261,7 +261,7 @@ func TestOperationTransport(t *testing.T) {
 
 func TestFiniteResponseBindings(t *testing.T) {
 	contract := loadFixtureContract(t)
-	for _, fixture := range operationFixtures {
+	for _, fixture := range _operationFixtures {
 		entry := contract.manifest[fixture.id]
 		if entry.Streaming {
 			continue
