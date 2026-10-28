@@ -74,7 +74,7 @@ func rewriteSymbolInfoDecoders(source []byte, models []string) ([]byte, error) {
 			if err != nil {
 				return nil, err
 			}
-			name := strings.Split(reflect.StructTag(tag).Get("json"), ",")[0]
+			name, _, _ := strings.Cut(reflect.StructTag(tag).Get("json"), ",")
 			if name == "" || name == "-" {
 				return nil, fmt.Errorf("symbol-info model %s has an array without a JSON name", model)
 			}

@@ -41,7 +41,7 @@ make test TEST_ARGS="-run TestOperationTransport -count=1"
 | `generate-check` | Regenerate and reject differences in tracked generated outputs. |
 | `deps` / `tidy` | Download dependencies or tidy module metadata. |
 | `check` | Check formatting, vet, Staticcheck, Revive, gosec, and tests. |
-| `ci` | Check generation, then run checks, build, race tests, and govulncheck. |
+| `ci` | Check generation and Go fixes, then run checks, build, race tests, vulnerability scans, and gate regression fixtures. |
 | `clean` | Clean package build artifacts and remove coverage reports. |
 
 Override `GO` and `GOFMT` to select tool executables. `TEST_ARGS` passes additional arguments to Go tests. For example, `make test TEST_ARGS="-count=1"` runs tests without cached results.
@@ -79,6 +79,13 @@ Source analysis does not execute the application or discover new application-spe
 
 When upgrading Go, update the pinned analyzer to a compatible release and verify both the clean baseline and the negative fixture. Keep suppressions narrow and document their justification.
 
+## Required Go modernization
+
+Contributors and coding agents must run `make fix` before submitting every Go code change, review the diff, and commit the result. Development and CI use the supported Go 1.27 toolchain; CI selects the current `1.27.x` patch. Both fix targets print `go version` so version-dependent rewrites can be diagnosed.
+
+`make fix-check` runs `go fix ./...`, then prints and rejects any tracked-file diff, including staged changes. Start from a clean checkout for this gate; during development, use `make fix` and review its changes alongside your own before committing. CI never commits or pushes these rewrites, and retains its final clean-checkout check.
+
+The gate covers the generator, public package, and tests selected by `./...` on Linux with default build tags. `make fix-gate-test` uses the real Makefile in a temporary Git fixture: an old `strings.Split` idiom must fail with a visible diff, and `make fix` followed by committing the rewrite must pass.
 ## Market stream benchmarks
 
 Compare the compact market-header decoder with the original map dispatcher on Linux with Go 1.27:

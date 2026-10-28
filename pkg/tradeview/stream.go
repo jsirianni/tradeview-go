@@ -98,10 +98,7 @@ func openHTTPStream[T any](ctx context.Context, response *http.Response, request
 		return nil, &HTTPError{StatusCode: response.StatusCode, Status: response.Status, Body: body}
 	}
 	scanner := bufio.NewScanner(response.Body)
-	initial := 4096
-	if config.maxFrameBytes < initial {
-		initial = config.maxFrameBytes
-	}
+	initial := min(config.maxFrameBytes, 4096)
 	// Scanner counts the newline against its token limit; leave room for CRLF.
 	scanner.Buffer(make([]byte, initial), config.maxFrameBytes+2)
 	stream := &Stream[T]{ctx: ctx, response: response, scanner: scanner, decode: decode, maxFrameBytes: config.maxFrameBytes}
