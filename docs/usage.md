@@ -48,6 +48,8 @@ fmt.Println(response.StatusCode())
 
 `NewClient` provides raw methods returning `*http.Response` when the caller needs direct access to the response. Raw callers must close response bodies and handle response status/envelopes themselves. Typed finite methods read and close the response body and decode the declared response union.
 
+Finite parsers read at most 16 MiB of decoded response data by default, including error responses and unknown-length bodies. `WithFiniteResponseLimit(bytes)` sets a positive client budget (less than `math.MaxInt64`); overflow returns `*ResponseSizeError` without retaining the oversized payload and closes the body. Standalone `Parse...Response` functions also enforce the default. Raw methods allow callers to process larger bodies under their own limits.
+
 Optional fields retain presence information. Set a pointer to zero or false when that value must be transmitted; leave it nil to omit it. Numeric schema values use `float64`.
 
 Symbol-info responses accept either per-symbol arrays or a shared scalar metadata value. Typed `SymbolInfoArrays` and `SymbolInfoResponse` values expand shared metadata to one entry per returned symbol; a scalar `symbol` represents one symbol. Existing arrays, nulls, and omitted fields retain their usual behavior. Shared scalar metadata requires at least one symbol. Marshaling a typed model emits arrays; the finite response `Body` and response union retain the original broker JSON.

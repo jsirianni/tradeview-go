@@ -11841,7 +11841,7 @@ func (c *Client) GetAccounts(ctx context.Context, params *GetAccountsParams, req
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetBalances Balances
@@ -11860,7 +11860,7 @@ func (c *Client) GetBalances(ctx context.Context, accountId PathAccountId, param
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetExecutions Executions
@@ -11883,7 +11883,7 @@ func (c *Client) GetExecutions(ctx context.Context, accountId PathAccountId, par
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetLeverageWithBody Get Leverage
@@ -11903,7 +11903,7 @@ func (c *Client) GetLeverageWithBody(ctx context.Context, accountId PathAccountI
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetLeverageWithFormdataBody Get Leverage
@@ -11923,7 +11923,7 @@ func (c *Client) GetLeverageWithFormdataBody(ctx context.Context, accountId Path
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetIndividualPositions Individual Positions
@@ -11940,7 +11940,7 @@ func (c *Client) GetIndividualPositions(ctx context.Context, accountId PathAccou
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // CloseIndividualPositionWithBody Close Individual Position
@@ -11959,7 +11959,7 @@ func (c *Client) CloseIndividualPositionWithBody(ctx context.Context, accountId 
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // CloseIndividualPositionWithFormdataBody Close Individual Position
@@ -11978,7 +11978,7 @@ func (c *Client) CloseIndividualPositionWithFormdataBody(ctx context.Context, ac
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // ModifyIndividualPositionWithBody Modify Individual Position
@@ -11997,7 +11997,7 @@ func (c *Client) ModifyIndividualPositionWithBody(ctx context.Context, accountId
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // ModifyIndividualPositionWithFormdataBody Modify Individual Position
@@ -12016,7 +12016,7 @@ func (c *Client) ModifyIndividualPositionWithFormdataBody(ctx context.Context, a
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetInstruments Instruments
@@ -12033,7 +12033,7 @@ func (c *Client) GetInstruments(ctx context.Context, accountId PathAccountId, pa
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetNetPositions Net Positions
@@ -12050,7 +12050,7 @@ func (c *Client) GetNetPositions(ctx context.Context, accountId PathAccountId, p
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // CloseNetPositionWithBody Close Net Position
@@ -12069,7 +12069,7 @@ func (c *Client) CloseNetPositionWithBody(ctx context.Context, accountId PathAcc
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // CloseNetPositionWithFormdataBody Close Net Position
@@ -12088,7 +12088,7 @@ func (c *Client) CloseNetPositionWithFormdataBody(ctx context.Context, accountId
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // OrderInfoWithBody Order Info
@@ -12109,7 +12109,7 @@ func (c *Client) OrderInfoWithBody(ctx context.Context, accountId PathAccountId,
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // OrderInfoWithFormdataBody Order Info
@@ -12130,7 +12130,7 @@ func (c *Client) OrderInfoWithFormdataBody(ctx context.Context, accountId PathAc
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetOrders Orders
@@ -12149,7 +12149,7 @@ func (c *Client) GetOrders(ctx context.Context, accountId PathAccountId, params 
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // PlaceOrderWithBody Place Order
@@ -12168,7 +12168,7 @@ func (c *Client) PlaceOrderWithBody(ctx context.Context, accountId PathAccountId
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // PlaceOrderWithFormdataBody Place Order
@@ -12187,7 +12187,7 @@ func (c *Client) PlaceOrderWithFormdataBody(ctx context.Context, accountId PathA
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // CancelAllOrdersWithBody Cancel All Orders
@@ -12207,7 +12207,7 @@ func (c *Client) CancelAllOrdersWithBody(ctx context.Context, accountId PathAcco
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // CancelAllOrdersWithFormdataBody Cancel All Orders
@@ -12227,7 +12227,7 @@ func (c *Client) CancelAllOrdersWithFormdataBody(ctx context.Context, accountId 
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // CancelOrder Cancel Order
@@ -12244,7 +12244,7 @@ func (c *Client) CancelOrder(ctx context.Context, accountId PathAccountId, order
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // ModifyOrderWithBody Modify Order
@@ -12263,7 +12263,7 @@ func (c *Client) ModifyOrderWithBody(ctx context.Context, accountId PathAccountI
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // ModifyOrderWithFormdataBody Modify Order
@@ -12282,7 +12282,7 @@ func (c *Client) ModifyOrderWithFormdataBody(ctx context.Context, accountId Path
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetOrdersHistory Orders History
@@ -12305,7 +12305,7 @@ func (c *Client) GetOrdersHistory(ctx context.Context, accountId PathAccountId, 
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetPositions Positions
@@ -12322,7 +12322,7 @@ func (c *Client) GetPositions(ctx context.Context, accountId PathAccountId, para
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // ClosePositionWithBody Close Position
@@ -12341,7 +12341,7 @@ func (c *Client) ClosePositionWithBody(ctx context.Context, accountId PathAccoun
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // ClosePositionWithFormdataBody Close Position
@@ -12360,7 +12360,7 @@ func (c *Client) ClosePositionWithFormdataBody(ctx context.Context, accountId Pa
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // ModifyPositionWithBody Modify Position
@@ -12379,7 +12379,7 @@ func (c *Client) ModifyPositionWithBody(ctx context.Context, accountId PathAccou
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // ModifyPositionWithFormdataBody Modify Position
@@ -12398,7 +12398,7 @@ func (c *Client) ModifyPositionWithFormdataBody(ctx context.Context, accountId P
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // PreviewClosePositionWithBody Preview Close Position
@@ -12418,7 +12418,7 @@ func (c *Client) PreviewClosePositionWithBody(ctx context.Context, accountId Pat
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // PreviewClosePositionWithFormdataBody Preview Close Position
@@ -12438,7 +12438,7 @@ func (c *Client) PreviewClosePositionWithFormdataBody(ctx context.Context, accou
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // PreviewLeverageWithBody Preview Leverage
@@ -12458,7 +12458,7 @@ func (c *Client) PreviewLeverageWithBody(ctx context.Context, accountId PathAcco
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // PreviewLeverageWithFormdataBody Preview Leverage
@@ -12478,7 +12478,7 @@ func (c *Client) PreviewLeverageWithFormdataBody(ctx context.Context, accountId 
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // PreviewOrderWithBody Preview Order
@@ -12500,7 +12500,7 @@ func (c *Client) PreviewOrderWithBody(ctx context.Context, accountId PathAccount
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // PreviewOrderWithFormdataBody Preview Order
@@ -12522,7 +12522,7 @@ func (c *Client) PreviewOrderWithFormdataBody(ctx context.Context, accountId Pat
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // SetLeverageWithBody Set Leverage
@@ -12543,7 +12543,7 @@ func (c *Client) SetLeverageWithBody(ctx context.Context, accountId PathAccountI
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // SetLeverageWithFormdataBody Set Leverage
@@ -12564,7 +12564,7 @@ func (c *Client) SetLeverageWithFormdataBody(ctx context.Context, accountId Path
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetState State
@@ -12581,7 +12581,7 @@ func (c *Client) GetState(ctx context.Context, accountId PathAccountId, params *
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // StreamIndividualPositions Stream Individual Positions
@@ -12598,7 +12598,7 @@ func (c *Client) StreamIndividualPositions(ctx context.Context, accountId PathAc
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // StreamNetPositions Stream Net Positions
@@ -12615,7 +12615,7 @@ func (c *Client) StreamNetPositions(ctx context.Context, accountId PathAccountId
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // StreamNotifications Stream Notifications
@@ -12632,7 +12632,7 @@ func (c *Client) StreamNotifications(ctx context.Context, accountId PathAccountI
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // StreamOrders Stream Orders
@@ -12649,7 +12649,7 @@ func (c *Client) StreamOrders(ctx context.Context, accountId PathAccountId, para
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // StreamPositions Stream Positions
@@ -12666,7 +12666,7 @@ func (c *Client) StreamPositions(ctx context.Context, accountId PathAccountId, p
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // StreamState Stream State
@@ -12683,7 +12683,7 @@ func (c *Client) StreamState(ctx context.Context, accountId PathAccountId, param
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // TrackLatencyWithBody Latency Tracking
@@ -12711,7 +12711,7 @@ func (c *Client) TrackLatencyWithBody(ctx context.Context, accountId PathAccount
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // TrackLatencyWithFormdataBody Latency Tracking
@@ -12739,7 +12739,7 @@ func (c *Client) TrackLatencyWithFormdataBody(ctx context.Context, accountId Pat
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // AuthorizeWithBody Authorize
@@ -12758,7 +12758,7 @@ func (c *Client) AuthorizeWithBody(ctx context.Context, contentType string, body
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // AuthorizeWithFormdataBody Authorize
@@ -12777,7 +12777,7 @@ func (c *Client) AuthorizeWithFormdataBody(ctx context.Context, body AuthorizeFo
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetConfiguration Configuration
@@ -12794,7 +12794,7 @@ func (c *Client) GetConfiguration(ctx context.Context, params *GetConfigurationP
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetDepth Depth
@@ -12811,7 +12811,7 @@ func (c *Client) GetDepth(ctx context.Context, params *GetDepthParams, reqEditor
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetGroups Groups
@@ -12847,7 +12847,7 @@ func (c *Client) GetGroups(ctx context.Context, reqEditors ...RequestEditorFn) (
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetHistory History
@@ -12880,7 +12880,7 @@ func (c *Client) GetHistory(ctx context.Context, params *GetHistoryParams, reqEd
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // Logout Logout
@@ -12897,7 +12897,7 @@ func (c *Client) Logout(ctx context.Context, reqEditors ...RequestEditorFn) (*ht
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetMapping Mapping
@@ -12916,7 +12916,7 @@ func (c *Client) GetMapping(ctx context.Context, reqEditors ...RequestEditorFn) 
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetPermissions Permissions
@@ -12934,7 +12934,7 @@ func (c *Client) GetPermissions(ctx context.Context, reqEditors ...RequestEditor
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // PostPromotionReportWithBody Promotion Report
@@ -12953,7 +12953,7 @@ func (c *Client) PostPromotionReportWithBody(ctx context.Context, params *PostPr
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // PostPromotionReport Promotion Report
@@ -12972,7 +12972,7 @@ func (c *Client) PostPromotionReport(ctx context.Context, params *PostPromotionR
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetQuotes Quotes
@@ -12992,7 +12992,7 @@ func (c *Client) GetQuotes(ctx context.Context, params *GetQuotesParams, reqEdit
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // StreamDepth Stream Depth
@@ -13009,7 +13009,7 @@ func (c *Client) StreamDepth(ctx context.Context, params *StreamDepthParams, req
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // StreamQuotes Stream Quotes
@@ -13029,7 +13029,7 @@ func (c *Client) StreamQuotes(ctx context.Context, params *StreamQuotesParams, r
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // Streaming Stream of prices
@@ -13069,7 +13069,7 @@ func (c *Client) Streaming(ctx context.Context, reqEditors ...RequestEditorFn) (
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetSymbolInfo Symbol Info
@@ -13086,7 +13086,7 @@ func (c *Client) GetSymbolInfo(ctx context.Context, params *GetSymbolInfoParams,
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // GetUserInfo User Info
@@ -13103,7 +13103,7 @@ func (c *Client) GetUserInfo(ctx context.Context, params *GetUserInfoParams, req
 	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
 		return nil, err
 	}
-	return c.Client.Do(req)
+	return doRequest(c.Client, req)
 }
 
 // NewGetAccountsRequest constructs an http.Request for the GetAccounts method
@@ -19133,7 +19133,7 @@ func (c *ClientWithResponses) GetUserInfoWithResponse(ctx context.Context, param
 
 // ParseGetAccountsResponse parses an HTTP response from a GetAccountsWithResponse call
 func ParseGetAccountsResponse(rsp *http.Response) (*GetAccountsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19162,7 +19162,7 @@ func ParseGetAccountsResponse(rsp *http.Response) (*GetAccountsResponse, error) 
 
 // ParseGetBalancesResponse parses an HTTP response from a GetBalancesWithResponse call
 func ParseGetBalancesResponse(rsp *http.Response) (*GetBalancesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19191,7 +19191,7 @@ func ParseGetBalancesResponse(rsp *http.Response) (*GetBalancesResponse, error) 
 
 // ParseGetExecutionsResponse parses an HTTP response from a GetExecutionsWithResponse call
 func ParseGetExecutionsResponse(rsp *http.Response) (*GetExecutionsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19220,7 +19220,7 @@ func ParseGetExecutionsResponse(rsp *http.Response) (*GetExecutionsResponse, err
 
 // ParseGetLeverageResponse parses an HTTP response from a GetLeverageWithResponse call
 func ParseGetLeverageResponse(rsp *http.Response) (*GetLeverageResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19249,7 +19249,7 @@ func ParseGetLeverageResponse(rsp *http.Response) (*GetLeverageResponse, error) 
 
 // ParseGetIndividualPositionsResponse parses an HTTP response from a GetIndividualPositionsWithResponse call
 func ParseGetIndividualPositionsResponse(rsp *http.Response) (*GetIndividualPositionsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19278,7 +19278,7 @@ func ParseGetIndividualPositionsResponse(rsp *http.Response) (*GetIndividualPosi
 
 // ParseCloseIndividualPositionResponse parses an HTTP response from a CloseIndividualPositionWithResponse call
 func ParseCloseIndividualPositionResponse(rsp *http.Response) (*CloseIndividualPositionResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19307,7 +19307,7 @@ func ParseCloseIndividualPositionResponse(rsp *http.Response) (*CloseIndividualP
 
 // ParseModifyIndividualPositionResponse parses an HTTP response from a ModifyIndividualPositionWithResponse call
 func ParseModifyIndividualPositionResponse(rsp *http.Response) (*ModifyIndividualPositionResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19336,7 +19336,7 @@ func ParseModifyIndividualPositionResponse(rsp *http.Response) (*ModifyIndividua
 
 // ParseGetInstrumentsResponse parses an HTTP response from a GetInstrumentsWithResponse call
 func ParseGetInstrumentsResponse(rsp *http.Response) (*GetInstrumentsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19365,7 +19365,7 @@ func ParseGetInstrumentsResponse(rsp *http.Response) (*GetInstrumentsResponse, e
 
 // ParseGetNetPositionsResponse parses an HTTP response from a GetNetPositionsWithResponse call
 func ParseGetNetPositionsResponse(rsp *http.Response) (*GetNetPositionsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19394,7 +19394,7 @@ func ParseGetNetPositionsResponse(rsp *http.Response) (*GetNetPositionsResponse,
 
 // ParseCloseNetPositionResponse parses an HTTP response from a CloseNetPositionWithResponse call
 func ParseCloseNetPositionResponse(rsp *http.Response) (*CloseNetPositionResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19423,7 +19423,7 @@ func ParseCloseNetPositionResponse(rsp *http.Response) (*CloseNetPositionRespons
 
 // ParseOrderInfoResponse parses an HTTP response from a OrderInfoWithResponse call
 func ParseOrderInfoResponse(rsp *http.Response) (*OrderInfoResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19452,7 +19452,7 @@ func ParseOrderInfoResponse(rsp *http.Response) (*OrderInfoResponse, error) {
 
 // ParseGetOrdersResponse parses an HTTP response from a GetOrdersWithResponse call
 func ParseGetOrdersResponse(rsp *http.Response) (*GetOrdersResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19481,7 +19481,7 @@ func ParseGetOrdersResponse(rsp *http.Response) (*GetOrdersResponse, error) {
 
 // ParsePlaceOrderResponse parses an HTTP response from a PlaceOrderWithResponse call
 func ParsePlaceOrderResponse(rsp *http.Response) (*PlaceOrderResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19510,7 +19510,7 @@ func ParsePlaceOrderResponse(rsp *http.Response) (*PlaceOrderResponse, error) {
 
 // ParseCancelAllOrdersResponse parses an HTTP response from a CancelAllOrdersWithResponse call
 func ParseCancelAllOrdersResponse(rsp *http.Response) (*CancelAllOrdersResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19539,7 +19539,7 @@ func ParseCancelAllOrdersResponse(rsp *http.Response) (*CancelAllOrdersResponse,
 
 // ParseCancelOrderResponse parses an HTTP response from a CancelOrderWithResponse call
 func ParseCancelOrderResponse(rsp *http.Response) (*CancelOrderResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19568,7 +19568,7 @@ func ParseCancelOrderResponse(rsp *http.Response) (*CancelOrderResponse, error) 
 
 // ParseModifyOrderResponse parses an HTTP response from a ModifyOrderWithResponse call
 func ParseModifyOrderResponse(rsp *http.Response) (*ModifyOrderResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19597,7 +19597,7 @@ func ParseModifyOrderResponse(rsp *http.Response) (*ModifyOrderResponse, error) 
 
 // ParseGetOrdersHistoryResponse parses an HTTP response from a GetOrdersHistoryWithResponse call
 func ParseGetOrdersHistoryResponse(rsp *http.Response) (*GetOrdersHistoryResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19626,7 +19626,7 @@ func ParseGetOrdersHistoryResponse(rsp *http.Response) (*GetOrdersHistoryRespons
 
 // ParseGetPositionsResponse parses an HTTP response from a GetPositionsWithResponse call
 func ParseGetPositionsResponse(rsp *http.Response) (*GetPositionsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19655,7 +19655,7 @@ func ParseGetPositionsResponse(rsp *http.Response) (*GetPositionsResponse, error
 
 // ParseClosePositionResponse parses an HTTP response from a ClosePositionWithResponse call
 func ParseClosePositionResponse(rsp *http.Response) (*ClosePositionResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19684,7 +19684,7 @@ func ParseClosePositionResponse(rsp *http.Response) (*ClosePositionResponse, err
 
 // ParseModifyPositionResponse parses an HTTP response from a ModifyPositionWithResponse call
 func ParseModifyPositionResponse(rsp *http.Response) (*ModifyPositionResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19713,7 +19713,7 @@ func ParseModifyPositionResponse(rsp *http.Response) (*ModifyPositionResponse, e
 
 // ParsePreviewClosePositionResponse parses an HTTP response from a PreviewClosePositionWithResponse call
 func ParsePreviewClosePositionResponse(rsp *http.Response) (*PreviewClosePositionResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19742,7 +19742,7 @@ func ParsePreviewClosePositionResponse(rsp *http.Response) (*PreviewClosePositio
 
 // ParsePreviewLeverageResponse parses an HTTP response from a PreviewLeverageWithResponse call
 func ParsePreviewLeverageResponse(rsp *http.Response) (*PreviewLeverageResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19771,7 +19771,7 @@ func ParsePreviewLeverageResponse(rsp *http.Response) (*PreviewLeverageResponse,
 
 // ParsePreviewOrderResponse parses an HTTP response from a PreviewOrderWithResponse call
 func ParsePreviewOrderResponse(rsp *http.Response) (*PreviewOrderResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19800,7 +19800,7 @@ func ParsePreviewOrderResponse(rsp *http.Response) (*PreviewOrderResponse, error
 
 // ParseSetLeverageResponse parses an HTTP response from a SetLeverageWithResponse call
 func ParseSetLeverageResponse(rsp *http.Response) (*SetLeverageResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19829,7 +19829,7 @@ func ParseSetLeverageResponse(rsp *http.Response) (*SetLeverageResponse, error) 
 
 // ParseGetStateResponse parses an HTTP response from a GetStateWithResponse call
 func ParseGetStateResponse(rsp *http.Response) (*GetStateResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19858,7 +19858,7 @@ func ParseGetStateResponse(rsp *http.Response) (*GetStateResponse, error) {
 
 // ParseTrackLatencyResponse parses an HTTP response from a TrackLatencyWithResponse call
 func ParseTrackLatencyResponse(rsp *http.Response) (*TrackLatencyResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19887,7 +19887,7 @@ func ParseTrackLatencyResponse(rsp *http.Response) (*TrackLatencyResponse, error
 
 // ParseAuthorizeResponse parses an HTTP response from a AuthorizeWithResponse call
 func ParseAuthorizeResponse(rsp *http.Response) (*AuthorizeResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19916,7 +19916,7 @@ func ParseAuthorizeResponse(rsp *http.Response) (*AuthorizeResponse, error) {
 
 // ParseGetConfigurationResponse parses an HTTP response from a GetConfigurationWithResponse call
 func ParseGetConfigurationResponse(rsp *http.Response) (*GetConfigurationResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19945,7 +19945,7 @@ func ParseGetConfigurationResponse(rsp *http.Response) (*GetConfigurationRespons
 
 // ParseGetDepthResponse parses an HTTP response from a GetDepthWithResponse call
 func ParseGetDepthResponse(rsp *http.Response) (*GetDepthResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -19974,7 +19974,7 @@ func ParseGetDepthResponse(rsp *http.Response) (*GetDepthResponse, error) {
 
 // ParseGetGroupsResponse parses an HTTP response from a GetGroupsWithResponse call
 func ParseGetGroupsResponse(rsp *http.Response) (*GetGroupsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -20003,7 +20003,7 @@ func ParseGetGroupsResponse(rsp *http.Response) (*GetGroupsResponse, error) {
 
 // ParseGetHistoryResponse parses an HTTP response from a GetHistoryWithResponse call
 func ParseGetHistoryResponse(rsp *http.Response) (*GetHistoryResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -20032,7 +20032,7 @@ func ParseGetHistoryResponse(rsp *http.Response) (*GetHistoryResponse, error) {
 
 // ParseLogoutResponse parses an HTTP response from a LogoutWithResponse call
 func ParseLogoutResponse(rsp *http.Response) (*LogoutResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -20061,7 +20061,7 @@ func ParseLogoutResponse(rsp *http.Response) (*LogoutResponse, error) {
 
 // ParseGetMappingResponse parses an HTTP response from a GetMappingWithResponse call
 func ParseGetMappingResponse(rsp *http.Response) (*GetMappingResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -20090,7 +20090,7 @@ func ParseGetMappingResponse(rsp *http.Response) (*GetMappingResponse, error) {
 
 // ParseGetPermissionsResponse parses an HTTP response from a GetPermissionsWithResponse call
 func ParseGetPermissionsResponse(rsp *http.Response) (*GetPermissionsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -20119,7 +20119,7 @@ func ParseGetPermissionsResponse(rsp *http.Response) (*GetPermissionsResponse, e
 
 // ParsePostPromotionReportResponse parses an HTTP response from a PostPromotionReportWithResponse call
 func ParsePostPromotionReportResponse(rsp *http.Response) (*PostPromotionReportResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -20148,7 +20148,7 @@ func ParsePostPromotionReportResponse(rsp *http.Response) (*PostPromotionReportR
 
 // ParseGetQuotesResponse parses an HTTP response from a GetQuotesWithResponse call
 func ParseGetQuotesResponse(rsp *http.Response) (*GetQuotesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -20177,7 +20177,7 @@ func ParseGetQuotesResponse(rsp *http.Response) (*GetQuotesResponse, error) {
 
 // ParseGetSymbolInfoResponse parses an HTTP response from a GetSymbolInfoWithResponse call
 func ParseGetSymbolInfoResponse(rsp *http.Response) (*GetSymbolInfoResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
@@ -20206,7 +20206,7 @@ func ParseGetSymbolInfoResponse(rsp *http.Response) (*GetSymbolInfoResponse, err
 
 // ParseGetUserInfoResponse parses an HTTP response from a GetUserInfoWithResponse call
 func ParseGetUserInfoResponse(rsp *http.Response) (*GetUserInfoResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
+	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err

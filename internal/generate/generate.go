@@ -266,6 +266,26 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 					return nil, fmt.Errorf("expected one default HTTP client initializer, got %d", defaults)
 				}
 			}
+			ast.Inspect(d.Body, func(node ast.Node) bool {
+				call, ok := node.(*ast.CallExpr)
+				if !ok {
+					return true
+				}
+				selector, ok := call.Fun.(*ast.SelectorExpr)
+				if !ok || selector.Sel.Name != "Do" {
+					return true
+				}
+				receiver, ok := selector.X.(*ast.SelectorExpr)
+				if !ok || receiver.Sel.Name != "Client" {
+					return true
+				}
+				client, ok := receiver.X.(*ast.Ident)
+				if !ok || client.Name != "c" {
+					return true
+				}
+				edits = append(edits, edit{fset.Position(call.Pos()).Offset, fset.Position(call.End()).Offset, "doRequest(c.Client, req)"})
+				return false
+			})
 			removeReceiver := false
 			if d.Recv != nil {
 				for _, field := range d.Recv.List {
@@ -287,7 +307,7 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 				continue
 			}
 			if strings.HasPrefix(d.Name.Name, "Parse") && strings.HasSuffix(d.Name.Name, "Response") {
-				guards, cases, decoders := 0, 0, 0
+				guards, cases, decoders, reads := 0, 0, 0, 0
 				// Each finite parser reads bodyBytes before constructing its response wrapper.
 				for _, stmt := range d.Body.List {
 					if assign, ok := stmt.(*ast.AssignStmt); ok {
@@ -302,6 +322,13 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 				}
 				ast.Inspect(d.Body, func(node ast.Node) bool {
 					switch n := node.(type) {
+					case *ast.CallExpr:
+						if selector, ok := n.Fun.(*ast.SelectorExpr); ok && selector.Sel.Name == "ReadAll" {
+							if pkg, ok := selector.X.(*ast.Ident); ok && pkg.Name == "io" {
+								edits = append(edits, edit{fset.Position(n.Pos()).Offset, fset.Position(n.End()).Offset, "readFiniteResponse(rsp)"})
+								reads++
+							}
+						}
 					case *ast.CaseClause:
 						if len(n.List) != 1 {
 							return true
@@ -345,7 +372,7 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 					}
 					return true
 				})
-				if guards != 1 || cases != 1 || decoders != 1 {
+				if guards != 1 || cases != 1 || decoders != 1 || reads != 1 {
 					return nil, fmt.Errorf("unsupported finite parser shape in %s: guards=%d cases=%d decoders=%d", d.Name.Name, guards, cases, decoders)
 				}
 			}
