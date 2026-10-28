@@ -33,7 +33,7 @@ func (b *countingResponseBody) Close() error { b.closed = true; return nil }
 func TestEveryFiniteMethodBoundsResponse(t *testing.T) {
 	contract := loadFixtureContract(t)
 	count := 0
-	for _, fixture := range operationFixtures {
+	for _, fixture := range _operationFixtures {
 		entry := contract.manifest[fixture.id]
 		if entry.Streaming {
 			continue
