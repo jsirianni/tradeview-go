@@ -314,3 +314,39 @@ func TestSymbolInfoRejectsTooManySymbols(t *testing.T) {
 		})
 	}
 }
+
+func TestSymbolInfoCountLimitCoversFoldedAndDuplicateKeys(t *testing.T) {
+	oversized := `[` + strings.Repeat(`"X",`, MaxSymbolInfoSymbols) + `"X"]`
+	for _, key := range []string{"symbol", "Symbol", "SYMBOL", "ſymbol"} {
+		for _, payload := range []string{
+			`{"` + key + `":` + oversized + `}`,
+			`{"symbol":["X"],"` + key + `":` + oversized + `,"description":"shared"}`,
+			`{"` + key + `":` + oversized + `,"symbol":["X"],"description":"shared"}`,
+		} {
+			for name, factory := range symbolInfoModelFactories() {
+				t.Run(name+"/"+key, func(t *testing.T) {
+					var sizeErr *SymbolInfoSizeError
+					if err := json.Unmarshal([]byte(payload), factory()); !errors.As(err, &sizeErr) {
+						t.Fatalf("folded or overwritten array escaped cap: %v", err)
+					}
+				})
+			}
+		}
+	}
+	// Folded nulls and arrays retain encoding/json's final-key precedence;
+	// scalar compact expansion still uses the last exact canonical key only.
+	for _, payload := range []string{
+		`{"Symbol":null}`, `{"ſymbol":["X"]}`,
+		`{"symbol":"X","Symbol":["Y"],"description":"shared"}`,
+		`{"Symbol":["Y"],"symbol":"X","description":"shared"}`,
+		`{"symbol":"X","Symbol":null,"description":"shared"}`,
+	} {
+		for name, factory := range symbolInfoModelFactories() {
+			t.Run(name+"/control", func(t *testing.T) {
+				if err := json.Unmarshal([]byte(payload), factory()); err != nil {
+					t.Fatalf("changed ordinary folded/null/scalar behavior: %v", err)
+				}
+			})
+		}
+	}
+}

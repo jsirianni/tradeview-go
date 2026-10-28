@@ -3,7 +3,9 @@ package tradeview
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"strings"
 )
 
 // MaxSymbolInfoExpandedBytes bounds compact metadata normalization, including
@@ -50,18 +52,11 @@ func normalizeSymbolInfoJSON(data []byte, fields []string) ([]byte, error) {
 	}
 	symbolCount := 0
 	if raw, ok := object["symbol"]; ok {
-		if compactMetadataValue(raw) {
-			symbolCount = 1
-		} else {
-			var symbols []json.RawMessage
-			if err := json.Unmarshal(raw, &symbols); err != nil {
-				return nil, fmt.Errorf("tradeview: decode symbol metadata symbol: %w", err)
-			}
-			symbolCount = len(symbols)
+		var err error
+		symbolCount, err = boundedSymbolInfoCount(raw)
+		if err != nil {
+			return nil, fmt.Errorf("tradeview: decode symbol metadata symbol: %w", err)
 		}
-	}
-	if symbolCount > MaxSymbolInfoSymbols {
-		return nil, &SymbolInfoSizeError{Limit: MaxSymbolInfoExpandedBytes}
 	}
 	metadataFields := make(map[string]bool, len(fields))
 	for _, field := range fields {
@@ -85,10 +80,21 @@ func normalizeSymbolInfoJSON(data []byte, fields []string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		field := token.(string)
+		field, ok := token.(string)
+		if !ok {
+			return nil, errors.New("tradeview: invalid symbol metadata property")
+		}
 		var raw json.RawMessage
 		if err := decoder.Decode(&raw); err != nil {
 			return nil, err
+		}
+		// encoding/json assigns Unicode case-folded aliases too. Check every
+		// occurrence before final typed decoding, including overwritten arrays.
+		// Only the last exact "symbol" key drives compact expansion as before.
+		if strings.EqualFold(field, "symbol") {
+			if _, err := boundedSymbolInfoCount(raw); err != nil {
+				return nil, err
+			}
 		}
 		if !metadataFields[field] || !compactMetadataValue(raw) {
 			continue
@@ -137,4 +143,35 @@ func normalizeSymbolInfoJSON(data []byte, fields []string) ([]byte, error) {
 func compactMetadataValue(raw json.RawMessage) bool {
 	raw = bytes.TrimSpace(raw)
 	return len(raw) != 0 && raw[0] != '[' && !bytes.Equal(raw, []byte("null"))
+}
+
+// boundedSymbolInfoCount avoids allocating a RawMessage slice proportional to
+// an untrusted symbol count. Individual elements are discarded as they are read.
+func boundedSymbolInfoCount(raw json.RawMessage) (int, error) {
+	raw = bytes.TrimSpace(raw)
+	if bytes.Equal(raw, []byte("null")) {
+		return 0, nil
+	}
+	if compactMetadataValue(raw) {
+		return 1, nil
+	}
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	if _, err := decoder.Token(); err != nil {
+		return 0, err
+	}
+	count := 0
+	for decoder.More() {
+		if count == MaxSymbolInfoSymbols {
+			return 0, &SymbolInfoSizeError{Limit: MaxSymbolInfoExpandedBytes}
+		}
+		var item json.RawMessage
+		if err := decoder.Decode(&item); err != nil {
+			return 0, err
+		}
+		count++
+	}
+	if _, err := decoder.Token(); err != nil {
+		return 0, err
+	}
+	return count, nil
 }
