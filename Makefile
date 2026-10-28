@@ -2,11 +2,12 @@ GO ?= go
 GOFMT ?= gofmt
 STATICCHECK_VERSION := v0.8.2
 STATICCHECK_PACKAGES ?= ./...
+GOVULNCHECK_VERSION := v1.9.0
 TEST_ARGS ?=
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build test test-race coverage coverage-html fmt fmt-check vet staticcheck generate generate-check deps tidy check ci clean
+.PHONY: help build test test-race coverage coverage-html fmt fmt-check vet staticcheck govulncheck generate generate-check deps tidy check ci clean
 
 help:
 	@echo make build - Build all Go packages
@@ -18,6 +19,7 @@ help:
 	@echo make fmt-check - Check formatting without changing files
 	@echo make vet - Run Go static analysis
 	@echo make staticcheck - Run pinned Staticcheck analysis
+	@echo make govulncheck - Check reachable known vulnerabilities
 	@echo make generate - Regenerate bindings from the pinned schema
 	@echo make generate-check - Regenerate and check committed bindings
 	@echo make deps - Download module dependencies
@@ -57,6 +59,11 @@ vet:
 staticcheck:
 	$(GO) run honnef.co/go/tools/cmd/staticcheck@$(STATICCHECK_VERSION) $(STATICCHECK_PACKAGES)
 
+govulncheck:
+	$(GO) version
+	$(GO) run golang.org/x/vuln/cmd/govulncheck@$(GOVULNCHECK_VERSION) -version
+	$(GO) run golang.org/x/vuln/cmd/govulncheck@$(GOVULNCHECK_VERSION) ./...
+
 generate:
 	$(GO) generate ./...
 
@@ -74,7 +81,7 @@ check: fmt-check vet staticcheck test
 
 # Finish generation before readers start, even when invoked with make -j.
 ci: generate-check
-	$(MAKE) check build test-race
+	$(MAKE) check build test-race govulncheck
 
 clean:
 	$(GO) clean ./...

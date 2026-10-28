@@ -1,6 +1,6 @@
 # Development
 
-Development requires Linux, Go 1.27, Git, and GNU Make 4.2 or newer on your PATH.
+Development requires Linux, Go 1.27.3 or a newer patch in the Go 1.27 series, Git, and GNU Make 4.2 or newer on your PATH.
 
 ## Packages
 
@@ -32,11 +32,12 @@ make test TEST_ARGS="-run TestOperationTransport -count=1"
 | `fmt` / `fmt-check` | Format Go sources or check formatting. |
 | `vet` | Run Go's static checks. |
 | `staticcheck` | Run pinned Staticcheck analysis on all packages and normal tests. |
+| `govulncheck` | Record tool versions and scan all packages for reachable known vulnerabilities. |
 | `generate` | Regenerate bindings and the operation inventory. |
 | `generate-check` | Regenerate and reject differences in tracked generated outputs. |
 | `deps` / `tidy` | Download dependencies or tidy module metadata. |
 | `check` | Check formatting, vet, Staticcheck, and tests. |
-| `ci` | Check generation, then run checks, build, and race tests. |
+| `ci` | Check generation, then run checks, build, race tests, and govulncheck. |
 | `clean` | Clean package build artifacts and remove coverage reports. |
 
 Override `GO` and `GOFMT` to select tool executables. `TEST_ARGS` passes additional arguments to Go tests. For example, `make test TEST_ARGS="-count=1"` runs tests without cached results.
@@ -51,7 +52,15 @@ The generator uses `oapi-codegen` **v2.8.1**, pinned as a Go tool dependency. `m
 
 Generation uses the committed schema and does not fetch a new API revision. To update the contract, replace the upstream schema deliberately, record its version/source/checksum, review the compatibility overlay, regenerate, and update the operation inventory and transport fixtures together. Review all resulting API changes before committing.
 
-CI runs one Linux job with Go 1.27. It runs `make ci`, records market-stream decoding benchmarks, and verifies that the checkout stays clean. Tests use local HTTP fixtures and do not require broker credentials.
+CI runs one Linux job with Go 1.27, selecting the latest available patch at or above 1.27.3. It runs `make ci`, records market-stream decoding benchmarks, and verifies that the checkout stays clean. Tests use local HTTP fixtures and do not require broker credentials.
+
+## Known vulnerability scanning
+
+`make govulncheck` runs **govulncheck v1.9.0** through a versioned `go run`, independently of client dependencies. It prints the actual Go and scanner versions and scans `./...`, including runtime and generator packages, using the live Go vulnerability database. The supported development baseline is Go **1.27.3**, which fixes standard-library advisories reported with Go 1.27.0. The module directive remains a language/toolchain minimum; consumers should use a supported patched toolchain.
+
+The scan is part of `make ci` on PRs and main. CI also runs every Monday at 09:23 UTC and can be dispatched manually, so new advisories are checked without source changes. CI explicitly selects the live database at `https://vuln.go.dev` and retains scanner output in job logs. Reachable vulnerability findings, scanner failures, database failures, and package-loading failures fail the job. Imported-but-unreachable advisories are informational and are not evidence of an exploitable application path.
+
+Source analysis does not execute the application or discover new application-specific vulnerabilities. `./...` covers this module's packages, not every dependency of the separately invoked `oapi-codegen` binary or the analysis tool itself. Review those tools separately when updating their pinned versions. No advisories are suppressed; any future exception must name the advisory, rationale, owner, and review date or expiry condition. Keep the Go patch baseline and scanner compatible and current when upgrading.
 
 ## Staticcheck
 
