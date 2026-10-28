@@ -4,7 +4,7 @@ import "context"
 
 // OpenStreamState opens the typed newline-delimited stream for state.
 func (client *Client) OpenStreamState(ctx context.Context, accountID PathAccountId, params *StreamStateParams, options ...StreamOption) (*Stream[StateEvent], error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 	config, err := configureStream(options)
 	if err != nil {
 		return nil, err
@@ -15,7 +15,7 @@ func (client *Client) OpenStreamState(ctx context.Context, accountID PathAccount
 
 // OpenStreamOrders opens the typed newline-delimited stream for orders.
 func (client *Client) OpenStreamOrders(ctx context.Context, accountID PathAccountId, params *StreamOrdersParams, options ...StreamOption) (*Stream[OrdersEvent], error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 	config, err := configureStream(options)
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func (client *Client) OpenStreamOrders(ctx context.Context, accountID PathAccoun
 
 // OpenStreamPositions opens the typed newline-delimited stream for positions.
 func (client *Client) OpenStreamPositions(ctx context.Context, accountID PathAccountId, params *StreamPositionsParams, options ...StreamOption) (*Stream[PositionsEvent], error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 	config, err := configureStream(options)
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func (client *Client) OpenStreamPositions(ctx context.Context, accountID PathAcc
 
 // OpenStreamNetPositions opens the typed newline-delimited stream for netPositions.
 func (client *Client) OpenStreamNetPositions(ctx context.Context, accountID PathAccountId, params *StreamNetPositionsParams, options ...StreamOption) (*Stream[NetPositionsEvent], error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 	config, err := configureStream(options)
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (client *Client) OpenStreamNetPositions(ctx context.Context, accountID Path
 
 // OpenStreamIndividualPositions opens the typed newline-delimited stream for individualPositions.
 func (client *Client) OpenStreamIndividualPositions(ctx context.Context, accountID PathAccountId, params *StreamIndividualPositionsParams, options ...StreamOption) (*Stream[IndividualPositionsEvent], error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 	config, err := configureStream(options)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (client *Client) OpenStreamIndividualPositions(ctx context.Context, account
 
 // OpenStreamNotifications opens the typed newline-delimited stream for notifications.
 func (client *Client) OpenStreamNotifications(ctx context.Context, accountID PathAccountId, params *StreamNotificationsParams, options ...StreamOption) (*Stream[NotificationsEvent], error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 	config, err := configureStream(options)
 	if err != nil {
 		return nil, err
@@ -70,7 +70,7 @@ func (client *Client) OpenStreamNotifications(ctx context.Context, accountID Pat
 
 // OpenStreamQuotes opens the typed newline-delimited stream for quotes.
 func (client *Client) OpenStreamQuotes(ctx context.Context, params *StreamQuotesParams, options ...StreamOption) (*Stream[QuotesEvent], error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 	config, err := configureStream(options)
 	if err != nil {
 		return nil, err
@@ -81,7 +81,7 @@ func (client *Client) OpenStreamQuotes(ctx context.Context, params *StreamQuotes
 
 // OpenStreamDepth opens the typed newline-delimited stream for depth.
 func (client *Client) OpenStreamDepth(ctx context.Context, params *StreamDepthParams, options ...StreamOption) (*Stream[DepthEvent], error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 	config, err := configureStream(options)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (client *Client) OpenStreamDepth(ctx context.Context, params *StreamDepthPa
 
 // OpenStreaming opens the typed /streaming market-data feed.
 func (client *Client) OpenStreaming(ctx context.Context, options ...StreamOption) (*Stream[MarketEvent], error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 	config, err := configureStream(options)
 	if err != nil {
 		return nil, err

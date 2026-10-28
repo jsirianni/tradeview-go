@@ -68,6 +68,11 @@ The library-created HTTP client permits redirects only within the original origi
 
 Set finite-request deadlines through contexts or your HTTP client. Streaming contexts must remain active for the desired connection lifetime. An HTTP client's overall timeout also limits a streaming connection.
 
+Use `WithLogger(logger)` for structured operation logs. Configure the standard
+`log/slog` handler to write to stdout or an open file and select its format and
+severity level. Logging is disabled by default and works independently of
+OpenTelemetry. See [logging configuration and records](logging.md).
+
 ## HTTP streaming
 
 Streams carry newline-delimited JSON over HTTP. They are not WebSocket connections. Open them through the typed `Open...` helpers on `*Client`:

@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
@@ -11144,6 +11145,7 @@ type Client struct {
 	RequestEditors []RequestEditorFn
 
 	telemetry *telemetry
+	logger    *slog.Logger
 }
 
 // ClientOption allows setting custom parameters during construction
@@ -11835,7 +11837,7 @@ type ClientInterface interface {
 //
 // Corresponds with GET /accounts (the `GetAccounts` operationId).
 func (c *Client) GetAccounts(ctx context.Context, params *GetAccountsParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getAccounts", "GET", "/accounts", false)
+	ctx, observation := c.startObservation(ctx, "getAccounts", "GET", "/accounts", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetAccountsRequest(c.Server, params)
@@ -11857,7 +11859,7 @@ func (c *Client) GetAccounts(ctx context.Context, params *GetAccountsParams, req
 //
 // Corresponds with GET /accounts/{accountId}/balances (the `GetBalances` operationId).
 func (c *Client) GetBalances(ctx context.Context, accountId PathAccountId, params *GetBalancesParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getBalances", "GET", "/accounts/{accountId}/balances", false)
+	ctx, observation := c.startObservation(ctx, "getBalances", "GET", "/accounts/{accountId}/balances", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetBalancesRequest(c.Server, accountId, params)
@@ -11883,7 +11885,7 @@ func (c *Client) GetBalances(ctx context.Context, accountId PathAccountId, param
 //
 // Corresponds with GET /accounts/{accountId}/executions (the `GetExecutions` operationId).
 func (c *Client) GetExecutions(ctx context.Context, accountId PathAccountId, params *GetExecutionsParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getExecutions", "GET", "/accounts/{accountId}/executions", false)
+	ctx, observation := c.startObservation(ctx, "getExecutions", "GET", "/accounts/{accountId}/executions", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetExecutionsRequest(c.Server, accountId, params)
@@ -11906,7 +11908,7 @@ func (c *Client) GetExecutions(ctx context.Context, accountId PathAccountId, par
 //
 // Corresponds with POST /accounts/{accountId}/getLeverage (the `GetLeverage` operationId).
 func (c *Client) GetLeverageWithBody(ctx context.Context, accountId PathAccountId, params *GetLeverageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getLeverage", "POST", "/accounts/{accountId}/getLeverage", false)
+	ctx, observation := c.startObservation(ctx, "getLeverage", "POST", "/accounts/{accountId}/getLeverage", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetLeverageRequestWithBody(c.Server, accountId, params, contentType, body)
@@ -11929,7 +11931,7 @@ func (c *Client) GetLeverageWithBody(ctx context.Context, accountId PathAccountI
 //
 // Corresponds with POST /accounts/{accountId}/getLeverage (the `GetLeverage` operationId).
 func (c *Client) GetLeverageWithFormdataBody(ctx context.Context, accountId PathAccountId, params *GetLeverageParams, body GetLeverageFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getLeverage", "POST", "/accounts/{accountId}/getLeverage", false)
+	ctx, observation := c.startObservation(ctx, "getLeverage", "POST", "/accounts/{accountId}/getLeverage", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetLeverageRequestWithFormdataBody(c.Server, accountId, params, body)
@@ -11949,7 +11951,7 @@ func (c *Client) GetLeverageWithFormdataBody(ctx context.Context, accountId Path
 //
 // Corresponds with GET /accounts/{accountId}/individualPositions (the `GetIndividualPositions` operationId).
 func (c *Client) GetIndividualPositions(ctx context.Context, accountId PathAccountId, params *GetIndividualPositionsParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getIndividualPositions", "GET", "/accounts/{accountId}/individualPositions", false)
+	ctx, observation := c.startObservation(ctx, "getIndividualPositions", "GET", "/accounts/{accountId}/individualPositions", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetIndividualPositionsRequest(c.Server, accountId, params)
@@ -11971,7 +11973,7 @@ func (c *Client) GetIndividualPositions(ctx context.Context, accountId PathAccou
 //
 // Corresponds with DELETE /accounts/{accountId}/individualPositions/{individualPositionId} (the `CloseIndividualPosition` operationId).
 func (c *Client) CloseIndividualPositionWithBody(ctx context.Context, accountId PathAccountId, individualPositionId IndividualPositionId, params *CloseIndividualPositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "closeIndividualPosition", "DELETE", "/accounts/{accountId}/individualPositions/{individualPositionId}", false)
+	ctx, observation := c.startObservation(ctx, "closeIndividualPosition", "DELETE", "/accounts/{accountId}/individualPositions/{individualPositionId}", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewCloseIndividualPositionRequestWithBody(c.Server, accountId, individualPositionId, params, contentType, body)
@@ -11993,7 +11995,7 @@ func (c *Client) CloseIndividualPositionWithBody(ctx context.Context, accountId 
 //
 // Corresponds with DELETE /accounts/{accountId}/individualPositions/{individualPositionId} (the `CloseIndividualPosition` operationId).
 func (c *Client) CloseIndividualPositionWithFormdataBody(ctx context.Context, accountId PathAccountId, individualPositionId IndividualPositionId, params *CloseIndividualPositionParams, body CloseIndividualPositionFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "closeIndividualPosition", "DELETE", "/accounts/{accountId}/individualPositions/{individualPositionId}", false)
+	ctx, observation := c.startObservation(ctx, "closeIndividualPosition", "DELETE", "/accounts/{accountId}/individualPositions/{individualPositionId}", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewCloseIndividualPositionRequestWithFormdataBody(c.Server, accountId, individualPositionId, params, body)
@@ -12015,7 +12017,7 @@ func (c *Client) CloseIndividualPositionWithFormdataBody(ctx context.Context, ac
 //
 // Corresponds with PUT /accounts/{accountId}/individualPositions/{individualPositionId} (the `ModifyIndividualPosition` operationId).
 func (c *Client) ModifyIndividualPositionWithBody(ctx context.Context, accountId PathAccountId, individualPositionId IndividualPositionId, params *ModifyIndividualPositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "modifyIndividualPosition", "PUT", "/accounts/{accountId}/individualPositions/{individualPositionId}", false)
+	ctx, observation := c.startObservation(ctx, "modifyIndividualPosition", "PUT", "/accounts/{accountId}/individualPositions/{individualPositionId}", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewModifyIndividualPositionRequestWithBody(c.Server, accountId, individualPositionId, params, contentType, body)
@@ -12037,7 +12039,7 @@ func (c *Client) ModifyIndividualPositionWithBody(ctx context.Context, accountId
 //
 // Corresponds with PUT /accounts/{accountId}/individualPositions/{individualPositionId} (the `ModifyIndividualPosition` operationId).
 func (c *Client) ModifyIndividualPositionWithFormdataBody(ctx context.Context, accountId PathAccountId, individualPositionId IndividualPositionId, params *ModifyIndividualPositionParams, body ModifyIndividualPositionFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "modifyIndividualPosition", "PUT", "/accounts/{accountId}/individualPositions/{individualPositionId}", false)
+	ctx, observation := c.startObservation(ctx, "modifyIndividualPosition", "PUT", "/accounts/{accountId}/individualPositions/{individualPositionId}", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewModifyIndividualPositionRequestWithFormdataBody(c.Server, accountId, individualPositionId, params, body)
@@ -12057,7 +12059,7 @@ func (c *Client) ModifyIndividualPositionWithFormdataBody(ctx context.Context, a
 //
 // Corresponds with GET /accounts/{accountId}/instruments (the `GetInstruments` operationId).
 func (c *Client) GetInstruments(ctx context.Context, accountId PathAccountId, params *GetInstrumentsParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getInstruments", "GET", "/accounts/{accountId}/instruments", false)
+	ctx, observation := c.startObservation(ctx, "getInstruments", "GET", "/accounts/{accountId}/instruments", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetInstrumentsRequest(c.Server, accountId, params)
@@ -12077,7 +12079,7 @@ func (c *Client) GetInstruments(ctx context.Context, accountId PathAccountId, pa
 //
 // Corresponds with GET /accounts/{accountId}/netPositions (the `GetNetPositions` operationId).
 func (c *Client) GetNetPositions(ctx context.Context, accountId PathAccountId, params *GetNetPositionsParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getNetPositions", "GET", "/accounts/{accountId}/netPositions", false)
+	ctx, observation := c.startObservation(ctx, "getNetPositions", "GET", "/accounts/{accountId}/netPositions", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetNetPositionsRequest(c.Server, accountId, params)
@@ -12099,7 +12101,7 @@ func (c *Client) GetNetPositions(ctx context.Context, accountId PathAccountId, p
 //
 // Corresponds with DELETE /accounts/{accountId}/netPositions/{netPositionId} (the `CloseNetPosition` operationId).
 func (c *Client) CloseNetPositionWithBody(ctx context.Context, accountId PathAccountId, netPositionId NetPositionId, params *CloseNetPositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "closeNetPosition", "DELETE", "/accounts/{accountId}/netPositions/{netPositionId}", false)
+	ctx, observation := c.startObservation(ctx, "closeNetPosition", "DELETE", "/accounts/{accountId}/netPositions/{netPositionId}", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewCloseNetPositionRequestWithBody(c.Server, accountId, netPositionId, params, contentType, body)
@@ -12121,7 +12123,7 @@ func (c *Client) CloseNetPositionWithBody(ctx context.Context, accountId PathAcc
 //
 // Corresponds with DELETE /accounts/{accountId}/netPositions/{netPositionId} (the `CloseNetPosition` operationId).
 func (c *Client) CloseNetPositionWithFormdataBody(ctx context.Context, accountId PathAccountId, netPositionId NetPositionId, params *CloseNetPositionParams, body CloseNetPositionFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "closeNetPosition", "DELETE", "/accounts/{accountId}/netPositions/{netPositionId}", false)
+	ctx, observation := c.startObservation(ctx, "closeNetPosition", "DELETE", "/accounts/{accountId}/netPositions/{netPositionId}", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewCloseNetPositionRequestWithFormdataBody(c.Server, accountId, netPositionId, params, body)
@@ -12145,7 +12147,7 @@ func (c *Client) CloseNetPositionWithFormdataBody(ctx context.Context, accountId
 //
 // Corresponds with POST /accounts/{accountId}/orderInfo (the `OrderInfo` operationId).
 func (c *Client) OrderInfoWithBody(ctx context.Context, accountId PathAccountId, params *OrderInfoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "orderInfo", "POST", "/accounts/{accountId}/orderInfo", false)
+	ctx, observation := c.startObservation(ctx, "orderInfo", "POST", "/accounts/{accountId}/orderInfo", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewOrderInfoRequestWithBody(c.Server, accountId, params, contentType, body)
@@ -12169,7 +12171,7 @@ func (c *Client) OrderInfoWithBody(ctx context.Context, accountId PathAccountId,
 //
 // Corresponds with POST /accounts/{accountId}/orderInfo (the `OrderInfo` operationId).
 func (c *Client) OrderInfoWithFormdataBody(ctx context.Context, accountId PathAccountId, params *OrderInfoParams, body OrderInfoFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "orderInfo", "POST", "/accounts/{accountId}/orderInfo", false)
+	ctx, observation := c.startObservation(ctx, "orderInfo", "POST", "/accounts/{accountId}/orderInfo", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewOrderInfoRequestWithFormdataBody(c.Server, accountId, params, body)
@@ -12191,7 +12193,7 @@ func (c *Client) OrderInfoWithFormdataBody(ctx context.Context, accountId PathAc
 //
 // Corresponds with GET /accounts/{accountId}/orders (the `GetOrders` operationId).
 func (c *Client) GetOrders(ctx context.Context, accountId PathAccountId, params *GetOrdersParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getOrders", "GET", "/accounts/{accountId}/orders", false)
+	ctx, observation := c.startObservation(ctx, "getOrders", "GET", "/accounts/{accountId}/orders", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetOrdersRequest(c.Server, accountId, params)
@@ -12213,7 +12215,7 @@ func (c *Client) GetOrders(ctx context.Context, accountId PathAccountId, params 
 //
 // Corresponds with POST /accounts/{accountId}/orders (the `PlaceOrder` operationId).
 func (c *Client) PlaceOrderWithBody(ctx context.Context, accountId PathAccountId, params *PlaceOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "placeOrder", "POST", "/accounts/{accountId}/orders", false)
+	ctx, observation := c.startObservation(ctx, "placeOrder", "POST", "/accounts/{accountId}/orders", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewPlaceOrderRequestWithBody(c.Server, accountId, params, contentType, body)
@@ -12235,7 +12237,7 @@ func (c *Client) PlaceOrderWithBody(ctx context.Context, accountId PathAccountId
 //
 // Corresponds with POST /accounts/{accountId}/orders (the `PlaceOrder` operationId).
 func (c *Client) PlaceOrderWithFormdataBody(ctx context.Context, accountId PathAccountId, params *PlaceOrderParams, body PlaceOrderFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "placeOrder", "POST", "/accounts/{accountId}/orders", false)
+	ctx, observation := c.startObservation(ctx, "placeOrder", "POST", "/accounts/{accountId}/orders", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewPlaceOrderRequestWithFormdataBody(c.Server, accountId, params, body)
@@ -12258,7 +12260,7 @@ func (c *Client) PlaceOrderWithFormdataBody(ctx context.Context, accountId PathA
 //
 // Corresponds with POST /accounts/{accountId}/orders/cancelAll (the `CancelAllOrders` operationId).
 func (c *Client) CancelAllOrdersWithBody(ctx context.Context, accountId PathAccountId, params *CancelAllOrdersParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "cancelAllOrders", "POST", "/accounts/{accountId}/orders/cancelAll", false)
+	ctx, observation := c.startObservation(ctx, "cancelAllOrders", "POST", "/accounts/{accountId}/orders/cancelAll", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewCancelAllOrdersRequestWithBody(c.Server, accountId, params, contentType, body)
@@ -12281,7 +12283,7 @@ func (c *Client) CancelAllOrdersWithBody(ctx context.Context, accountId PathAcco
 //
 // Corresponds with POST /accounts/{accountId}/orders/cancelAll (the `CancelAllOrders` operationId).
 func (c *Client) CancelAllOrdersWithFormdataBody(ctx context.Context, accountId PathAccountId, params *CancelAllOrdersParams, body CancelAllOrdersFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "cancelAllOrders", "POST", "/accounts/{accountId}/orders/cancelAll", false)
+	ctx, observation := c.startObservation(ctx, "cancelAllOrders", "POST", "/accounts/{accountId}/orders/cancelAll", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewCancelAllOrdersRequestWithFormdataBody(c.Server, accountId, params, body)
@@ -12301,7 +12303,7 @@ func (c *Client) CancelAllOrdersWithFormdataBody(ctx context.Context, accountId 
 //
 // Corresponds with DELETE /accounts/{accountId}/orders/{orderId} (the `CancelOrder` operationId).
 func (c *Client) CancelOrder(ctx context.Context, accountId PathAccountId, orderId OrderId, params *CancelOrderParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "cancelOrder", "DELETE", "/accounts/{accountId}/orders/{orderId}", false)
+	ctx, observation := c.startObservation(ctx, "cancelOrder", "DELETE", "/accounts/{accountId}/orders/{orderId}", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewCancelOrderRequest(c.Server, accountId, orderId, params)
@@ -12323,7 +12325,7 @@ func (c *Client) CancelOrder(ctx context.Context, accountId PathAccountId, order
 //
 // Corresponds with PUT /accounts/{accountId}/orders/{orderId} (the `ModifyOrder` operationId).
 func (c *Client) ModifyOrderWithBody(ctx context.Context, accountId PathAccountId, orderId OrderId, params *ModifyOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "modifyOrder", "PUT", "/accounts/{accountId}/orders/{orderId}", false)
+	ctx, observation := c.startObservation(ctx, "modifyOrder", "PUT", "/accounts/{accountId}/orders/{orderId}", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewModifyOrderRequestWithBody(c.Server, accountId, orderId, params, contentType, body)
@@ -12345,7 +12347,7 @@ func (c *Client) ModifyOrderWithBody(ctx context.Context, accountId PathAccountI
 //
 // Corresponds with PUT /accounts/{accountId}/orders/{orderId} (the `ModifyOrder` operationId).
 func (c *Client) ModifyOrderWithFormdataBody(ctx context.Context, accountId PathAccountId, orderId OrderId, params *ModifyOrderParams, body ModifyOrderFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "modifyOrder", "PUT", "/accounts/{accountId}/orders/{orderId}", false)
+	ctx, observation := c.startObservation(ctx, "modifyOrder", "PUT", "/accounts/{accountId}/orders/{orderId}", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewModifyOrderRequestWithFormdataBody(c.Server, accountId, orderId, params, body)
@@ -12371,7 +12373,7 @@ func (c *Client) ModifyOrderWithFormdataBody(ctx context.Context, accountId Path
 //
 // Corresponds with GET /accounts/{accountId}/ordersHistory (the `GetOrdersHistory` operationId).
 func (c *Client) GetOrdersHistory(ctx context.Context, accountId PathAccountId, params *GetOrdersHistoryParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getOrdersHistory", "GET", "/accounts/{accountId}/ordersHistory", false)
+	ctx, observation := c.startObservation(ctx, "getOrdersHistory", "GET", "/accounts/{accountId}/ordersHistory", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetOrdersHistoryRequest(c.Server, accountId, params)
@@ -12391,7 +12393,7 @@ func (c *Client) GetOrdersHistory(ctx context.Context, accountId PathAccountId, 
 //
 // Corresponds with GET /accounts/{accountId}/positions (the `GetPositions` operationId).
 func (c *Client) GetPositions(ctx context.Context, accountId PathAccountId, params *GetPositionsParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getPositions", "GET", "/accounts/{accountId}/positions", false)
+	ctx, observation := c.startObservation(ctx, "getPositions", "GET", "/accounts/{accountId}/positions", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetPositionsRequest(c.Server, accountId, params)
@@ -12413,7 +12415,7 @@ func (c *Client) GetPositions(ctx context.Context, accountId PathAccountId, para
 //
 // Corresponds with DELETE /accounts/{accountId}/positions/{positionId} (the `ClosePosition` operationId).
 func (c *Client) ClosePositionWithBody(ctx context.Context, accountId PathAccountId, positionId PositionId, params *ClosePositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "closePosition", "DELETE", "/accounts/{accountId}/positions/{positionId}", false)
+	ctx, observation := c.startObservation(ctx, "closePosition", "DELETE", "/accounts/{accountId}/positions/{positionId}", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewClosePositionRequestWithBody(c.Server, accountId, positionId, params, contentType, body)
@@ -12435,7 +12437,7 @@ func (c *Client) ClosePositionWithBody(ctx context.Context, accountId PathAccoun
 //
 // Corresponds with DELETE /accounts/{accountId}/positions/{positionId} (the `ClosePosition` operationId).
 func (c *Client) ClosePositionWithFormdataBody(ctx context.Context, accountId PathAccountId, positionId PositionId, params *ClosePositionParams, body ClosePositionFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "closePosition", "DELETE", "/accounts/{accountId}/positions/{positionId}", false)
+	ctx, observation := c.startObservation(ctx, "closePosition", "DELETE", "/accounts/{accountId}/positions/{positionId}", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewClosePositionRequestWithFormdataBody(c.Server, accountId, positionId, params, body)
@@ -12457,7 +12459,7 @@ func (c *Client) ClosePositionWithFormdataBody(ctx context.Context, accountId Pa
 //
 // Corresponds with PUT /accounts/{accountId}/positions/{positionId} (the `ModifyPosition` operationId).
 func (c *Client) ModifyPositionWithBody(ctx context.Context, accountId PathAccountId, positionId PositionId, params *ModifyPositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "modifyPosition", "PUT", "/accounts/{accountId}/positions/{positionId}", false)
+	ctx, observation := c.startObservation(ctx, "modifyPosition", "PUT", "/accounts/{accountId}/positions/{positionId}", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewModifyPositionRequestWithBody(c.Server, accountId, positionId, params, contentType, body)
@@ -12479,7 +12481,7 @@ func (c *Client) ModifyPositionWithBody(ctx context.Context, accountId PathAccou
 //
 // Corresponds with PUT /accounts/{accountId}/positions/{positionId} (the `ModifyPosition` operationId).
 func (c *Client) ModifyPositionWithFormdataBody(ctx context.Context, accountId PathAccountId, positionId PositionId, params *ModifyPositionParams, body ModifyPositionFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "modifyPosition", "PUT", "/accounts/{accountId}/positions/{positionId}", false)
+	ctx, observation := c.startObservation(ctx, "modifyPosition", "PUT", "/accounts/{accountId}/positions/{positionId}", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewModifyPositionRequestWithFormdataBody(c.Server, accountId, positionId, params, body)
@@ -12502,7 +12504,7 @@ func (c *Client) ModifyPositionWithFormdataBody(ctx context.Context, accountId P
 //
 // Corresponds with POST /accounts/{accountId}/previewClosePosition (the `PreviewClosePosition` operationId).
 func (c *Client) PreviewClosePositionWithBody(ctx context.Context, accountId PathAccountId, params *PreviewClosePositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "previewClosePosition", "POST", "/accounts/{accountId}/previewClosePosition", false)
+	ctx, observation := c.startObservation(ctx, "previewClosePosition", "POST", "/accounts/{accountId}/previewClosePosition", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewPreviewClosePositionRequestWithBody(c.Server, accountId, params, contentType, body)
@@ -12525,7 +12527,7 @@ func (c *Client) PreviewClosePositionWithBody(ctx context.Context, accountId Pat
 //
 // Corresponds with POST /accounts/{accountId}/previewClosePosition (the `PreviewClosePosition` operationId).
 func (c *Client) PreviewClosePositionWithFormdataBody(ctx context.Context, accountId PathAccountId, params *PreviewClosePositionParams, body PreviewClosePositionFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "previewClosePosition", "POST", "/accounts/{accountId}/previewClosePosition", false)
+	ctx, observation := c.startObservation(ctx, "previewClosePosition", "POST", "/accounts/{accountId}/previewClosePosition", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewPreviewClosePositionRequestWithFormdataBody(c.Server, accountId, params, body)
@@ -12548,7 +12550,7 @@ func (c *Client) PreviewClosePositionWithFormdataBody(ctx context.Context, accou
 //
 // Corresponds with POST /accounts/{accountId}/previewLeverage (the `PreviewLeverage` operationId).
 func (c *Client) PreviewLeverageWithBody(ctx context.Context, accountId PathAccountId, params *PreviewLeverageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "previewLeverage", "POST", "/accounts/{accountId}/previewLeverage", false)
+	ctx, observation := c.startObservation(ctx, "previewLeverage", "POST", "/accounts/{accountId}/previewLeverage", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewPreviewLeverageRequestWithBody(c.Server, accountId, params, contentType, body)
@@ -12571,7 +12573,7 @@ func (c *Client) PreviewLeverageWithBody(ctx context.Context, accountId PathAcco
 //
 // Corresponds with POST /accounts/{accountId}/previewLeverage (the `PreviewLeverage` operationId).
 func (c *Client) PreviewLeverageWithFormdataBody(ctx context.Context, accountId PathAccountId, params *PreviewLeverageParams, body PreviewLeverageFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "previewLeverage", "POST", "/accounts/{accountId}/previewLeverage", false)
+	ctx, observation := c.startObservation(ctx, "previewLeverage", "POST", "/accounts/{accountId}/previewLeverage", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewPreviewLeverageRequestWithFormdataBody(c.Server, accountId, params, body)
@@ -12596,7 +12598,7 @@ func (c *Client) PreviewLeverageWithFormdataBody(ctx context.Context, accountId 
 //
 // Corresponds with POST /accounts/{accountId}/previewOrder (the `PreviewOrder` operationId).
 func (c *Client) PreviewOrderWithBody(ctx context.Context, accountId PathAccountId, params *PreviewOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "previewOrder", "POST", "/accounts/{accountId}/previewOrder", false)
+	ctx, observation := c.startObservation(ctx, "previewOrder", "POST", "/accounts/{accountId}/previewOrder", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewPreviewOrderRequestWithBody(c.Server, accountId, params, contentType, body)
@@ -12621,7 +12623,7 @@ func (c *Client) PreviewOrderWithBody(ctx context.Context, accountId PathAccount
 //
 // Corresponds with POST /accounts/{accountId}/previewOrder (the `PreviewOrder` operationId).
 func (c *Client) PreviewOrderWithFormdataBody(ctx context.Context, accountId PathAccountId, params *PreviewOrderParams, body PreviewOrderFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "previewOrder", "POST", "/accounts/{accountId}/previewOrder", false)
+	ctx, observation := c.startObservation(ctx, "previewOrder", "POST", "/accounts/{accountId}/previewOrder", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewPreviewOrderRequestWithFormdataBody(c.Server, accountId, params, body)
@@ -12645,7 +12647,7 @@ func (c *Client) PreviewOrderWithFormdataBody(ctx context.Context, accountId Pat
 //
 // Corresponds with POST /accounts/{accountId}/setLeverage (the `SetLeverage` operationId).
 func (c *Client) SetLeverageWithBody(ctx context.Context, accountId PathAccountId, params *SetLeverageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "setLeverage", "POST", "/accounts/{accountId}/setLeverage", false)
+	ctx, observation := c.startObservation(ctx, "setLeverage", "POST", "/accounts/{accountId}/setLeverage", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewSetLeverageRequestWithBody(c.Server, accountId, params, contentType, body)
@@ -12669,7 +12671,7 @@ func (c *Client) SetLeverageWithBody(ctx context.Context, accountId PathAccountI
 //
 // Corresponds with POST /accounts/{accountId}/setLeverage (the `SetLeverage` operationId).
 func (c *Client) SetLeverageWithFormdataBody(ctx context.Context, accountId PathAccountId, params *SetLeverageParams, body SetLeverageFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "setLeverage", "POST", "/accounts/{accountId}/setLeverage", false)
+	ctx, observation := c.startObservation(ctx, "setLeverage", "POST", "/accounts/{accountId}/setLeverage", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewSetLeverageRequestWithFormdataBody(c.Server, accountId, params, body)
@@ -12689,7 +12691,7 @@ func (c *Client) SetLeverageWithFormdataBody(ctx context.Context, accountId Path
 //
 // Corresponds with GET /accounts/{accountId}/state (the `GetState` operationId).
 func (c *Client) GetState(ctx context.Context, accountId PathAccountId, params *GetStateParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getState", "GET", "/accounts/{accountId}/state", false)
+	ctx, observation := c.startObservation(ctx, "getState", "GET", "/accounts/{accountId}/state", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetStateRequest(c.Server, accountId, params)
@@ -12709,7 +12711,7 @@ func (c *Client) GetState(ctx context.Context, accountId PathAccountId, params *
 //
 // Corresponds with GET /accounts/{accountId}/stream/individualPositions (the `StreamIndividualPositions` operationId).
 func (c *Client) StreamIndividualPositions(ctx context.Context, accountId PathAccountId, params *StreamIndividualPositionsParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "streamIndividualPositions", "GET", "/accounts/{accountId}/stream/individualPositions", true)
+	ctx, observation := c.startObservation(ctx, "streamIndividualPositions", "GET", "/accounts/{accountId}/stream/individualPositions", true)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewStreamIndividualPositionsRequest(c.Server, accountId, params)
@@ -12729,7 +12731,7 @@ func (c *Client) StreamIndividualPositions(ctx context.Context, accountId PathAc
 //
 // Corresponds with GET /accounts/{accountId}/stream/netPositions (the `StreamNetPositions` operationId).
 func (c *Client) StreamNetPositions(ctx context.Context, accountId PathAccountId, params *StreamNetPositionsParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "streamNetPositions", "GET", "/accounts/{accountId}/stream/netPositions", true)
+	ctx, observation := c.startObservation(ctx, "streamNetPositions", "GET", "/accounts/{accountId}/stream/netPositions", true)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewStreamNetPositionsRequest(c.Server, accountId, params)
@@ -12749,7 +12751,7 @@ func (c *Client) StreamNetPositions(ctx context.Context, accountId PathAccountId
 //
 // Corresponds with GET /accounts/{accountId}/stream/notifications (the `StreamNotifications` operationId).
 func (c *Client) StreamNotifications(ctx context.Context, accountId PathAccountId, params *StreamNotificationsParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "streamNotifications", "GET", "/accounts/{accountId}/stream/notifications", true)
+	ctx, observation := c.startObservation(ctx, "streamNotifications", "GET", "/accounts/{accountId}/stream/notifications", true)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewStreamNotificationsRequest(c.Server, accountId, params)
@@ -12769,7 +12771,7 @@ func (c *Client) StreamNotifications(ctx context.Context, accountId PathAccountI
 //
 // Corresponds with GET /accounts/{accountId}/stream/orders (the `StreamOrders` operationId).
 func (c *Client) StreamOrders(ctx context.Context, accountId PathAccountId, params *StreamOrdersParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "streamOrders", "GET", "/accounts/{accountId}/stream/orders", true)
+	ctx, observation := c.startObservation(ctx, "streamOrders", "GET", "/accounts/{accountId}/stream/orders", true)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewStreamOrdersRequest(c.Server, accountId, params)
@@ -12789,7 +12791,7 @@ func (c *Client) StreamOrders(ctx context.Context, accountId PathAccountId, para
 //
 // Corresponds with GET /accounts/{accountId}/stream/positions (the `StreamPositions` operationId).
 func (c *Client) StreamPositions(ctx context.Context, accountId PathAccountId, params *StreamPositionsParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "streamPositions", "GET", "/accounts/{accountId}/stream/positions", true)
+	ctx, observation := c.startObservation(ctx, "streamPositions", "GET", "/accounts/{accountId}/stream/positions", true)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewStreamPositionsRequest(c.Server, accountId, params)
@@ -12809,7 +12811,7 @@ func (c *Client) StreamPositions(ctx context.Context, accountId PathAccountId, p
 //
 // Corresponds with GET /accounts/{accountId}/stream/state (the `StreamState` operationId).
 func (c *Client) StreamState(ctx context.Context, accountId PathAccountId, params *StreamStateParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "streamState", "GET", "/accounts/{accountId}/stream/state", true)
+	ctx, observation := c.startObservation(ctx, "streamState", "GET", "/accounts/{accountId}/stream/state", true)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewStreamStateRequest(c.Server, accountId, params)
@@ -12840,7 +12842,7 @@ func (c *Client) StreamState(ctx context.Context, accountId PathAccountId, param
 //
 // Corresponds with POST /accounts/{accountId}/trackLatency (the `TrackLatency` operationId).
 func (c *Client) TrackLatencyWithBody(ctx context.Context, accountId PathAccountId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "trackLatency", "POST", "/accounts/{accountId}/trackLatency", false)
+	ctx, observation := c.startObservation(ctx, "trackLatency", "POST", "/accounts/{accountId}/trackLatency", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewTrackLatencyRequestWithBody(c.Server, accountId, contentType, body)
@@ -12871,7 +12873,7 @@ func (c *Client) TrackLatencyWithBody(ctx context.Context, accountId PathAccount
 //
 // Corresponds with POST /accounts/{accountId}/trackLatency (the `TrackLatency` operationId).
 func (c *Client) TrackLatencyWithFormdataBody(ctx context.Context, accountId PathAccountId, body TrackLatencyFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "trackLatency", "POST", "/accounts/{accountId}/trackLatency", false)
+	ctx, observation := c.startObservation(ctx, "trackLatency", "POST", "/accounts/{accountId}/trackLatency", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewTrackLatencyRequestWithFormdataBody(c.Server, accountId, body)
@@ -12893,7 +12895,7 @@ func (c *Client) TrackLatencyWithFormdataBody(ctx context.Context, accountId Pat
 //
 // Corresponds with POST /authorize (the `Authorize` operationId).
 func (c *Client) AuthorizeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "authorize", "POST", "/authorize", false)
+	ctx, observation := c.startObservation(ctx, "authorize", "POST", "/authorize", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewAuthorizeRequestWithBody(c.Server, contentType, body)
@@ -12915,7 +12917,7 @@ func (c *Client) AuthorizeWithBody(ctx context.Context, contentType string, body
 //
 // Corresponds with POST /authorize (the `Authorize` operationId).
 func (c *Client) AuthorizeWithFormdataBody(ctx context.Context, body AuthorizeFormdataRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "authorize", "POST", "/authorize", false)
+	ctx, observation := c.startObservation(ctx, "authorize", "POST", "/authorize", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewAuthorizeRequestWithFormdataBody(c.Server, body)
@@ -12935,7 +12937,7 @@ func (c *Client) AuthorizeWithFormdataBody(ctx context.Context, body AuthorizeFo
 //
 // Corresponds with GET /config (the `GetConfiguration` operationId).
 func (c *Client) GetConfiguration(ctx context.Context, params *GetConfigurationParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getConfiguration", "GET", "/config", false)
+	ctx, observation := c.startObservation(ctx, "getConfiguration", "GET", "/config", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetConfigurationRequest(c.Server, params)
@@ -12955,7 +12957,7 @@ func (c *Client) GetConfiguration(ctx context.Context, params *GetConfigurationP
 //
 // Corresponds with GET /depth (the `GetDepth` operationId).
 func (c *Client) GetDepth(ctx context.Context, params *GetDepthParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getDepth", "GET", "/depth", false)
+	ctx, observation := c.startObservation(ctx, "getDepth", "GET", "/depth", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetDepthRequest(c.Server, params)
@@ -12994,7 +12996,7 @@ func (c *Client) GetDepth(ctx context.Context, params *GetDepthParams, reqEditor
 //
 // Corresponds with GET /groups (the `GetGroups` operationId).
 func (c *Client) GetGroups(ctx context.Context, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getGroups", "GET", "/groups", false)
+	ctx, observation := c.startObservation(ctx, "getGroups", "GET", "/groups", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetGroupsRequest(c.Server)
@@ -13030,7 +13032,7 @@ func (c *Client) GetGroups(ctx context.Context, reqEditors ...RequestEditorFn) (
 //
 // Corresponds with GET /history (the `GetHistory` operationId).
 func (c *Client) GetHistory(ctx context.Context, params *GetHistoryParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getHistory", "GET", "/history", false)
+	ctx, observation := c.startObservation(ctx, "getHistory", "GET", "/history", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetHistoryRequest(c.Server, params)
@@ -13050,7 +13052,7 @@ func (c *Client) GetHistory(ctx context.Context, params *GetHistoryParams, reqEd
 //
 // Corresponds with POST /logout (the `Logout` operationId).
 func (c *Client) Logout(ctx context.Context, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "logout", "POST", "/logout", false)
+	ctx, observation := c.startObservation(ctx, "logout", "POST", "/logout", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewLogoutRequest(c.Server)
@@ -13072,7 +13074,7 @@ func (c *Client) Logout(ctx context.Context, reqEditors ...RequestEditorFn) (res
 //
 // Corresponds with GET /mapping (the `GetMapping` operationId).
 func (c *Client) GetMapping(ctx context.Context, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getMapping", "GET", "/mapping", false)
+	ctx, observation := c.startObservation(ctx, "getMapping", "GET", "/mapping", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetMappingRequest(c.Server)
@@ -13093,7 +13095,7 @@ func (c *Client) GetMapping(ctx context.Context, reqEditors ...RequestEditorFn) 
 //
 // Corresponds with GET /permissions (the `GetPermissions` operationId).
 func (c *Client) GetPermissions(ctx context.Context, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getPermissions", "GET", "/permissions", false)
+	ctx, observation := c.startObservation(ctx, "getPermissions", "GET", "/permissions", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetPermissionsRequest(c.Server)
@@ -13115,7 +13117,7 @@ func (c *Client) GetPermissions(ctx context.Context, reqEditors ...RequestEditor
 //
 // Corresponds with POST /promotionReport (the `PostPromotionReport` operationId).
 func (c *Client) PostPromotionReportWithBody(ctx context.Context, params *PostPromotionReportParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "postPromotionReport", "POST", "/promotionReport", false)
+	ctx, observation := c.startObservation(ctx, "postPromotionReport", "POST", "/promotionReport", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewPostPromotionReportRequestWithBody(c.Server, params, contentType, body)
@@ -13137,7 +13139,7 @@ func (c *Client) PostPromotionReportWithBody(ctx context.Context, params *PostPr
 //
 // Corresponds with POST /promotionReport (the `PostPromotionReport` operationId).
 func (c *Client) PostPromotionReport(ctx context.Context, params *PostPromotionReportParams, body PostPromotionReportJSONRequestBody, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "postPromotionReport", "POST", "/promotionReport", false)
+	ctx, observation := c.startObservation(ctx, "postPromotionReport", "POST", "/promotionReport", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewPostPromotionReportRequest(c.Server, params, body)
@@ -13160,7 +13162,7 @@ func (c *Client) PostPromotionReport(ctx context.Context, params *PostPromotionR
 //
 // Corresponds with GET /quotes (the `GetQuotes` operationId).
 func (c *Client) GetQuotes(ctx context.Context, params *GetQuotesParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getQuotes", "GET", "/quotes", false)
+	ctx, observation := c.startObservation(ctx, "getQuotes", "GET", "/quotes", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetQuotesRequest(c.Server, params)
@@ -13180,7 +13182,7 @@ func (c *Client) GetQuotes(ctx context.Context, params *GetQuotesParams, reqEdit
 //
 // Corresponds with GET /stream/depth (the `StreamDepth` operationId).
 func (c *Client) StreamDepth(ctx context.Context, params *StreamDepthParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "streamDepth", "GET", "/stream/depth", true)
+	ctx, observation := c.startObservation(ctx, "streamDepth", "GET", "/stream/depth", true)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewStreamDepthRequest(c.Server, params)
@@ -13203,7 +13205,7 @@ func (c *Client) StreamDepth(ctx context.Context, params *StreamDepthParams, req
 //
 // Corresponds with GET /stream/quotes (the `StreamQuotes` operationId).
 func (c *Client) StreamQuotes(ctx context.Context, params *StreamQuotesParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "streamQuotes", "GET", "/stream/quotes", true)
+	ctx, observation := c.startObservation(ctx, "streamQuotes", "GET", "/stream/quotes", true)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewStreamQuotesRequest(c.Server, params)
@@ -13246,7 +13248,7 @@ func (c *Client) StreamQuotes(ctx context.Context, params *StreamQuotesParams, r
 //
 // Corresponds with GET /streaming (the `Streaming` operationId).
 func (c *Client) Streaming(ctx context.Context, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "streaming", "GET", "/streaming", true)
+	ctx, observation := c.startObservation(ctx, "streaming", "GET", "/streaming", true)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewStreamingRequest(c.Server)
@@ -13266,7 +13268,7 @@ func (c *Client) Streaming(ctx context.Context, reqEditors ...RequestEditorFn) (
 //
 // Corresponds with GET /symbol_info (the `GetSymbolInfo` operationId).
 func (c *Client) GetSymbolInfo(ctx context.Context, params *GetSymbolInfoParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getSymbolInfo", "GET", "/symbol_info", false)
+	ctx, observation := c.startObservation(ctx, "getSymbolInfo", "GET", "/symbol_info", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetSymbolInfoRequest(c.Server, params)
@@ -13286,7 +13288,7 @@ func (c *Client) GetSymbolInfo(ctx context.Context, params *GetSymbolInfoParams,
 //
 // Corresponds with GET /userInfo (the `GetUserInfo` operationId).
 func (c *Client) GetUserInfo(ctx context.Context, params *GetUserInfoParams, reqEditors ...RequestEditorFn) (result *http.Response, resultErr error) {
-	ctx, observation := c.startTelemetry(ctx, "getUserInfo", "GET", "/userInfo", false)
+	ctx, observation := c.startObservation(ctx, "getUserInfo", "GET", "/userInfo", false)
 	defer func() { observation.response(result, resultErr) }()
 
 	req, err := NewGetUserInfoRequest(c.Server, params)
@@ -18411,7 +18413,7 @@ func (r GetUserInfoResponse) ContentType() string {
 //
 // Corresponds with GET /accounts (the `GetAccounts` operationId).
 func (c *ClientWithResponses) GetAccountsWithResponse(ctx context.Context, params *GetAccountsParams, reqEditors ...RequestEditorFn) (*GetAccountsResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetAccounts(ctx, params, reqEditors...)
 	if err != nil {
@@ -18430,7 +18432,7 @@ func (c *ClientWithResponses) GetAccountsWithResponse(ctx context.Context, param
 //
 // Corresponds with GET /accounts/{accountId}/balances (the `GetBalances` operationId).
 func (c *ClientWithResponses) GetBalancesWithResponse(ctx context.Context, accountId PathAccountId, params *GetBalancesParams, reqEditors ...RequestEditorFn) (*GetBalancesResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetBalances(ctx, accountId, params, reqEditors...)
 	if err != nil {
@@ -18453,7 +18455,7 @@ func (c *ClientWithResponses) GetBalancesWithResponse(ctx context.Context, accou
 //
 // Corresponds with GET /accounts/{accountId}/executions (the `GetExecutions` operationId).
 func (c *ClientWithResponses) GetExecutionsWithResponse(ctx context.Context, accountId PathAccountId, params *GetExecutionsParams, reqEditors ...RequestEditorFn) (*GetExecutionsResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetExecutions(ctx, accountId, params, reqEditors...)
 	if err != nil {
@@ -18471,7 +18473,7 @@ func (c *ClientWithResponses) GetExecutionsWithResponse(ctx context.Context, acc
 //
 // Corresponds with POST /accounts/{accountId}/getLeverage (the `GetLeverage` operationId).
 func (c *ClientWithResponses) GetLeverageWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *GetLeverageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetLeverageResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetLeverageWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -18489,7 +18491,7 @@ func (c *ClientWithResponses) GetLeverageWithBodyWithResponse(ctx context.Contex
 //
 // Corresponds with POST /accounts/{accountId}/getLeverage (the `GetLeverage` operationId).
 func (c *ClientWithResponses) GetLeverageWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *GetLeverageParams, body GetLeverageFormdataRequestBody, reqEditors ...RequestEditorFn) (*GetLeverageResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetLeverageWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
@@ -18506,7 +18508,7 @@ func (c *ClientWithResponses) GetLeverageWithFormdataBodyWithResponse(ctx contex
 //
 // Corresponds with GET /accounts/{accountId}/individualPositions (the `GetIndividualPositions` operationId).
 func (c *ClientWithResponses) GetIndividualPositionsWithResponse(ctx context.Context, accountId PathAccountId, params *GetIndividualPositionsParams, reqEditors ...RequestEditorFn) (*GetIndividualPositionsResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetIndividualPositions(ctx, accountId, params, reqEditors...)
 	if err != nil {
@@ -18523,7 +18525,7 @@ func (c *ClientWithResponses) GetIndividualPositionsWithResponse(ctx context.Con
 //
 // Corresponds with DELETE /accounts/{accountId}/individualPositions/{individualPositionId} (the `CloseIndividualPosition` operationId).
 func (c *ClientWithResponses) CloseIndividualPositionWithBodyWithResponse(ctx context.Context, accountId PathAccountId, individualPositionId IndividualPositionId, params *CloseIndividualPositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CloseIndividualPositionResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.CloseIndividualPositionWithBody(ctx, accountId, individualPositionId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -18540,7 +18542,7 @@ func (c *ClientWithResponses) CloseIndividualPositionWithBodyWithResponse(ctx co
 //
 // Corresponds with DELETE /accounts/{accountId}/individualPositions/{individualPositionId} (the `CloseIndividualPosition` operationId).
 func (c *ClientWithResponses) CloseIndividualPositionWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, individualPositionId IndividualPositionId, params *CloseIndividualPositionParams, body CloseIndividualPositionFormdataRequestBody, reqEditors ...RequestEditorFn) (*CloseIndividualPositionResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.CloseIndividualPositionWithFormdataBody(ctx, accountId, individualPositionId, params, body, reqEditors...)
 	if err != nil {
@@ -18557,7 +18559,7 @@ func (c *ClientWithResponses) CloseIndividualPositionWithFormdataBodyWithRespons
 //
 // Corresponds with PUT /accounts/{accountId}/individualPositions/{individualPositionId} (the `ModifyIndividualPosition` operationId).
 func (c *ClientWithResponses) ModifyIndividualPositionWithBodyWithResponse(ctx context.Context, accountId PathAccountId, individualPositionId IndividualPositionId, params *ModifyIndividualPositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ModifyIndividualPositionResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.ModifyIndividualPositionWithBody(ctx, accountId, individualPositionId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -18574,7 +18576,7 @@ func (c *ClientWithResponses) ModifyIndividualPositionWithBodyWithResponse(ctx c
 //
 // Corresponds with PUT /accounts/{accountId}/individualPositions/{individualPositionId} (the `ModifyIndividualPosition` operationId).
 func (c *ClientWithResponses) ModifyIndividualPositionWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, individualPositionId IndividualPositionId, params *ModifyIndividualPositionParams, body ModifyIndividualPositionFormdataRequestBody, reqEditors ...RequestEditorFn) (*ModifyIndividualPositionResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.ModifyIndividualPositionWithFormdataBody(ctx, accountId, individualPositionId, params, body, reqEditors...)
 	if err != nil {
@@ -18591,7 +18593,7 @@ func (c *ClientWithResponses) ModifyIndividualPositionWithFormdataBodyWithRespon
 //
 // Corresponds with GET /accounts/{accountId}/instruments (the `GetInstruments` operationId).
 func (c *ClientWithResponses) GetInstrumentsWithResponse(ctx context.Context, accountId PathAccountId, params *GetInstrumentsParams, reqEditors ...RequestEditorFn) (*GetInstrumentsResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetInstruments(ctx, accountId, params, reqEditors...)
 	if err != nil {
@@ -18608,7 +18610,7 @@ func (c *ClientWithResponses) GetInstrumentsWithResponse(ctx context.Context, ac
 //
 // Corresponds with GET /accounts/{accountId}/netPositions (the `GetNetPositions` operationId).
 func (c *ClientWithResponses) GetNetPositionsWithResponse(ctx context.Context, accountId PathAccountId, params *GetNetPositionsParams, reqEditors ...RequestEditorFn) (*GetNetPositionsResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetNetPositions(ctx, accountId, params, reqEditors...)
 	if err != nil {
@@ -18625,7 +18627,7 @@ func (c *ClientWithResponses) GetNetPositionsWithResponse(ctx context.Context, a
 //
 // Corresponds with DELETE /accounts/{accountId}/netPositions/{netPositionId} (the `CloseNetPosition` operationId).
 func (c *ClientWithResponses) CloseNetPositionWithBodyWithResponse(ctx context.Context, accountId PathAccountId, netPositionId NetPositionId, params *CloseNetPositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CloseNetPositionResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.CloseNetPositionWithBody(ctx, accountId, netPositionId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -18642,7 +18644,7 @@ func (c *ClientWithResponses) CloseNetPositionWithBodyWithResponse(ctx context.C
 //
 // Corresponds with DELETE /accounts/{accountId}/netPositions/{netPositionId} (the `CloseNetPosition` operationId).
 func (c *ClientWithResponses) CloseNetPositionWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, netPositionId NetPositionId, params *CloseNetPositionParams, body CloseNetPositionFormdataRequestBody, reqEditors ...RequestEditorFn) (*CloseNetPositionResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.CloseNetPositionWithFormdataBody(ctx, accountId, netPositionId, params, body, reqEditors...)
 	if err != nil {
@@ -18661,7 +18663,7 @@ func (c *ClientWithResponses) CloseNetPositionWithFormdataBodyWithResponse(ctx c
 //
 // Corresponds with POST /accounts/{accountId}/orderInfo (the `OrderInfo` operationId).
 func (c *ClientWithResponses) OrderInfoWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *OrderInfoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*OrderInfoResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.OrderInfoWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -18680,7 +18682,7 @@ func (c *ClientWithResponses) OrderInfoWithBodyWithResponse(ctx context.Context,
 //
 // Corresponds with POST /accounts/{accountId}/orderInfo (the `OrderInfo` operationId).
 func (c *ClientWithResponses) OrderInfoWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *OrderInfoParams, body OrderInfoFormdataRequestBody, reqEditors ...RequestEditorFn) (*OrderInfoResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.OrderInfoWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
@@ -18699,7 +18701,7 @@ func (c *ClientWithResponses) OrderInfoWithFormdataBodyWithResponse(ctx context.
 //
 // Corresponds with GET /accounts/{accountId}/orders (the `GetOrders` operationId).
 func (c *ClientWithResponses) GetOrdersWithResponse(ctx context.Context, accountId PathAccountId, params *GetOrdersParams, reqEditors ...RequestEditorFn) (*GetOrdersResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetOrders(ctx, accountId, params, reqEditors...)
 	if err != nil {
@@ -18716,7 +18718,7 @@ func (c *ClientWithResponses) GetOrdersWithResponse(ctx context.Context, account
 //
 // Corresponds with POST /accounts/{accountId}/orders (the `PlaceOrder` operationId).
 func (c *ClientWithResponses) PlaceOrderWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PlaceOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PlaceOrderResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.PlaceOrderWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -18733,7 +18735,7 @@ func (c *ClientWithResponses) PlaceOrderWithBodyWithResponse(ctx context.Context
 //
 // Corresponds with POST /accounts/{accountId}/orders (the `PlaceOrder` operationId).
 func (c *ClientWithResponses) PlaceOrderWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PlaceOrderParams, body PlaceOrderFormdataRequestBody, reqEditors ...RequestEditorFn) (*PlaceOrderResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.PlaceOrderWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
@@ -18751,7 +18753,7 @@ func (c *ClientWithResponses) PlaceOrderWithFormdataBodyWithResponse(ctx context
 //
 // Corresponds with POST /accounts/{accountId}/orders/cancelAll (the `CancelAllOrders` operationId).
 func (c *ClientWithResponses) CancelAllOrdersWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *CancelAllOrdersParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CancelAllOrdersResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.CancelAllOrdersWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -18769,7 +18771,7 @@ func (c *ClientWithResponses) CancelAllOrdersWithBodyWithResponse(ctx context.Co
 //
 // Corresponds with POST /accounts/{accountId}/orders/cancelAll (the `CancelAllOrders` operationId).
 func (c *ClientWithResponses) CancelAllOrdersWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *CancelAllOrdersParams, body CancelAllOrdersFormdataRequestBody, reqEditors ...RequestEditorFn) (*CancelAllOrdersResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.CancelAllOrdersWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
@@ -18786,7 +18788,7 @@ func (c *ClientWithResponses) CancelAllOrdersWithFormdataBodyWithResponse(ctx co
 //
 // Corresponds with DELETE /accounts/{accountId}/orders/{orderId} (the `CancelOrder` operationId).
 func (c *ClientWithResponses) CancelOrderWithResponse(ctx context.Context, accountId PathAccountId, orderId OrderId, params *CancelOrderParams, reqEditors ...RequestEditorFn) (*CancelOrderResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.CancelOrder(ctx, accountId, orderId, params, reqEditors...)
 	if err != nil {
@@ -18803,7 +18805,7 @@ func (c *ClientWithResponses) CancelOrderWithResponse(ctx context.Context, accou
 //
 // Corresponds with PUT /accounts/{accountId}/orders/{orderId} (the `ModifyOrder` operationId).
 func (c *ClientWithResponses) ModifyOrderWithBodyWithResponse(ctx context.Context, accountId PathAccountId, orderId OrderId, params *ModifyOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ModifyOrderResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.ModifyOrderWithBody(ctx, accountId, orderId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -18820,7 +18822,7 @@ func (c *ClientWithResponses) ModifyOrderWithBodyWithResponse(ctx context.Contex
 //
 // Corresponds with PUT /accounts/{accountId}/orders/{orderId} (the `ModifyOrder` operationId).
 func (c *ClientWithResponses) ModifyOrderWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, orderId OrderId, params *ModifyOrderParams, body ModifyOrderFormdataRequestBody, reqEditors ...RequestEditorFn) (*ModifyOrderResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.ModifyOrderWithFormdataBody(ctx, accountId, orderId, params, body, reqEditors...)
 	if err != nil {
@@ -18843,7 +18845,7 @@ func (c *ClientWithResponses) ModifyOrderWithFormdataBodyWithResponse(ctx contex
 //
 // Corresponds with GET /accounts/{accountId}/ordersHistory (the `GetOrdersHistory` operationId).
 func (c *ClientWithResponses) GetOrdersHistoryWithResponse(ctx context.Context, accountId PathAccountId, params *GetOrdersHistoryParams, reqEditors ...RequestEditorFn) (*GetOrdersHistoryResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetOrdersHistory(ctx, accountId, params, reqEditors...)
 	if err != nil {
@@ -18860,7 +18862,7 @@ func (c *ClientWithResponses) GetOrdersHistoryWithResponse(ctx context.Context, 
 //
 // Corresponds with GET /accounts/{accountId}/positions (the `GetPositions` operationId).
 func (c *ClientWithResponses) GetPositionsWithResponse(ctx context.Context, accountId PathAccountId, params *GetPositionsParams, reqEditors ...RequestEditorFn) (*GetPositionsResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetPositions(ctx, accountId, params, reqEditors...)
 	if err != nil {
@@ -18877,7 +18879,7 @@ func (c *ClientWithResponses) GetPositionsWithResponse(ctx context.Context, acco
 //
 // Corresponds with DELETE /accounts/{accountId}/positions/{positionId} (the `ClosePosition` operationId).
 func (c *ClientWithResponses) ClosePositionWithBodyWithResponse(ctx context.Context, accountId PathAccountId, positionId PositionId, params *ClosePositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClosePositionResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.ClosePositionWithBody(ctx, accountId, positionId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -18894,7 +18896,7 @@ func (c *ClientWithResponses) ClosePositionWithBodyWithResponse(ctx context.Cont
 //
 // Corresponds with DELETE /accounts/{accountId}/positions/{positionId} (the `ClosePosition` operationId).
 func (c *ClientWithResponses) ClosePositionWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, positionId PositionId, params *ClosePositionParams, body ClosePositionFormdataRequestBody, reqEditors ...RequestEditorFn) (*ClosePositionResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.ClosePositionWithFormdataBody(ctx, accountId, positionId, params, body, reqEditors...)
 	if err != nil {
@@ -18911,7 +18913,7 @@ func (c *ClientWithResponses) ClosePositionWithFormdataBodyWithResponse(ctx cont
 //
 // Corresponds with PUT /accounts/{accountId}/positions/{positionId} (the `ModifyPosition` operationId).
 func (c *ClientWithResponses) ModifyPositionWithBodyWithResponse(ctx context.Context, accountId PathAccountId, positionId PositionId, params *ModifyPositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ModifyPositionResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.ModifyPositionWithBody(ctx, accountId, positionId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -18928,7 +18930,7 @@ func (c *ClientWithResponses) ModifyPositionWithBodyWithResponse(ctx context.Con
 //
 // Corresponds with PUT /accounts/{accountId}/positions/{positionId} (the `ModifyPosition` operationId).
 func (c *ClientWithResponses) ModifyPositionWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, positionId PositionId, params *ModifyPositionParams, body ModifyPositionFormdataRequestBody, reqEditors ...RequestEditorFn) (*ModifyPositionResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.ModifyPositionWithFormdataBody(ctx, accountId, positionId, params, body, reqEditors...)
 	if err != nil {
@@ -18946,7 +18948,7 @@ func (c *ClientWithResponses) ModifyPositionWithFormdataBodyWithResponse(ctx con
 //
 // Corresponds with POST /accounts/{accountId}/previewClosePosition (the `PreviewClosePosition` operationId).
 func (c *ClientWithResponses) PreviewClosePositionWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PreviewClosePositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PreviewClosePositionResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.PreviewClosePositionWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -18964,7 +18966,7 @@ func (c *ClientWithResponses) PreviewClosePositionWithBodyWithResponse(ctx conte
 //
 // Corresponds with POST /accounts/{accountId}/previewClosePosition (the `PreviewClosePosition` operationId).
 func (c *ClientWithResponses) PreviewClosePositionWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PreviewClosePositionParams, body PreviewClosePositionFormdataRequestBody, reqEditors ...RequestEditorFn) (*PreviewClosePositionResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.PreviewClosePositionWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
@@ -18982,7 +18984,7 @@ func (c *ClientWithResponses) PreviewClosePositionWithFormdataBodyWithResponse(c
 //
 // Corresponds with POST /accounts/{accountId}/previewLeverage (the `PreviewLeverage` operationId).
 func (c *ClientWithResponses) PreviewLeverageWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PreviewLeverageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PreviewLeverageResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.PreviewLeverageWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -19000,7 +19002,7 @@ func (c *ClientWithResponses) PreviewLeverageWithBodyWithResponse(ctx context.Co
 //
 // Corresponds with POST /accounts/{accountId}/previewLeverage (the `PreviewLeverage` operationId).
 func (c *ClientWithResponses) PreviewLeverageWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PreviewLeverageParams, body PreviewLeverageFormdataRequestBody, reqEditors ...RequestEditorFn) (*PreviewLeverageResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.PreviewLeverageWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
@@ -19020,7 +19022,7 @@ func (c *ClientWithResponses) PreviewLeverageWithFormdataBodyWithResponse(ctx co
 //
 // Corresponds with POST /accounts/{accountId}/previewOrder (the `PreviewOrder` operationId).
 func (c *ClientWithResponses) PreviewOrderWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PreviewOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PreviewOrderResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.PreviewOrderWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -19040,7 +19042,7 @@ func (c *ClientWithResponses) PreviewOrderWithBodyWithResponse(ctx context.Conte
 //
 // Corresponds with POST /accounts/{accountId}/previewOrder (the `PreviewOrder` operationId).
 func (c *ClientWithResponses) PreviewOrderWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PreviewOrderParams, body PreviewOrderFormdataRequestBody, reqEditors ...RequestEditorFn) (*PreviewOrderResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.PreviewOrderWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
@@ -19059,7 +19061,7 @@ func (c *ClientWithResponses) PreviewOrderWithFormdataBodyWithResponse(ctx conte
 //
 // Corresponds with POST /accounts/{accountId}/setLeverage (the `SetLeverage` operationId).
 func (c *ClientWithResponses) SetLeverageWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *SetLeverageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetLeverageResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.SetLeverageWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -19078,7 +19080,7 @@ func (c *ClientWithResponses) SetLeverageWithBodyWithResponse(ctx context.Contex
 //
 // Corresponds with POST /accounts/{accountId}/setLeverage (the `SetLeverage` operationId).
 func (c *ClientWithResponses) SetLeverageWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *SetLeverageParams, body SetLeverageFormdataRequestBody, reqEditors ...RequestEditorFn) (*SetLeverageResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.SetLeverageWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
@@ -19095,7 +19097,7 @@ func (c *ClientWithResponses) SetLeverageWithFormdataBodyWithResponse(ctx contex
 //
 // Corresponds with GET /accounts/{accountId}/state (the `GetState` operationId).
 func (c *ClientWithResponses) GetStateWithResponse(ctx context.Context, accountId PathAccountId, params *GetStateParams, reqEditors ...RequestEditorFn) (*GetStateResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetState(ctx, accountId, params, reqEditors...)
 	if err != nil {
@@ -19121,7 +19123,7 @@ func (c *ClientWithResponses) GetStateWithResponse(ctx context.Context, accountI
 //
 // Corresponds with POST /accounts/{accountId}/trackLatency (the `TrackLatency` operationId).
 func (c *ClientWithResponses) TrackLatencyWithBodyWithResponse(ctx context.Context, accountId PathAccountId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TrackLatencyResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.TrackLatencyWithBody(ctx, accountId, contentType, body, reqEditors...)
 	if err != nil {
@@ -19147,7 +19149,7 @@ func (c *ClientWithResponses) TrackLatencyWithBodyWithResponse(ctx context.Conte
 //
 // Corresponds with POST /accounts/{accountId}/trackLatency (the `TrackLatency` operationId).
 func (c *ClientWithResponses) TrackLatencyWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, body TrackLatencyFormdataRequestBody, reqEditors ...RequestEditorFn) (*TrackLatencyResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.TrackLatencyWithFormdataBody(ctx, accountId, body, reqEditors...)
 	if err != nil {
@@ -19164,7 +19166,7 @@ func (c *ClientWithResponses) TrackLatencyWithFormdataBodyWithResponse(ctx conte
 //
 // Corresponds with POST /authorize (the `Authorize` operationId).
 func (c *ClientWithResponses) AuthorizeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AuthorizeResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.AuthorizeWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
@@ -19181,7 +19183,7 @@ func (c *ClientWithResponses) AuthorizeWithBodyWithResponse(ctx context.Context,
 //
 // Corresponds with POST /authorize (the `Authorize` operationId).
 func (c *ClientWithResponses) AuthorizeWithFormdataBodyWithResponse(ctx context.Context, body AuthorizeFormdataRequestBody, reqEditors ...RequestEditorFn) (*AuthorizeResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.AuthorizeWithFormdataBody(ctx, body, reqEditors...)
 	if err != nil {
@@ -19198,7 +19200,7 @@ func (c *ClientWithResponses) AuthorizeWithFormdataBodyWithResponse(ctx context.
 //
 // Corresponds with GET /config (the `GetConfiguration` operationId).
 func (c *ClientWithResponses) GetConfigurationWithResponse(ctx context.Context, params *GetConfigurationParams, reqEditors ...RequestEditorFn) (*GetConfigurationResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetConfiguration(ctx, params, reqEditors...)
 	if err != nil {
@@ -19215,7 +19217,7 @@ func (c *ClientWithResponses) GetConfigurationWithResponse(ctx context.Context, 
 //
 // Corresponds with GET /depth (the `GetDepth` operationId).
 func (c *ClientWithResponses) GetDepthWithResponse(ctx context.Context, params *GetDepthParams, reqEditors ...RequestEditorFn) (*GetDepthResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetDepth(ctx, params, reqEditors...)
 	if err != nil {
@@ -19251,7 +19253,7 @@ func (c *ClientWithResponses) GetDepthWithResponse(ctx context.Context, params *
 //
 // Corresponds with GET /groups (the `GetGroups` operationId).
 func (c *ClientWithResponses) GetGroupsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetGroupsResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetGroups(ctx, reqEditors...)
 	if err != nil {
@@ -19284,7 +19286,7 @@ func (c *ClientWithResponses) GetGroupsWithResponse(ctx context.Context, reqEdit
 //
 // Corresponds with GET /history (the `GetHistory` operationId).
 func (c *ClientWithResponses) GetHistoryWithResponse(ctx context.Context, params *GetHistoryParams, reqEditors ...RequestEditorFn) (*GetHistoryResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetHistory(ctx, params, reqEditors...)
 	if err != nil {
@@ -19301,7 +19303,7 @@ func (c *ClientWithResponses) GetHistoryWithResponse(ctx context.Context, params
 //
 // Corresponds with POST /logout (the `Logout` operationId).
 func (c *ClientWithResponses) LogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LogoutResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.Logout(ctx, reqEditors...)
 	if err != nil {
@@ -19320,7 +19322,7 @@ func (c *ClientWithResponses) LogoutWithResponse(ctx context.Context, reqEditors
 //
 // Corresponds with GET /mapping (the `GetMapping` operationId).
 func (c *ClientWithResponses) GetMappingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetMappingResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetMapping(ctx, reqEditors...)
 	if err != nil {
@@ -19338,7 +19340,7 @@ func (c *ClientWithResponses) GetMappingWithResponse(ctx context.Context, reqEdi
 //
 // Corresponds with GET /permissions (the `GetPermissions` operationId).
 func (c *ClientWithResponses) GetPermissionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPermissionsResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetPermissions(ctx, reqEditors...)
 	if err != nil {
@@ -19355,7 +19357,7 @@ func (c *ClientWithResponses) GetPermissionsWithResponse(ctx context.Context, re
 //
 // Corresponds with POST /promotionReport (the `PostPromotionReport` operationId).
 func (c *ClientWithResponses) PostPromotionReportWithBodyWithResponse(ctx context.Context, params *PostPromotionReportParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostPromotionReportResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.PostPromotionReportWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
@@ -19372,7 +19374,7 @@ func (c *ClientWithResponses) PostPromotionReportWithBodyWithResponse(ctx contex
 //
 // Corresponds with POST /promotionReport (the `PostPromotionReport` operationId).
 func (c *ClientWithResponses) PostPromotionReportWithResponse(ctx context.Context, params *PostPromotionReportParams, body PostPromotionReportJSONRequestBody, reqEditors ...RequestEditorFn) (*PostPromotionReportResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.PostPromotionReport(ctx, params, body, reqEditors...)
 	if err != nil {
@@ -19392,7 +19394,7 @@ func (c *ClientWithResponses) PostPromotionReportWithResponse(ctx context.Contex
 //
 // Corresponds with GET /quotes (the `GetQuotes` operationId).
 func (c *ClientWithResponses) GetQuotesWithResponse(ctx context.Context, params *GetQuotesParams, reqEditors ...RequestEditorFn) (*GetQuotesResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetQuotes(ctx, params, reqEditors...)
 	if err != nil {
@@ -19409,7 +19411,7 @@ func (c *ClientWithResponses) GetQuotesWithResponse(ctx context.Context, params 
 //
 // Corresponds with GET /symbol_info (the `GetSymbolInfo` operationId).
 func (c *ClientWithResponses) GetSymbolInfoWithResponse(ctx context.Context, params *GetSymbolInfoParams, reqEditors ...RequestEditorFn) (*GetSymbolInfoResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetSymbolInfo(ctx, params, reqEditors...)
 	if err != nil {
@@ -19426,7 +19428,7 @@ func (c *ClientWithResponses) GetSymbolInfoWithResponse(ctx context.Context, par
 //
 // Corresponds with GET /userInfo (the `GetUserInfo` operationId).
 func (c *ClientWithResponses) GetUserInfoWithResponse(ctx context.Context, params *GetUserInfoParams, reqEditors ...RequestEditorFn) (*GetUserInfoResponse, error) {
-	ctx = typedTelemetryContext(ctx)
+	ctx = typedOperationContext(ctx)
 
 	rsp, err := c.GetUserInfo(ctx, params, reqEditors...)
 	if err != nil {
@@ -19437,7 +19439,7 @@ func (c *ClientWithResponses) GetUserInfoWithResponse(ctx context.Context, param
 
 // ParseGetAccountsResponse parses an HTTP response from a GetAccountsWithResponse call
 func ParseGetAccountsResponse(rsp *http.Response) (result *GetAccountsResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19468,7 +19470,7 @@ func ParseGetAccountsResponse(rsp *http.Response) (result *GetAccountsResponse, 
 
 // ParseGetBalancesResponse parses an HTTP response from a GetBalancesWithResponse call
 func ParseGetBalancesResponse(rsp *http.Response) (result *GetBalancesResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19499,7 +19501,7 @@ func ParseGetBalancesResponse(rsp *http.Response) (result *GetBalancesResponse, 
 
 // ParseGetExecutionsResponse parses an HTTP response from a GetExecutionsWithResponse call
 func ParseGetExecutionsResponse(rsp *http.Response) (result *GetExecutionsResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19530,7 +19532,7 @@ func ParseGetExecutionsResponse(rsp *http.Response) (result *GetExecutionsRespon
 
 // ParseGetLeverageResponse parses an HTTP response from a GetLeverageWithResponse call
 func ParseGetLeverageResponse(rsp *http.Response) (result *GetLeverageResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19561,7 +19563,7 @@ func ParseGetLeverageResponse(rsp *http.Response) (result *GetLeverageResponse, 
 
 // ParseGetIndividualPositionsResponse parses an HTTP response from a GetIndividualPositionsWithResponse call
 func ParseGetIndividualPositionsResponse(rsp *http.Response) (result *GetIndividualPositionsResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19592,7 +19594,7 @@ func ParseGetIndividualPositionsResponse(rsp *http.Response) (result *GetIndivid
 
 // ParseCloseIndividualPositionResponse parses an HTTP response from a CloseIndividualPositionWithResponse call
 func ParseCloseIndividualPositionResponse(rsp *http.Response) (result *CloseIndividualPositionResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19623,7 +19625,7 @@ func ParseCloseIndividualPositionResponse(rsp *http.Response) (result *CloseIndi
 
 // ParseModifyIndividualPositionResponse parses an HTTP response from a ModifyIndividualPositionWithResponse call
 func ParseModifyIndividualPositionResponse(rsp *http.Response) (result *ModifyIndividualPositionResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19654,7 +19656,7 @@ func ParseModifyIndividualPositionResponse(rsp *http.Response) (result *ModifyIn
 
 // ParseGetInstrumentsResponse parses an HTTP response from a GetInstrumentsWithResponse call
 func ParseGetInstrumentsResponse(rsp *http.Response) (result *GetInstrumentsResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19685,7 +19687,7 @@ func ParseGetInstrumentsResponse(rsp *http.Response) (result *GetInstrumentsResp
 
 // ParseGetNetPositionsResponse parses an HTTP response from a GetNetPositionsWithResponse call
 func ParseGetNetPositionsResponse(rsp *http.Response) (result *GetNetPositionsResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19716,7 +19718,7 @@ func ParseGetNetPositionsResponse(rsp *http.Response) (result *GetNetPositionsRe
 
 // ParseCloseNetPositionResponse parses an HTTP response from a CloseNetPositionWithResponse call
 func ParseCloseNetPositionResponse(rsp *http.Response) (result *CloseNetPositionResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19747,7 +19749,7 @@ func ParseCloseNetPositionResponse(rsp *http.Response) (result *CloseNetPosition
 
 // ParseOrderInfoResponse parses an HTTP response from a OrderInfoWithResponse call
 func ParseOrderInfoResponse(rsp *http.Response) (result *OrderInfoResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19778,7 +19780,7 @@ func ParseOrderInfoResponse(rsp *http.Response) (result *OrderInfoResponse, resu
 
 // ParseGetOrdersResponse parses an HTTP response from a GetOrdersWithResponse call
 func ParseGetOrdersResponse(rsp *http.Response) (result *GetOrdersResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19809,7 +19811,7 @@ func ParseGetOrdersResponse(rsp *http.Response) (result *GetOrdersResponse, resu
 
 // ParsePlaceOrderResponse parses an HTTP response from a PlaceOrderWithResponse call
 func ParsePlaceOrderResponse(rsp *http.Response) (result *PlaceOrderResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19840,7 +19842,7 @@ func ParsePlaceOrderResponse(rsp *http.Response) (result *PlaceOrderResponse, re
 
 // ParseCancelAllOrdersResponse parses an HTTP response from a CancelAllOrdersWithResponse call
 func ParseCancelAllOrdersResponse(rsp *http.Response) (result *CancelAllOrdersResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19871,7 +19873,7 @@ func ParseCancelAllOrdersResponse(rsp *http.Response) (result *CancelAllOrdersRe
 
 // ParseCancelOrderResponse parses an HTTP response from a CancelOrderWithResponse call
 func ParseCancelOrderResponse(rsp *http.Response) (result *CancelOrderResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19902,7 +19904,7 @@ func ParseCancelOrderResponse(rsp *http.Response) (result *CancelOrderResponse, 
 
 // ParseModifyOrderResponse parses an HTTP response from a ModifyOrderWithResponse call
 func ParseModifyOrderResponse(rsp *http.Response) (result *ModifyOrderResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19933,7 +19935,7 @@ func ParseModifyOrderResponse(rsp *http.Response) (result *ModifyOrderResponse, 
 
 // ParseGetOrdersHistoryResponse parses an HTTP response from a GetOrdersHistoryWithResponse call
 func ParseGetOrdersHistoryResponse(rsp *http.Response) (result *GetOrdersHistoryResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19964,7 +19966,7 @@ func ParseGetOrdersHistoryResponse(rsp *http.Response) (result *GetOrdersHistory
 
 // ParseGetPositionsResponse parses an HTTP response from a GetPositionsWithResponse call
 func ParseGetPositionsResponse(rsp *http.Response) (result *GetPositionsResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19995,7 +19997,7 @@ func ParseGetPositionsResponse(rsp *http.Response) (result *GetPositionsResponse
 
 // ParseClosePositionResponse parses an HTTP response from a ClosePositionWithResponse call
 func ParseClosePositionResponse(rsp *http.Response) (result *ClosePositionResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20026,7 +20028,7 @@ func ParseClosePositionResponse(rsp *http.Response) (result *ClosePositionRespon
 
 // ParseModifyPositionResponse parses an HTTP response from a ModifyPositionWithResponse call
 func ParseModifyPositionResponse(rsp *http.Response) (result *ModifyPositionResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20057,7 +20059,7 @@ func ParseModifyPositionResponse(rsp *http.Response) (result *ModifyPositionResp
 
 // ParsePreviewClosePositionResponse parses an HTTP response from a PreviewClosePositionWithResponse call
 func ParsePreviewClosePositionResponse(rsp *http.Response) (result *PreviewClosePositionResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20088,7 +20090,7 @@ func ParsePreviewClosePositionResponse(rsp *http.Response) (result *PreviewClose
 
 // ParsePreviewLeverageResponse parses an HTTP response from a PreviewLeverageWithResponse call
 func ParsePreviewLeverageResponse(rsp *http.Response) (result *PreviewLeverageResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20119,7 +20121,7 @@ func ParsePreviewLeverageResponse(rsp *http.Response) (result *PreviewLeverageRe
 
 // ParsePreviewOrderResponse parses an HTTP response from a PreviewOrderWithResponse call
 func ParsePreviewOrderResponse(rsp *http.Response) (result *PreviewOrderResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20150,7 +20152,7 @@ func ParsePreviewOrderResponse(rsp *http.Response) (result *PreviewOrderResponse
 
 // ParseSetLeverageResponse parses an HTTP response from a SetLeverageWithResponse call
 func ParseSetLeverageResponse(rsp *http.Response) (result *SetLeverageResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20181,7 +20183,7 @@ func ParseSetLeverageResponse(rsp *http.Response) (result *SetLeverageResponse, 
 
 // ParseGetStateResponse parses an HTTP response from a GetStateWithResponse call
 func ParseGetStateResponse(rsp *http.Response) (result *GetStateResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20212,7 +20214,7 @@ func ParseGetStateResponse(rsp *http.Response) (result *GetStateResponse, result
 
 // ParseTrackLatencyResponse parses an HTTP response from a TrackLatencyWithResponse call
 func ParseTrackLatencyResponse(rsp *http.Response) (result *TrackLatencyResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20243,7 +20245,7 @@ func ParseTrackLatencyResponse(rsp *http.Response) (result *TrackLatencyResponse
 
 // ParseAuthorizeResponse parses an HTTP response from a AuthorizeWithResponse call
 func ParseAuthorizeResponse(rsp *http.Response) (result *AuthorizeResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20274,7 +20276,7 @@ func ParseAuthorizeResponse(rsp *http.Response) (result *AuthorizeResponse, resu
 
 // ParseGetConfigurationResponse parses an HTTP response from a GetConfigurationWithResponse call
 func ParseGetConfigurationResponse(rsp *http.Response) (result *GetConfigurationResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20305,7 +20307,7 @@ func ParseGetConfigurationResponse(rsp *http.Response) (result *GetConfiguration
 
 // ParseGetDepthResponse parses an HTTP response from a GetDepthWithResponse call
 func ParseGetDepthResponse(rsp *http.Response) (result *GetDepthResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20336,7 +20338,7 @@ func ParseGetDepthResponse(rsp *http.Response) (result *GetDepthResponse, result
 
 // ParseGetGroupsResponse parses an HTTP response from a GetGroupsWithResponse call
 func ParseGetGroupsResponse(rsp *http.Response) (result *GetGroupsResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20367,7 +20369,7 @@ func ParseGetGroupsResponse(rsp *http.Response) (result *GetGroupsResponse, resu
 
 // ParseGetHistoryResponse parses an HTTP response from a GetHistoryWithResponse call
 func ParseGetHistoryResponse(rsp *http.Response) (result *GetHistoryResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20398,7 +20400,7 @@ func ParseGetHistoryResponse(rsp *http.Response) (result *GetHistoryResponse, re
 
 // ParseLogoutResponse parses an HTTP response from a LogoutWithResponse call
 func ParseLogoutResponse(rsp *http.Response) (result *LogoutResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20429,7 +20431,7 @@ func ParseLogoutResponse(rsp *http.Response) (result *LogoutResponse, resultErr 
 
 // ParseGetMappingResponse parses an HTTP response from a GetMappingWithResponse call
 func ParseGetMappingResponse(rsp *http.Response) (result *GetMappingResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20460,7 +20462,7 @@ func ParseGetMappingResponse(rsp *http.Response) (result *GetMappingResponse, re
 
 // ParseGetPermissionsResponse parses an HTTP response from a GetPermissionsWithResponse call
 func ParseGetPermissionsResponse(rsp *http.Response) (result *GetPermissionsResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20491,7 +20493,7 @@ func ParseGetPermissionsResponse(rsp *http.Response) (result *GetPermissionsResp
 
 // ParsePostPromotionReportResponse parses an HTTP response from a PostPromotionReportWithResponse call
 func ParsePostPromotionReportResponse(rsp *http.Response) (result *PostPromotionReportResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20522,7 +20524,7 @@ func ParsePostPromotionReportResponse(rsp *http.Response) (result *PostPromotion
 
 // ParseGetQuotesResponse parses an HTTP response from a GetQuotesWithResponse call
 func ParseGetQuotesResponse(rsp *http.Response) (result *GetQuotesResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20553,7 +20555,7 @@ func ParseGetQuotesResponse(rsp *http.Response) (result *GetQuotesResponse, resu
 
 // ParseGetSymbolInfoResponse parses an HTTP response from a GetSymbolInfoWithResponse call
 func ParseGetSymbolInfoResponse(rsp *http.Response) (result *GetSymbolInfoResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20584,7 +20586,7 @@ func ParseGetSymbolInfoResponse(rsp *http.Response) (result *GetSymbolInfoRespon
 
 // ParseGetUserInfoResponse parses an HTTP response from a GetUserInfoWithResponse call
 func ParseGetUserInfoResponse(rsp *http.Response) (result *GetUserInfoResponse, resultErr error) {
-	defer func() { finishResponseTelemetry(rsp, resultErr) }()
+	defer func() { finishResponseObservation(rsp, resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()

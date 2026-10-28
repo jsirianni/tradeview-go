@@ -258,7 +258,7 @@ func TestTelemetryEditorFailureAndDisabled(t *testing.T) {
 		t.Fatal(err)
 	}
 	_ = response.Body.Close()
-	if _, ok := response.Body.(*telemetryBody); ok {
+	if _, ok := response.Body.(*observedBody); ok {
 		t.Fatal("disabled telemetry wrapped body")
 	}
 }
