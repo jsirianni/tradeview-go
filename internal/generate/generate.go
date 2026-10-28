@@ -228,6 +228,9 @@ func Generate(root string) error {
 	if err := postprocess(outputPath, streamNames); err != nil {
 		return err
 	}
+	if err := addTelemetry(outputPath, operations); err != nil {
+		return err
+	}
 	if err := addSymbolInfoDecoders(outputPath, rules.SymbolInfoScalarModels); err != nil {
 		return err
 	}
