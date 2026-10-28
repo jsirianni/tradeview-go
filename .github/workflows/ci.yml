@@ -23,6 +23,23 @@ jobs:
         run: make
       - name: Validate packages
         run: make ci
+      - name: Verify Staticcheck rejects a known violation
+        shell: bash
+        run: |
+          fixture=$(mktemp -d ./staticcheck-negative-XXXXXX)
+          trap 'rm -rf "$fixture"' EXIT
+          cat > "$fixture/invalid.go" <<'GO'
+          package staticchecknegative
+          import "regexp"
+          func Broken() { regexp.MustCompile("[") }
+          GO
+          if make staticcheck STATICCHECK_PACKAGES="./$fixture" > "$fixture/diagnostics" 2>&1; then
+            cat "$fixture/diagnostics"
+            echo "Staticcheck unexpectedly accepted an invalid regular expression"
+            exit 1
+          fi
+          cat "$fixture/diagnostics"
+          grep -q 'SA1000' "$fixture/diagnostics"
       - name: Benchmark market stream decoding
         run: go test -run '^$' -bench '^BenchmarkDecodeMarketEvent$' -benchmem -benchtime=300ms -count=3 ./pkg/tradeview
       - name: Check clean checkout
