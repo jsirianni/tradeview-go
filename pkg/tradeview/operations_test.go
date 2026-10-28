@@ -100,7 +100,7 @@ func loadFixtureContract(t *testing.T) fixtureContract {
 	if err := yaml.Unmarshal(data, &source); err != nil {
 		t.Fatal(err)
 	}
-	result := fixtureContract{source: source, operations: make(map[string]map[string]any, len(operationFixtures)), manifest: make(map[string]operationEntry, len(operationFixtures))}
+	result := fixtureContract{source: source, operations: make(map[string]map[string]any, len(_operationFixtures)), manifest: make(map[string]operationEntry, len(_operationFixtures))}
 	for _, pathValue := range source["paths"].(map[string]any) {
 		for _, operationValue := range pathValue.(map[string]any) {
 			operation, ok := operationValue.(map[string]any)
@@ -138,7 +138,7 @@ func TestOperationInventory(t *testing.T) {
 	}
 	rawType := reflect.TypeOf((*Client)(nil))
 	typedType := reflect.TypeOf((*ClientWithResponses)(nil))
-	seen := make(map[string]bool, len(operationFixtures))
+	seen := make(map[string]bool, len(_operationFixtures))
 	finite, streams := 0, 0
 	for _, fixture := range _operationFixtures {
 		if seen[fixture.id] {
