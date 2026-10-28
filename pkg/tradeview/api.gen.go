@@ -20232,3 +20232,107 @@ func ParseGetUserInfoResponse(rsp *http.Response) (*GetUserInfoResponse, error) 
 
 	return response, nil
 }
+
+// UnmarshalJSON expands compact metadata shared by every symbol.
+func (value *SymbolInfoArrays) UnmarshalJSON(data []byte) error {
+	type plain SymbolInfoArrays
+	normalized, err := normalizeSymbolInfoJSON(data, []string{
+		"bar-fillgaps",
+		"bar-source",
+		"bar-transform",
+		"base-currency",
+		"blockchain-addresses",
+		"currency",
+		"description",
+		"dex_currency",
+		"exchange-listed",
+		"exchange-traded",
+		"expiration",
+		"fractional",
+		"has-daily",
+		"has-intraday",
+		"has-no-volume",
+		"has-weekly-and-monthly",
+		"is-cfd",
+		"isin",
+		"lotsize",
+		"minmovement",
+		"minmovement2",
+		"option-product",
+		"option-style",
+		"option-type",
+		"pointvalue",
+		"pricescale",
+		"root",
+		"root-description",
+		"session-extended",
+		"session-postmarket",
+		"session-premarket",
+		"session-regular",
+		"strike",
+		"symbol",
+		"ticker",
+		"timezone",
+		"type",
+		"typespecs",
+		"underlying-symbol",
+		"volume-type",
+		"wkn",
+	})
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(normalized, (*plain)(value))
+}
+
+// UnmarshalJSON expands compact metadata shared by every symbol.
+func (value *SymbolInfoResponse) UnmarshalJSON(data []byte) error {
+	type plain SymbolInfoResponse
+	normalized, err := normalizeSymbolInfoJSON(data, []string{
+		"bar-fillgaps",
+		"bar-source",
+		"bar-transform",
+		"base-currency",
+		"blockchain-addresses",
+		"currency",
+		"description",
+		"dex_currency",
+		"exchange-listed",
+		"exchange-traded",
+		"expiration",
+		"fractional",
+		"has-daily",
+		"has-intraday",
+		"has-no-volume",
+		"has-weekly-and-monthly",
+		"is-cfd",
+		"isin",
+		"lotsize",
+		"minmovement",
+		"minmovement2",
+		"option-product",
+		"option-style",
+		"option-type",
+		"pointvalue",
+		"pricescale",
+		"root",
+		"root-description",
+		"session-extended",
+		"session-postmarket",
+		"session-premarket",
+		"session-regular",
+		"strike",
+		"symbol",
+		"ticker",
+		"timezone",
+		"type",
+		"typespecs",
+		"underlying-symbol",
+		"volume-type",
+		"wkn",
+	})
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(normalized, (*plain)(value))
+}

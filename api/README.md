@@ -7,6 +7,7 @@
 - Use double precision for number schemas whose upstream format is unspecified.
 - Encode the instruments `symbols` query as the comma-separated list specified in its description.
 - Move the misplaced `items` property on the shared `orderIds` parameter into its array schema.
+- Accept compact scalar symbol metadata in both `SymbolInfoArrays` and `SymbolInfoResponse`, expanding it across the returned symbols while keeping the public slice fields. The generator derives every metadata array field from the generated models; the pinned upstream schema remains unchanged.
 - Give a small set of Go types distinct names where upstream component names collide with flattened enums or generated HTTP response wrappers. Wire names remain unchanged.
 
 `oapi-codegen.yaml` preserves all component models, including those not referenced by operations. `operations.json` maps all 47 upstream operation IDs to the generated raw method, finite response method or streaming opener, and transport fixture test. Form operations use the generator's `WithFormdataBody` method suffix.
