@@ -76,7 +76,12 @@ type Stream[T any] struct {
 	stopCancel    func() bool
 }
 
-func openHTTPStream[T any](ctx context.Context, response *http.Response, requestErr error, config streamConfig, decode func([]byte) (T, error)) (*Stream[T], error) {
+func openHTTPStream[T any](ctx context.Context, response *http.Response, requestErr error, config streamConfig, decode func([]byte) (T, error)) (result *Stream[T], resultErr error) {
+	defer func() {
+		if result == nil {
+			finishResponseTelemetry(response, resultErr)
+		}
+	}()
 	if requestErr != nil {
 		if response != nil && response.Body != nil {
 			_ = response.Body.Close()
@@ -142,6 +147,7 @@ func (stream *Stream[T]) Next() bool {
 		}
 		stream.value = value
 		stream.mu.Unlock()
+		responseTelemetry(stream.response).frame()
 		if err := streamAPIError(frame, stream.response.StatusCode); err != nil {
 			// #nosec G104 -- finish saves the body close error for Close; Err retains this terminal cause.
 			stream.finish(err)
@@ -185,12 +191,14 @@ func (stream *Stream[T]) finish(err error) error {
 		stream.closed = true
 		stream.err = err
 	}
+	terminalErr := stream.err
 	stream.mu.Unlock()
 	stream.closeOnce.Do(func() {
 		if stream.stopCancel != nil {
 			stream.stopCancel()
 		}
 		stream.closeErr = stream.response.Body.Close()
+		finishResponseTelemetry(stream.response, errors.Join(terminalErr, stream.closeErr))
 	})
 	return stream.closeErr
 }
