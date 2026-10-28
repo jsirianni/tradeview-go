@@ -1,0 +1,27 @@
+{
+  "s": "ok",
+  "d": [
+    {
+      "id": "order-1",
+      "instrument": "EURUSD",
+      "qty": 2.5,
+      "side": "buy",
+      "type": "limit",
+      "status": "filled",
+      "limitPrice": 1.23456789012345,
+      "filledQty": 0,
+      "isTrailingStop": false,
+      "duration": {
+        "type": "gtt",
+        "datetime": 1793153400
+      },
+      "customFields": [
+        {
+          "id": "commission",
+          "value": "1.25"
+        }
+      ]
+    }
+  ],
+  "nextPageCursor": "orders+/= cursor"
+}

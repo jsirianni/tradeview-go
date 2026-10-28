@@ -1,0 +1,34 @@
+{
+  "s": "ok",
+  "d": [
+    {
+      "id": "order-1",
+      "instrument": "EURUSD",
+      "qty": 2.5,
+      "side": "buy",
+      "type": "limit",
+      "status": "working",
+      "limitPrice": 1.23456789012345,
+      "filledQty": 0,
+      "isTrailingStop": false,
+      "duration": {
+        "type": "gtt",
+        "datetime": 1793153400
+      },
+      "customFields": [
+        {
+          "id": "commission",
+          "value": "1.25"
+        }
+      ]
+    },
+    {
+      "id": "order-2",
+      "instrument": "GBPUSD",
+      "qty": 1,
+      "side": "sell",
+      "type": "market",
+      "status": "working"
+    }
+  ]
+}

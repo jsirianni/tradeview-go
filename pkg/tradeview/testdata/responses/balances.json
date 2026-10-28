@@ -1,0 +1,17 @@
+{
+  "s": "ok",
+  "d": [
+    {
+      "symbol": "BTC",
+      "available": 0.123456789012345,
+      "total": 0.25,
+      "reserved": 0,
+      "valueCurrency": "USD"
+    },
+    {
+      "symbol": "USD",
+      "available": 0,
+      "total": 0
+    }
+  ]
+}

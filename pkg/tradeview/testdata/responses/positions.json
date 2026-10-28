@@ -1,0 +1,19 @@
+{
+  "s": "ok",
+  "d": [
+    {
+      "id": "position-1",
+      "instrument": "EURUSD",
+      "qty": 2.5,
+      "side": "buy",
+      "avgPrice": 1.23456789012345,
+      "unrealizedPl": 0,
+      "customFields": [
+        {
+          "id": "risk",
+          "value": "low"
+        }
+      ]
+    }
+  ]
+}
