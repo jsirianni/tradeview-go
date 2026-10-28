@@ -4,7 +4,7 @@ The client sends requests to a broker base URL provided by your application.
 
 ## Installation
 
-Go **1.26 or newer** is required. This repository is private; Git must be authenticated to GitHub, and Go must treat the module as private. For example:
+Linux and Go **1.27** are required. This repository is private; Git must be authenticated to GitHub, and Go must treat the module as private. For example:
 
 ```sh
 gh auth login

@@ -1,6 +1,6 @@
 # Development
 
-Use Go 1.26 or newer, Git, and GNU Make 4.2 or newer on your PATH. The Makefile works with native Windows command shells and Linux. On Windows, GNU Make is available through Chocolatey (`choco install make --version=4.4.1`).
+Development requires Linux, Go 1.27, Git, and GNU Make 4.2 or newer on your PATH.
 
 ## Packages
 
@@ -50,4 +50,4 @@ The generator uses `oapi-codegen` **v2.8.1**, pinned as a Go tool dependency. `m
 
 Generation uses the committed schema and does not fetch a new API revision. To update the contract, replace the upstream schema deliberately, record its version/source/checksum, review the compatibility overlay, regenerate, and update the operation inventory and transport fixtures together. Review all resulting API changes before committing.
 
-CI runs the Make targets on Windows and Linux with Go 1.26 and 1.27. Linux additionally runs `make ci` and verifies that the checkout stays clean. Tests use local HTTP fixtures and do not require broker credentials.
+CI runs one Linux job with Go 1.27. It runs `make ci` and verifies that the checkout stays clean. Tests use local HTTP fixtures and do not require broker credentials.

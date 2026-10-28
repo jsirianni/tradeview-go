@@ -4,12 +4,6 @@ TEST_ARGS ?=
 
 .DEFAULT_GOAL := help
 
-# Keep native Windows recipes independent of a Unix shell installation.
-ifeq ($(OS),Windows_NT)
-SHELL := cmd.exe
-.SHELLFLAGS := /C
-endif
-
 .PHONY: help build test test-race coverage coverage-html fmt fmt-check vet generate generate-check deps tidy check ci clean
 
 help:
@@ -78,9 +72,4 @@ ci: generate-check
 
 clean:
 	$(GO) clean ./...
-ifeq ($(OS),Windows_NT)
-	if exist coverage.out del /Q coverage.out
-	if exist coverage.html del /Q coverage.html
-else
 	rm -f coverage.out coverage.html
-endif
