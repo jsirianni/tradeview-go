@@ -3,7 +3,9 @@ package tradeview
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
+	"math"
 	"net/http"
 	"reflect"
 	"strings"
@@ -258,5 +260,93 @@ func TestNormalizeSymbolInfoChangesOnlyCompactValueSpans(t *testing.T) {
 	}
 	if string(output) != want {
 		t.Fatalf("normalization changed untouched bytes:\ngot  %s\nwant %s", output, want)
+	}
+}
+
+func TestSymbolInfoRejectsCompactAmplification(t *testing.T) {
+	symbols := strings.Repeat(`"X",`, 2047) + `"X"`
+	scalar := `"` + strings.Repeat("A", 32768) + `"`
+	payload := []byte(`{"s":"ok","symbol":[` + symbols + `],"description":` + scalar + `}`)
+	for name, factory := range symbolInfoModelFactories() {
+		t.Run(name, func(t *testing.T) {
+			var sizeErr *SymbolInfoSizeError
+			if err := json.Unmarshal(payload, factory()); !errors.As(err, &sizeErr) || sizeErr.Limit != MaxSymbolInfoExpandedBytes {
+				t.Fatalf("unbounded compact expansion: %v", err)
+			}
+		})
+	}
+	// A collection of individually allowed scalars must share one budget.
+	symbols = strings.Repeat(`"X",`, 1023) + `"X"`
+	scalar = `"` + strings.Repeat("A", 9000) + `"`
+	payload = []byte(`{"symbol":[` + symbols + `],"description":` + scalar + `,"description":` + scalar + `}`)
+	var sizeErr *SymbolInfoSizeError
+	if _, err := normalizeSymbolInfoJSON(payload, []string{"symbol", "description"}); !errors.As(err, &sizeErr) {
+		t.Fatalf("duplicate expansion escaped budget: %v", err)
+	}
+}
+
+func TestSymbolInfoExpansionArithmetic(t *testing.T) {
+	for _, tc := range []struct {
+		remaining  int64
+		count, raw int
+	}{
+		{remaining: math.MaxInt64, count: math.MaxInt, raw: math.MaxInt},
+		{remaining: MaxSymbolInfoExpandedBytes, count: math.MaxInt, raw: 1},
+		{remaining: -1, count: 1, raw: 1}, {remaining: 66, count: 1, raw: 1},
+	} {
+		if cost, ok := symbolInfoExpansionCost(tc.remaining, tc.count, tc.raw); ok {
+			t.Fatalf("accepted oversized arithmetic: %+v cost=%d", tc, cost)
+		}
+	}
+	if cost, ok := symbolInfoExpansionCost(68, 1, 1); !ok || cost != 68 {
+		t.Fatalf("boundary cost=%d ok=%v", cost, ok)
+	}
+}
+
+func TestSymbolInfoRejectsTooManySymbols(t *testing.T) {
+	payload := []byte(`{"symbol":[` + strings.Repeat(`"X",`, MaxSymbolInfoSymbols) + `"X"]}`)
+	for name, factory := range symbolInfoModelFactories() {
+		t.Run(name, func(t *testing.T) {
+			var sizeErr *SymbolInfoSizeError
+			if err := json.Unmarshal(payload, factory()); !errors.As(err, &sizeErr) {
+				t.Fatalf("accepted excessive symbols: %v", err)
+			}
+		})
+	}
+}
+
+func TestSymbolInfoCountLimitCoversFoldedAndDuplicateKeys(t *testing.T) {
+	oversized := `[` + strings.Repeat(`"X",`, MaxSymbolInfoSymbols) + `"X"]`
+	for _, key := range []string{"symbol", "Symbol", "SYMBOL", "ſymbol"} {
+		for _, payload := range []string{
+			`{"` + key + `":` + oversized + `}`,
+			`{"symbol":["X"],"` + key + `":` + oversized + `,"description":"shared"}`,
+			`{"` + key + `":` + oversized + `,"symbol":["X"],"description":"shared"}`,
+		} {
+			for name, factory := range symbolInfoModelFactories() {
+				t.Run(name+"/"+key, func(t *testing.T) {
+					var sizeErr *SymbolInfoSizeError
+					if err := json.Unmarshal([]byte(payload), factory()); !errors.As(err, &sizeErr) {
+						t.Fatalf("folded or overwritten array escaped cap: %v", err)
+					}
+				})
+			}
+		}
+	}
+	// Folded nulls and arrays retain encoding/json's final-key precedence;
+	// scalar compact expansion still uses the last exact canonical key only.
+	for _, payload := range []string{
+		`{"Symbol":null}`, `{"ſymbol":["X"]}`,
+		`{"symbol":"X","Symbol":["Y"],"description":"shared"}`,
+		`{"Symbol":["Y"],"symbol":"X","description":"shared"}`,
+		`{"symbol":"X","Symbol":null,"description":"shared"}`,
+	} {
+		for name, factory := range symbolInfoModelFactories() {
+			t.Run(name+"/control", func(t *testing.T) {
+				if err := json.Unmarshal([]byte(payload), factory()); err != nil {
+					t.Fatalf("changed ordinary folded/null/scalar behavior: %v", err)
+				}
+			})
+		}
 	}
 }
