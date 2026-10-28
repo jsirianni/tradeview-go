@@ -1,0 +1,22 @@
+# Local generation rules; api/broker-rest-api.yaml remains byte-for-byte upstream.
+# Number schemas omit format upstream; use float64 rather than float32.
+number-format: double
+# The instrument symbols prose explicitly requires a comma-separated list.
+csv-query-parameters:
+  - operation: getInstruments
+    name: symbols
+# Shared orderIds puts items beside schema, which is invalid OpenAPI 3.
+move-parameter-items-to-schema:
+  - orderIds
+# Avoid the flattened OrderHistory.status enum colliding with OrderHistoryStatus.
+schema-go-names:
+  OrderHistoryStatus: OrderHistoryStatusFields
+  OrderStatus: OrderStatusFields
+  # Component response names also collide with generated HTTP response wrappers.
+  GetLeverageResponse: GetLeveragePayload
+  OrderInfoResponse: OrderInfoPayload
+  PreviewClosePositionResponse: PreviewClosePositionPayload
+  PreviewLeverageResponse: PreviewLeveragePayload
+  PreviewOrderResponse: PreviewOrderPayload
+  SetLeverageResponse: SetLeveragePayload
+  AuthorizeResponse: AuthorizePayload
