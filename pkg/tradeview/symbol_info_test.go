@@ -3,7 +3,9 @@ package tradeview
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
+	"math"
 	"net/http"
 	"reflect"
 	"strings"
@@ -258,5 +260,57 @@ func TestNormalizeSymbolInfoChangesOnlyCompactValueSpans(t *testing.T) {
 	}
 	if string(output) != want {
 		t.Fatalf("normalization changed untouched bytes:\ngot  %s\nwant %s", output, want)
+	}
+}
+
+func TestSymbolInfoRejectsCompactAmplification(t *testing.T) {
+	symbols := strings.Repeat(`"X",`, 2047) + `"X"`
+	scalar := `"` + strings.Repeat("A", 32768) + `"`
+	payload := []byte(`{"s":"ok","symbol":[` + symbols + `],"description":` + scalar + `}`)
+	for name, factory := range symbolInfoModelFactories() {
+		t.Run(name, func(t *testing.T) {
+			var sizeErr *SymbolInfoSizeError
+			if err := json.Unmarshal(payload, factory()); !errors.As(err, &sizeErr) || sizeErr.Limit != MaxSymbolInfoExpandedBytes {
+				t.Fatalf("unbounded compact expansion: %v", err)
+			}
+		})
+	}
+	// A collection of individually allowed scalars must share one budget.
+	symbols = strings.Repeat(`"X",`, 1023) + `"X"`
+	scalar = `"` + strings.Repeat("A", 9000) + `"`
+	payload = []byte(`{"symbol":[` + symbols + `],"description":` + scalar + `,"description":` + scalar + `}`)
+	var sizeErr *SymbolInfoSizeError
+	if _, err := normalizeSymbolInfoJSON(payload, []string{"symbol", "description"}); !errors.As(err, &sizeErr) {
+		t.Fatalf("duplicate expansion escaped budget: %v", err)
+	}
+}
+
+func TestSymbolInfoExpansionArithmetic(t *testing.T) {
+	for _, tc := range []struct {
+		remaining  int64
+		count, raw int
+	}{
+		{math.MaxInt64, math.MaxInt, math.MaxInt},
+		{MaxSymbolInfoExpandedBytes, math.MaxInt, 1},
+		{-1, 1, 1}, {34, 1, 1},
+	} {
+		if cost, ok := symbolInfoExpansionCost(tc.remaining, tc.count, tc.raw); ok {
+			t.Fatalf("accepted oversized arithmetic: %+v cost=%d", tc, cost)
+		}
+	}
+	if cost, ok := symbolInfoExpansionCost(36, 1, 1); !ok || cost != 36 {
+		t.Fatalf("boundary cost=%d ok=%v", cost, ok)
+	}
+}
+
+func TestSymbolInfoRejectsTooManySymbols(t *testing.T) {
+	payload := []byte(`{"symbol":[` + strings.Repeat(`"X",`, MaxSymbolInfoSymbols) + `"X"]}`)
+	for name, factory := range symbolInfoModelFactories() {
+		t.Run(name, func(t *testing.T) {
+			var sizeErr *SymbolInfoSizeError
+			if err := json.Unmarshal(payload, factory()); !errors.As(err, &sizeErr) {
+				t.Fatalf("accepted excessive symbols: %v", err)
+			}
+		})
 	}
 }

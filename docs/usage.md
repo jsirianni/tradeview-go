@@ -50,7 +50,7 @@ fmt.Println(response.StatusCode())
 
 Optional fields retain presence information. Set a pointer to zero or false when that value must be transmitted; leave it nil to omit it. Numeric schema values use `float64`.
 
-Symbol-info responses accept either per-symbol arrays or a shared scalar metadata value. Typed `SymbolInfoArrays` and `SymbolInfoResponse` values expand shared metadata to one entry per returned symbol; a scalar `symbol` represents one symbol. Existing arrays, nulls, and omitted fields retain their usual behavior. Shared scalar metadata requires at least one symbol. Marshaling a typed model emits arrays; the finite response `Body` and response union retain the original broker JSON.
+Symbol-info responses accept either per-symbol arrays or a shared scalar metadata value. Typed `SymbolInfoArrays` and `SymbolInfoResponse` values expand shared metadata to one entry per returned symbol; a scalar `symbol` represents one symbol. Existing arrays, nulls, and omitted fields retain their usual behavior. Shared scalar metadata requires at least one symbol. Typed symbol models reject more than 65,536 symbols or compact expansion above a 16 MiB budget (serialized values plus estimated element storage) with `*SymbolInfoSizeError`. The budget is checked across all scalar fields and duplicate properties before repeated JSON is allocated. Raw unions remain available for applications needing a different representation. Marshaling a typed model emits arrays; the finite response `Body` and response union retain the original broker JSON.
 
 ## Authentication and HTTP configuration
 
