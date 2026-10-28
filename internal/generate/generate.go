@@ -125,7 +125,7 @@ func Generate(root string) error {
 		componentSchema["x-go-name"] = name
 	}
 	var operations []operation
-	streamNames := map[string]bool{}
+	streamNames := make(map[string]bool)
 	paths, err := object(schema["paths"], "schema paths")
 	if err != nil {
 		return err

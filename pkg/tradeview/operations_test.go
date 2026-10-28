@@ -100,7 +100,7 @@ func loadFixtureContract(t *testing.T) fixtureContract {
 	if err := yaml.Unmarshal(data, &source); err != nil {
 		t.Fatal(err)
 	}
-	result := fixtureContract{source: source, operations: map[string]map[string]any{}, manifest: map[string]operationEntry{}}
+	result := fixtureContract{source: source, operations: make(map[string]map[string]any, len(_operationFixtures)), manifest: make(map[string]operationEntry, len(_operationFixtures))}
 	for _, pathValue := range source["paths"].(map[string]any) {
 		for _, operationValue := range pathValue.(map[string]any) {
 			operation, ok := operationValue.(map[string]any)
@@ -138,7 +138,7 @@ func TestOperationInventory(t *testing.T) {
 	}
 	rawType := reflect.TypeOf((*Client)(nil))
 	typedType := reflect.TypeOf((*ClientWithResponses)(nil))
-	seen := map[string]bool{}
+	seen := make(map[string]bool, len(_operationFixtures))
 	finite, streams := 0, 0
 	for _, fixture := range _operationFixtures {
 		if seen[fixture.id] {
@@ -373,9 +373,9 @@ func (c fixtureContract) resolve(value map[string]any) map[string]any {
 }
 
 func (c fixtureContract) queryFixture(id string, operation map[string]any) (map[string]any, url.Values) {
-	values := map[string]any{}
-	expected := url.Values{}
 	parameters, _ := operation["parameters"].([]any)
+	values := make(map[string]any, len(parameters))
+	expected := make(url.Values, len(parameters))
 	for _, parameterValue := range parameters {
 		parameter := c.resolve(parameterValue.(map[string]any))
 		if parameter["in"] != "query" {
@@ -445,7 +445,7 @@ func (c fixtureContract) sample(schema map[string]any, depth int) any {
 		}
 	}
 	if variants, ok := schema["allOf"].([]any); ok {
-		merged := map[string]any{}
+		merged := make(map[string]any)
 		for _, variant := range variants {
 			if value, ok := c.sample(variant.(map[string]any), depth+1).(map[string]any); ok {
 				for key, item := range value {
@@ -471,7 +471,7 @@ func (c fixtureContract) sample(schema map[string]any, depth int) any {
 		return "fixture value/+?&"
 	}
 	if properties, ok := schema["properties"].(map[string]any); ok {
-		result := map[string]any{}
+		result := make(map[string]any, len(properties))
 		keys := make([]string, 0, len(properties))
 		for key := range properties {
 			keys = append(keys, key)
@@ -482,7 +482,7 @@ func (c fixtureContract) sample(schema map[string]any, depth int) any {
 		}
 		return result
 	}
-	return map[string]any{}
+	return make(map[string]any)
 }
 
 func fixtureScalar(value any) string {
@@ -499,8 +499,9 @@ func fixtureScalar(value any) string {
 }
 
 func fixtureForm(sample any) url.Values {
-	expected := url.Values{}
-	for key, value := range sample.(map[string]any) {
+	object := sample.(map[string]any)
+	expected := make(url.Values, len(object))
+	for key, value := range object {
 		switch value := value.(type) {
 		case []any:
 			scalar := true
