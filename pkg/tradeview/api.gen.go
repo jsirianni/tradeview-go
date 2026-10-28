@@ -11165,7 +11165,7 @@ func NewClient(server string, opts ...ClientOption) (*Client, error) {
 	}
 	// create httpClient, if not already present
 	if client.Client == nil {
-		client.Client = &http.Client{}
+		client.Client = defaultHTTPClient()
 	}
 	return &client, nil
 }

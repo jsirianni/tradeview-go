@@ -149,3 +149,28 @@ func TestGenerateChecksExplicitRootBeforeWriting(t *testing.T) {
 		t.Fatalf("Generate wrote package output before source verification: %v", err)
 	}
 }
+
+func TestRewriteClientProtectsDefaultRedirects(t *testing.T) {
+	input := []byte(`package tradeview
+    func NewClient() *Client {
+        client := &Client{}
+        if client.Client == nil { client.Client = &http.Client{} }
+        return client
+    }
+    func callerClient() *http.Client { return &http.Client{} }
+    `)
+	output, err := rewriteClient(input, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(output), "client.Client = defaultHTTPClient()") {
+		t.Fatalf("missing safe default initializer:\n%s", output)
+	}
+	if !strings.Contains(string(output), "return &http.Client{}") {
+		t.Fatal("changed unrelated caller client")
+	}
+	_, err = rewriteClient([]byte(`package tradeview; func NewClient() {}`), nil)
+	if err == nil {
+		t.Fatal("accepted missing generator default initializer")
+	}
+}
