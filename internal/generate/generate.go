@@ -47,7 +47,8 @@ func Generate(root string) error {
 	if err != nil {
 		return fmt.Errorf("resolve repository root: %w", err)
 	}
-	source, err := os.ReadFile(filepath.Join(root, "api/broker-rest-api.yaml"))
+	schemaPath := filepath.Join(root, "api", "broker-rest-api.yaml")
+	source, err := os.ReadFile(schemaPath)
 	if err != nil {
 		return err
 	}
@@ -55,12 +56,13 @@ func Generate(root string) error {
 		Version string `json:"version"`
 		SHA256  string `json:"sha256"`
 	}
-	metadataBytes, err := os.ReadFile(filepath.Join(root, "api/upstream.json"))
+	metadataPath := filepath.Join(root, "api", "upstream.json")
+	metadataBytes, err := os.ReadFile(metadataPath)
 	if err != nil {
 		return err
 	}
 	if err := json.Unmarshal(metadataBytes, &metadata); err != nil {
-		return err
+		return fmt.Errorf("decode upstream metadata %q: %w", metadataPath, err)
 	}
 	digest := sha256.Sum256(source)
 	if hex.EncodeToString(digest[:]) != metadata.SHA256 {
@@ -68,7 +70,7 @@ func Generate(root string) error {
 	}
 	var schema map[string]any
 	if err := yaml.Unmarshal(source, &schema); err != nil {
-		return err
+		return fmt.Errorf("decode schema %q: %w", schemaPath, err)
 	}
 	info, err := object(schema["info"], "schema info")
 	if err != nil {
@@ -78,12 +80,13 @@ func Generate(root string) error {
 		return fmt.Errorf("upstream schema version mismatch")
 	}
 	var rules overlay
-	data, err := os.ReadFile(filepath.Join(root, "api/overlay.yaml"))
+	overlayPath := filepath.Join(root, "api", "overlay.yaml")
+	data, err := os.ReadFile(overlayPath)
 	if err != nil {
 		return err
 	}
 	if err := yaml.Unmarshal(data, &rules); err != nil {
-		return err
+		return fmt.Errorf("decode overlay %q: %w", overlayPath, err)
 	}
 	applyNumbers(schema, rules.NumberFormat)
 	components, err := object(schema["components"], "schema components")
