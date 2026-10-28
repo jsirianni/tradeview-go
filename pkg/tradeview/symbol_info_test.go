@@ -212,3 +212,51 @@ func TestSymbolInfoInvalidCompactUnionAccessor(t *testing.T) {
 		t.Fatalf("missing contextual compact metadata error: %v", err)
 	}
 }
+
+func TestSymbolInfoCompactMetadataPreservesPropertyOrder(t *testing.T) {
+	cases := []struct {
+		name, input string
+		pricescale  []float64
+		symbol      []string
+	}{
+		{"canonical array last", `{"symbol":["AAPL","MSFT"],"Pricescale":[200,200],"pricescale":[100,100],"description":"shared"}`, []float64{100, 100}, []string{"AAPL", "MSFT"}},
+		{"folded array last", `{"symbol":["AAPL","MSFT"],"pricescale":[100,100],"Pricescale":[200,200],"description":"shared"}`, []float64{200, 200}, []string{"AAPL", "MSFT"}},
+		{"canonical scalar last", `{"symbol":["AAPL","MSFT"],"Pricescale":[200,200],"pricescale":100}`, []float64{100, 100}, []string{"AAPL", "MSFT"}},
+		{"folded array after scalar", `{"symbol":["AAPL","MSFT"],"pricescale":100,"Pricescale":[200,200]}`, []float64{200, 200}, []string{"AAPL", "MSFT"}},
+		{"duplicate canonical arrays", `{"symbol":["AAPL","MSFT"],"pricescale":[100,100],"pricescale":[200,200],"description":"shared"}`, []float64{200, 200}, []string{"AAPL", "MSFT"}},
+		{"duplicate canonical scalar then array", `{"symbol":["AAPL","MSFT"],"pricescale":100,"pricescale":[200,200]}`, []float64{200, 200}, []string{"AAPL", "MSFT"}},
+		{"duplicate canonical array then scalar", `{"symbol":["AAPL","MSFT"],"pricescale":[200,200],"pricescale":100}`, []float64{100, 100}, []string{"AAPL", "MSFT"}},
+		{"duplicate canonical scalars", `{"symbol":["AAPL","MSFT"],"pricescale":200,"pricescale":100}`, []float64{100, 100}, []string{"AAPL", "MSFT"}},
+		{"canonical scalar symbol last", `{"Symbol":["MSFT"],"symbol":"AAPL","pricescale":100}`, []float64{100}, []string{"AAPL"}},
+		{"folded symbol array last", `{"symbol":"AAPL","Symbol":["MSFT"],"pricescale":100}`, []float64{100}, []string{"MSFT"}},
+		{"duplicate scalar symbols", `{"symbol":"MSFT","symbol":"AAPL","pricescale":100}`, []float64{100}, []string{"AAPL"}},
+	}
+	for modelName, factory := range symbolInfoModelFactories() {
+		t.Run(modelName, func(t *testing.T) {
+			for _, tc := range cases {
+				t.Run(tc.name, func(t *testing.T) {
+					model := factory()
+					if err := json.Unmarshal([]byte(tc.input), model); err != nil {
+						t.Fatal(err)
+					}
+					value := reflect.ValueOf(model).Elem()
+					if !reflect.DeepEqual(value.FieldByName("Pricescale").Interface(), tc.pricescale) || !reflect.DeepEqual(value.FieldByName("Symbol").Interface(), tc.symbol) {
+						t.Fatalf("property precedence changed: %+v", model)
+					}
+				})
+			}
+		})
+	}
+}
+
+func TestNormalizeSymbolInfoChangesOnlyCompactValueSpans(t *testing.T) {
+	const input = " {\n \"symbol\" : \"AAPL\", \"description\" : \"Apple\\tInc\", \"pricescale\" : 100 , \"Pricescale\":[200], \"currency\":null, \"broker-extension\":{\"x\":1,\"x\":2}, \"description\" : [\"last\"]\n} "
+	const want = " {\n \"symbol\" : [\"AAPL\"], \"description\" : [\"Apple\\tInc\"], \"pricescale\" : [100] , \"Pricescale\":[200], \"currency\":null, \"broker-extension\":{\"x\":1,\"x\":2}, \"description\" : [\"last\"]\n} "
+	output, err := normalizeSymbolInfoJSON([]byte(input), []string{"symbol", "description", "pricescale", "currency"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(output) != want {
+		t.Fatalf("normalization changed untouched bytes:\ngot  %s\nwant %s", output, want)
+	}
+}

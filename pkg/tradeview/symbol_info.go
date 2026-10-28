@@ -16,44 +16,71 @@ func normalizeSymbolInfoJSON(data []byte, fields []string) ([]byte, error) {
 	if object == nil {
 		return data, nil
 	}
-	changed := false
-	if raw, ok := object["symbol"]; ok && compactMetadataValue(raw) {
-		object["symbol"] = append(append([]byte{'['}, raw...), ']')
-		changed = true
-	}
-	var symbols []json.RawMessage
+	symbolCount := 0
 	if raw, ok := object["symbol"]; ok {
-		if err := json.Unmarshal(raw, &symbols); err != nil {
-			return nil, fmt.Errorf("tradeview: decode symbol metadata symbol: %w", err)
+		if compactMetadataValue(raw) {
+			symbolCount = 1
+		} else {
+			var symbols []json.RawMessage
+			if err := json.Unmarshal(raw, &symbols); err != nil {
+				return nil, fmt.Errorf("tradeview: decode symbol metadata symbol: %w", err)
+			}
+			symbolCount = len(symbols)
 		}
 	}
+	metadataFields := make(map[string]bool, len(fields))
 	for _, field := range fields {
+		metadataFields[field] = true
+	}
+
+	// Retain the original property order and every duplicate key. Re-encoding
+	// the map would change which case-folded field encoding/json assigns last.
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	if _, err := decoder.Token(); err != nil {
+		return nil, err
+	}
+	var output bytes.Buffer
+	copied := 0
+	for decoder.More() {
+		token, err := decoder.Token()
+		if err != nil {
+			return nil, err
+		}
+		field := token.(string)
+		var raw json.RawMessage
+		if err := decoder.Decode(&raw); err != nil {
+			return nil, err
+		}
+		if !metadataFields[field] || !compactMetadataValue(raw) {
+			continue
+		}
+		count := symbolCount
 		if field == "symbol" {
-			continue
-		}
-		raw, ok := object[field]
-		if !ok || !compactMetadataValue(raw) {
-			continue
-		}
-		if len(symbols) == 0 {
+			count = 1
+		} else if count == 0 {
 			return nil, fmt.Errorf("tradeview: scalar symbol metadata %q requires at least one symbol", field)
 		}
-		var array bytes.Buffer
-		array.WriteByte('[')
-		for index := range symbols {
+		end := int(decoder.InputOffset())
+		start := end - len(raw)
+		output.Write(data[copied:start])
+		output.WriteByte('[')
+		for index := range count {
 			if index > 0 {
-				array.WriteByte(',')
+				output.WriteByte(',')
 			}
-			array.Write(raw)
+			output.Write(raw)
 		}
-		array.WriteByte(']')
-		object[field] = array.Bytes()
-		changed = true
+		output.WriteByte(']')
+		copied = end
 	}
-	if !changed {
+	if _, err := decoder.Token(); err != nil {
+		return nil, err
+	}
+	if copied == 0 {
 		return data, nil
 	}
-	return json.Marshal(object)
+	output.Write(data[copied:])
+	return output.Bytes(), nil
 }
 
 func compactMetadataValue(raw json.RawMessage) bool {
