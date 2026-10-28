@@ -1,6 +1,7 @@
 package tradeview
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -18,7 +19,7 @@ func defaultHTTPClient() *http.Client {
 			return fmt.Errorf("tradeview: stopped after 10 redirects")
 		}
 		if len(via) > 0 && !sameOrigin(via[0].URL, request.URL) {
-			return fmt.Errorf("tradeview: refusing cross-origin redirect")
+			return errors.New("tradeview: refusing cross-origin redirect")
 		}
 		return nil
 	}}
