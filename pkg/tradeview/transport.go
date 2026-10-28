@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime"
@@ -34,7 +35,7 @@ func (e *ResponseSizeError) Error() string {
 func WithFiniteResponseLimit(limit int64) ClientOption {
 	return func(client *Client) error {
 		if limit <= 0 || limit == int64(^uint64(0)>>1) {
-			return fmt.Errorf("tradeview: finite response limit must be positive and less than MaxInt64")
+			return errors.New("tradeview: finite response limit must be positive and less than MaxInt64")
 		}
 		client.RequestEditors = append(client.RequestEditors, func(_ context.Context, request *http.Request) error {
 			*request = *request.WithContext(context.WithValue(request.Context(), finiteResponseLimitKey{}, limit))

@@ -283,7 +283,7 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 				if !ok || client.Name != "c" {
 					return true
 				}
-				edits = append(edits, edit{fset.Position(call.Pos()).Offset, fset.Position(call.End()).Offset, "doRequest(c.Client, req)"})
+				edits = append(edits, edit{start: fset.Position(call.Pos()).Offset, end: fset.Position(call.End()).Offset, text: "doRequest(c.Client, req)"})
 				return false
 			})
 			removeReceiver := false
@@ -325,7 +325,7 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 					case *ast.CallExpr:
 						if selector, ok := n.Fun.(*ast.SelectorExpr); ok && selector.Sel.Name == "ReadAll" {
 							if pkg, ok := selector.X.(*ast.Ident); ok && pkg.Name == "io" {
-								edits = append(edits, edit{fset.Position(n.Pos()).Offset, fset.Position(n.End()).Offset, "readFiniteResponse(rsp)"})
+								edits = append(edits, edit{start: fset.Position(n.Pos()).Offset, end: fset.Position(n.End()).Offset, text: "readFiniteResponse(rsp)"})
 								reads++
 							}
 						}
@@ -373,7 +373,7 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 					return true
 				})
 				if guards != 1 || cases != 1 || decoders != 1 || reads != 1 {
-					return nil, fmt.Errorf("unsupported finite parser shape in %s: guards=%d cases=%d decoders=%d", d.Name.Name, guards, cases, decoders)
+					return nil, fmt.Errorf("unsupported finite parser shape in %s: guards=%d cases=%d decoders=%d reads=%d", d.Name.Name, guards, cases, decoders, reads)
 				}
 			}
 		case *ast.GenDecl:

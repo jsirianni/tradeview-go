@@ -54,8 +54,12 @@ func TestEveryFiniteMethodBoundsResponse(t *testing.T) {
 				if results[1].IsNil() {
 					t.Fatal("missing size error")
 				}
+				resultErr, ok := results[1].Interface().(error)
+				if !ok {
+					t.Fatalf("unexpected result error type: %T", results[1].Interface())
+				}
 				var sizeErr *ResponseSizeError
-				if !errors.As(results[1].Interface().(error), &sizeErr) || sizeErr.Limit != 32 || sizeErr.StatusCode != status {
+				if !errors.As(resultErr, &sizeErr) || sizeErr.Limit != 32 || sizeErr.StatusCode != status {
 					t.Fatalf("wrong error: %v", results[1].Interface())
 				}
 				if !results[0].IsNil() || body.read != 33 || !body.closed {
