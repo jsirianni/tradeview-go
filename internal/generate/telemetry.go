@@ -92,14 +92,11 @@ func addTelemetry(path string, operations []operation) error {
 				insert(d.Body.Lbrace+1, fmt.Sprintf("\nctx, observation := c.startObservation(ctx, %q, %q, %q, %t)\ndefer func() { observation.response(result, resultErr) }()\n", op.ID, op.Method, op.Path, op.Streaming))
 				seen[op.ID] = true
 			}
-			if receiver == "ClientWithResponses" && strings.HasSuffix(d.Name.Name, "WithResponse") {
-				insert(d.Body.Lbrace+1, "\nctx = typedOperationContext(ctx)\n")
-			}
 			if receiver == "" && strings.HasPrefix(d.Name.Name, "Parse") && strings.HasSuffix(d.Name.Name, "Response") {
 				if err := namedResults(d); err != nil {
 					return err
 				}
-				insert(d.Body.Lbrace+1, "\ndefer func() { finishResponseObservation(rsp, resultErr) }()\n")
+				insert(d.Body.Lbrace+1, "\nobservation := beginTypedResponseObservation(rsp)\ndefer func() { observation.finish(resultErr) }()\n")
 				parsers++
 			}
 		}
