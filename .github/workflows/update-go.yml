@@ -25,9 +25,15 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}
           persist-credentials: false
+      - uses: actions/setup-go@v7.0.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
       - name: Find the latest stable Go release
         id: go
-        run: python3 -B scripts/update_go.py
+        run: |
+          version=$(go run ./internal/updatego)
+          printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
       - name: Create or update the Go version PR
         id: pr
         uses: peter-evans/create-pull-request@v8.1.1

@@ -1,14 +1,15 @@
 # Development
 
-Development requires Linux, Go 1.27.3 or a newer patch in the Go 1.27 series, Git, and GNU Make 4.2 or newer on your PATH.
+Development requires Linux, the Go version declared in `go.mod`, Git, and GNU Make 4.2 or newer on your PATH.
 
 ## Packages
 
 - `pkg/tradeview/` contains the public client, generated bindings, and client tests.
 - `internal/generate/` contains schema generation support and its tests.
+- `internal/updatego/` contains the scheduled Go version updater command and its tests.
 - `api/` contains the pinned schema, generation rules, and operation inventory.
 
-The repository root holds module metadata, build tasks, and documentation. All Go source belongs to packages; there is no application entry point.
+The repository root holds module metadata, build tasks, and documentation. All Go source belongs to packages; the updater is a maintenance command, while the public client remains a library.
 
 ## Common tasks
 
@@ -73,7 +74,7 @@ Failure tests use copied temporary modules and never rewrite committed artifacts
 
 Generation uses the committed schema and does not fetch a new API revision. To update the contract, replace the upstream schema deliberately, record its version/source/checksum, review the compatibility overlay, regenerate, and update the operation inventory and transport fixtures together. Review all resulting API changes before committing.
 
-CI runs one Linux job with Go 1.27, selecting the latest available patch at or above 1.27.3. It runs `make ci`, records market-stream decoding benchmarks, and verifies that the checkout stays clean. Tests use local HTTP fixtures and do not require broker credentials.
+CI runs one Linux job with the Go version declared in `go.mod`. It runs `make ci`, records market-stream decoding benchmarks, and verifies that the checkout stays clean. Tests use local HTTP fixtures and do not require broker credentials.
 
 ## Parser and stream fuzzing
 
@@ -146,6 +147,7 @@ than averaging line, function, or file percentages. Classification is explicit:
 | --- | --- | --- | --- |
 | Handwritten runtime | Direct `.go` files in `pkg/tradeview`, excluding `api.gen.go` | 817/872 (93.69%) | Gate regressions |
 | Generator | Direct `.go` files in `internal/generate` | 511/579 (88.26%) | Gate regressions |
+| Automation | Direct `.go` files in `internal/updatego` | 38/43 (88.37%) | Gate regressions |
 | Generated bindings | Exactly `pkg/tradeview/api.gen.go` | 2753/5913 (46.56%) | Informational |
 
 The baseline in `scripts/coverage-baseline.tsv` uses Linux/amd64, Go 1.27.3, and
@@ -160,7 +162,7 @@ A decrease exceeding **0.5 percentage points** from either handwritten
 baseline fails, using unrounded ratios. This allows small instrumentation or
 platform changes while catching meaningful regression; it is a fixed allowance
 from the committed baseline, not a fresh allowance per PR. Generated coverage
-cannot mask a runtime or generator regression and has no minimum target.
+cannot mask a runtime, generator, or automation regression and has no minimum target.
 Review baseline changes in the same PR as their cause, using Linux measurements
 from the supported toolchain. Improve behavioral tests first; explain justified
 decreases or denominator changes and ratchet the baseline upward when sustained
@@ -271,10 +273,12 @@ in GitHub when triggered by `GITHUB_TOKEN`. The existing required status name
 
 Version PRs are not automatically merged. Review CI, compatibility, and any
 modernization or analyzer changes required by a new Go release before merging.
-Offline updater tests run in CI and can be run with:
+The updater uses only the Go standard library. Its offline tests run with the
+normal Go test suite and have a separate automation coverage regression baseline.
+Run just these tests with:
 
 ```sh
-python3 -B -m unittest discover -s scripts -p 'test_update_go.py'
+go test ./internal/updatego
 ```
 
 ## Market stream benchmarks

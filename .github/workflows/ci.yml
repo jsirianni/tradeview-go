@@ -28,8 +28,6 @@ jobs:
           cache-dependency-path: go.sum
       - name: List development tasks
         run: make
-      - name: Test Go version updater
-        run: python3 -B -m unittest discover -s scripts -p 'test_update_go.py'
       - name: Validate packages and coverage regressions
         run: make ci
       - name: Verify Staticcheck rejects a known violation

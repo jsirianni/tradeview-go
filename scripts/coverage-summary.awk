@@ -6,7 +6,7 @@ function reject(message) {
 function integer(value) { return value ~ /^[0-9]+$/ }
 NR == FNR {
     if ($0 ~ /^[[:space:]]*(#|$)/) next
-    if (NF != 4 || $1 !~ /^(runtime|generator|generated)$/ || baseline_seen[$1]++ ||
+    if (NF != 4 || $1 !~ /^(runtime|generator|automation|generated)$/ || baseline_seen[$1]++ ||
         !integer($2) || !integer($3) || $3 == 0 || $2 > $3 ||
         ($1 == "generated" ? $4 != "-" : (!integer($4) || $4 > 10000))) {
         reject("invalid baseline row " FNR)
@@ -36,6 +36,7 @@ FNR == 1 {
     if (file == "pkg/tradeview/api.gen.go") group = "generated"
     else if (file ~ /^pkg\/tradeview\/[^/]+\.go$/) group = "runtime"
     else if (file ~ /^internal\/generate\/[^/]+\.go$/) group = "generator"
+    else if (file ~ /^internal\/updatego\/[^/]+\.go$/) group = "automation"
     else {
         reject("unclassified file " file)
         next
@@ -44,7 +45,7 @@ FNR == 1 {
     if ($3 > 0) covered[group] += $2
 }
 END {
-    count = split("runtime generator generated", groups, " ")
+    count = split("runtime generator automation generated", groups, " ")
     for (i = 1; i <= count; i++) {
         group = groups[i]
         if (!baseline_seen[group]) reject("missing baseline group " group)
