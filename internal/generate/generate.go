@@ -44,6 +44,10 @@ type operation struct {
 // Root is the repository directory; generation does not change the process's
 // working directory or fetch a new API schema.
 func Generate(root string) error {
+	return generateWithRunner(root, runCodegen)
+}
+
+func generateWithRunner(root string, run func(root, schema, output string) error) (result error) {
 	root, err := filepath.Abs(root)
 	if err != nil {
 		return fmt.Errorf("resolve repository root: %w", err)
@@ -200,30 +204,19 @@ func Generate(root string) error {
 	if err != nil {
 		return err
 	}
-	temporary, err := os.CreateTemp("", "tradeview-openapi-*.yaml")
+	stage, err := os.MkdirTemp("", "tradeview-generate-*")
 	if err != nil {
 		return err
 	}
-	tempName := temporary.Name()
-	defer os.Remove(tempName)
-	if _, err := temporary.Write(effective); err != nil {
-		return errors.Join(err, temporary.Close())
+	defer func() { result = errors.Join(result, os.RemoveAll(stage)) }()
+	tempName := filepath.Join(stage, "openapi.yaml")
+	// #nosec G703 -- Fixed filename in our private temporary generation directory.
+	if err := os.WriteFile(tempName, effective, 0600); err != nil {
+		return fmt.Errorf("stage effective schema: %w", err)
 	}
-	if err := temporary.Close(); err != nil {
-		return err
-	}
-	outputPath := filepath.Join(root, "pkg", "tradeview", "api.gen.go")
-	// #nosec G301 -- Generated public source directories are intentionally readable by other local users.
-	if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
-		return err
-	}
-	// #nosec G204 -- Fixed executable and pinned Go tool; only the CreateTemp path varies, with no shell.
-	command := exec.Command("go", "tool", "oapi-codegen", "--config", "api/oapi-codegen.yaml", tempName)
-	command.Dir = root
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
-	if err := command.Run(); err != nil {
-		return err
+	outputPath := filepath.Join(stage, "api.gen.go")
+	if err := run(root, tempName, outputPath); err != nil {
+		return fmt.Errorf("run oapi-codegen: %w", err)
 	}
 	if err := postprocess(outputPath, streamNames); err != nil {
 		return err
@@ -237,17 +230,64 @@ func Generate(root string) error {
 	if err := addResponseValidation(outputPath); err != nil {
 		return err
 	}
+	// #nosec G304 -- Fixed output filename in our private temporary generation directory.
+	bindings, err := os.ReadFile(outputPath)
+	if err != nil {
+		return fmt.Errorf("read staged bindings: %w", err)
+	}
+	file, err := parser.ParseFile(token.NewFileSet(), outputPath, bindings, parser.AllErrors)
+	if err != nil {
+		return fmt.Errorf("validate staged bindings: %w", err)
+	}
+	if file.Name.Name != "tradeview" {
+		return fmt.Errorf("generated package %q, want tradeview", file.Name.Name)
+	}
 	inventory, err := json.MarshalIndent(operations, "", "  ")
 	if err != nil {
 		return err
 	}
 	inventory = append(inventory, '\n')
-	// #nosec G306 -- The committed operation inventory is public source metadata, intentionally mode 0644.
-	if err := os.WriteFile(filepath.Join(root, "api", "operations.json"), inventory, 0644); err != nil {
+	if err := publishGenerated([]generatedOutput{
+		{path: filepath.Join(root, "pkg", "tradeview", "api.gen.go"), data: bindings},
+		{path: filepath.Join(root, "api", "operations.json"), data: inventory},
+	}, publicationOps{rename: os.Rename, remove: os.Remove}); err != nil {
 		return err
 	}
 	fmt.Printf("Generated %d operations (%d finite, %d streaming).\n", len(operations), len(operations)-len(streamNames), len(streamNames))
 	return nil
+}
+
+func runCodegen(root, schema, output string) error {
+	// oapi-codegen's config output overrides -o. Rewrite the output in a staged
+	// config so the subprocess cannot publish the original configured path.
+	// #nosec G304 -- Fixed configuration under the developer-selected repository root.
+	configBytes, err := os.ReadFile(filepath.Join(root, "api", "oapi-codegen.yaml"))
+	if err != nil {
+		return err
+	}
+	var config map[string]any
+	if err := yaml.Unmarshal(configBytes, &config); err != nil {
+		return fmt.Errorf("decode generator configuration: %w", err)
+	}
+	if config == nil {
+		return errors.New("generator configuration must be an object")
+	}
+	config["output"] = output
+	configBytes, err = yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+	configPath := filepath.Join(filepath.Dir(output), "oapi-codegen.yaml")
+	// #nosec G703 -- Fixed filename in our private generation staging directory.
+	if err := os.WriteFile(configPath, configBytes, 0600); err != nil {
+		return err
+	}
+	// #nosec G204 -- Fixed executable and pinned Go tool; arguments are trusted repository and temporary paths, with no shell.
+	command := exec.Command("go", "tool", "oapi-codegen", "--config", configPath, schema)
+	command.Dir = root
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+	return command.Run()
 }
 
 // object checks repository-controlled schema and overlay references before use.
