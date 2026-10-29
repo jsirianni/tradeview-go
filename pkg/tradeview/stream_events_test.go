@@ -178,8 +178,8 @@ func BenchmarkDecodeMarketEvent(b *testing.B) {
 					if err != nil {
 						b.Fatal(err)
 					}
-					// Include the unchanged error-envelope pass performed by Next.
-					if err := streamAPIError(frame, 200); err != nil {
+					// Include the decoded-event terminal check performed by Next.
+					if err := event.terminalAPIError(200); err != nil {
 						b.Fatal(err)
 					}
 					_marketBenchmarkSink = event
