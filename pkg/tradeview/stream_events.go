@@ -34,6 +34,10 @@ type AccountEvent[T any] struct {
 	Raw   json.RawMessage
 }
 
+func (event AccountEvent[T]) terminalAPIError(statusCode int) error {
+	return eventAPIError(event.Kind, event.Error, event.Raw, statusCode)
+}
+
 type (
 	StateEvent               = AccountEvent[AccountStateMessage]
 	OrdersEvent              = AccountEvent[OrdersMessage]
@@ -97,6 +101,23 @@ type MarketEvent struct {
 	Bid       *StreamingBidResponseDeprecated
 	Error     *ErrorMessage
 	Raw       json.RawMessage
+}
+
+func (event MarketEvent) terminalAPIError(statusCode int) error {
+	return eventAPIError(event.Kind, event.Error, event.Raw, statusCode)
+}
+
+// Event classification is authoritative. Parsing the raw status again with a
+// struct would accept case-folded aliases that the exact-key dispatch ignores.
+func eventAPIError(kind StreamMessageKind, message *ErrorMessage, raw json.RawMessage, statusCode int) error {
+	if kind != StreamError || message == nil {
+		return nil
+	}
+	var code string
+	if message.Errtype != nil {
+		code = string(*message.Errtype)
+	}
+	return &APIError{StatusCode: statusCode, Code: code, Message: message.Errmsg, Body: append([]byte(nil), raw...)}
 }
 
 func decodeMarketEvent(frame []byte) (MarketEvent, error) {

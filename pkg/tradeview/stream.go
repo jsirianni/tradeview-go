@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -66,6 +65,7 @@ type Stream[T any] struct {
 	response      *http.Response
 	scanner       *bufio.Scanner
 	decode        func([]byte) (T, error)
+	terminalError func(T, int) error
 	maxFrameBytes int
 	mu            sync.Mutex
 	value         T
@@ -76,7 +76,11 @@ type Stream[T any] struct {
 	stopCancel    func() bool
 }
 
-func openHTTPStream[T any](ctx context.Context, response *http.Response, requestErr error, config streamConfig, decode func([]byte) (T, error)) (result *Stream[T], resultErr error) {
+type streamEvent interface {
+	terminalAPIError(int) error
+}
+
+func openHTTPStream[T streamEvent](ctx context.Context, response *http.Response, requestErr error, config streamConfig, decode func([]byte) (T, error)) (result *Stream[T], resultErr error) {
 	defer func() {
 		if result == nil {
 			finishResponseObservation(response, resultErr)
@@ -107,6 +111,9 @@ func openHTTPStream[T any](ctx context.Context, response *http.Response, request
 	// Scanner counts the newline against its token limit; leave room for CRLF.
 	scanner.Buffer(make([]byte, initial), config.maxFrameBytes+2)
 	stream := &Stream[T]{ctx: ctx, response: response, scanner: scanner, decode: decode, maxFrameBytes: config.maxFrameBytes}
+	// Keep Stream's public type parameter unconstrained, while requiring every
+	// internal opener to supply terminal semantics from its decoded event.
+	stream.terminalError = func(value T, statusCode int) error { return value.terminalAPIError(statusCode) }
 	stream.mu.Lock()
 	// #nosec G104 -- finish saves the body close error for Close; Err retains the cancellation cause.
 	stream.stopCancel = context.AfterFunc(ctx, func() { stream.finish(ctx.Err()) })
@@ -148,7 +155,7 @@ func (stream *Stream[T]) Next() bool {
 		stream.value = value
 		stream.mu.Unlock()
 		responseObserver(stream.response).frame()
-		if err := streamAPIError(frame, stream.response.StatusCode); err != nil {
+		if err := stream.terminalError(value, stream.response.StatusCode); err != nil {
 			// #nosec G104 -- finish saves the body close error for Close; Err retains this terminal cause.
 			stream.finish(err)
 		}
@@ -201,19 +208,4 @@ func (stream *Stream[T]) finish(err error) error {
 		finishResponseObservation(stream.response, errors.Join(terminalErr, stream.closeErr))
 	})
 	return stream.closeErr
-}
-
-func streamAPIError(frame []byte, statusCode int) error {
-	if len(frame) == 0 || frame[0] != '{' {
-		return nil
-	}
-	var message struct {
-		Status  string `json:"s"`
-		Message string `json:"errmsg"`
-		Code    string `json:"errtype"`
-	}
-	if err := json.Unmarshal(frame, &message); err != nil || message.Status != "error" {
-		return nil
-	}
-	return &APIError{StatusCode: statusCode, Code: message.Code, Message: message.Message, Body: append([]byte(nil), frame...)}
 }
