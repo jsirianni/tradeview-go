@@ -242,11 +242,41 @@ dependencies to the client module; update them deliberately with the toolchain.
 
 ## Required Go modernization
 
-Contributors and coding agents must run `make fix` before submitting every Go code change, review the diff, and commit the result. Development and CI use the supported Go 1.27 toolchain; CI selects the current `1.27.x` patch. Both fix targets print `go version` so version-dependent rewrites can be diagnosed.
+Contributors and coding agents must run `make fix` before submitting every Go code change, review the diff, and commit the result. Development and CI use the Go version declared in `go.mod`; CI reads it with `go-version-file`. Both fix targets print `go version` so version-dependent rewrites can be diagnosed.
 
 `make fix-check` runs `go fix ./...`, then prints and rejects any tracked-file diff, including staged changes. Start from a clean checkout for this gate; during development, use `make fix` and review its changes alongside your own before committing. CI never commits or pushes these rewrites, and retains its final clean-checkout check.
 
 The gate covers the generator, public package, and tests selected by `./...` on Linux with default build tags. `make fix-gate-test` uses the real Makefile in a temporary Git fixture: an old `strings.Split` idiom must fail with a visible diff, and `make fix` followed by committing the rewrite must pass.
+## Automated dependency updates
+
+`.github/dependabot.yml` checks Go modules and GitHub Actions every Monday at
+09:00 America/New_York. OpenTelemetry modules (`go.opentelemetry.io/*`) share a
+dedicated group, including indirect modules; other Go modules and Actions each
+have their own group. Separate security-update groups use the same boundaries.
+
+Dependabot does not independently track Go releases for the `go` directive
+([upstream request](https://github.com/dependabot/dependabot-core/issues/13520)).
+The **Update Go** workflow checks the official Go release feed daily at 13:41 UTC
+and supports manual dispatch. It proposes the latest stable version, including
+new minor releases, by changing only the Go directive in `go.mod`. It ignores
+prereleases, never downgrades, and makes no commit when already current.
+
+The workflow creates or refreshes one PR on `automation/update-go` using the
+built-in `GITHUB_TOKEN`. Repository Settings > Actions > General > Workflow
+permissions must allow GitHub Actions to create pull requests. No additional
+secret is required. Changed PR branches explicitly dispatch `ci.yml`, which
+reads `go.mod` via `go-version-file`. Other PR workflows may require approval
+in GitHub when triggered by `GITHUB_TOKEN`. The existing required status name
+`Go 1.27 / Linux` stays stable for branch protection even after a version bump.
+
+Version PRs are not automatically merged. Review CI, compatibility, and any
+modernization or analyzer changes required by a new Go release before merging.
+Offline updater tests run in CI and can be run with:
+
+```sh
+python3 -B -m unittest discover -s scripts -p 'test_update_go.py'
+```
+
 ## Market stream benchmarks
 
 Compare the compact market-header decoder with the original map dispatcher on Linux with Go 1.27:
