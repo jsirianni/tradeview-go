@@ -21,8 +21,7 @@ require (
 	github.com/getkin/kin-openapi v0.149.0 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-openapi/jsonpointer v0.23.1 // indirect
-	github.com/go-openapi/swag/jsonname v0.26.0 // indirect
+	github.com/go-openapi/jsonpointer v1.0.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/oapi-codegen/oapi-codegen/v2 v2.8.1 // indirect
 	github.com/oasdiff/yaml v0.1.1 // indirect
