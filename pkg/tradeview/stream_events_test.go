@@ -201,7 +201,9 @@ func decodeMarketEventMapBaseline(frame []byte) (MarketEvent, error) {
 		return event, errors.New("null is not a stream message")
 	}
 	var status, discriminator string
-	_ = json.Unmarshal(header["s"], &status)
+	if err := json.Unmarshal(header["s"], &status); err != nil {
+		status = "" // Nonstring/absent statuses do not select a status event.
+	}
 	if status == "error" {
 		var message ErrorMessage
 		if err := json.Unmarshal(frame, &message); err != nil {

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -55,7 +54,7 @@ func TestPublicStreamStatusClassification(t *testing.T) {
 				frame := `{` + base + `,"errmsg":"expired","errtype":"broker_custom","extension":true,` + scenario.fields + `}`
 				server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 					w.Header().Set("Content-Type", "application/json")
-					_, _ = io.WriteString(w, first+"\n"+frame+"\n"+last+"\n")
+					writeTestString(t, w, first+"\n"+frame+"\n"+last+"\n")
 				}))
 				defer server.Close()
 				var body *streamObservedBody
@@ -122,7 +121,7 @@ func TestPublicStreamStatusClassification(t *testing.T) {
 
 func assertPublicStreamStatus[T any](t *testing.T, stream *Stream[T], inspect func(T) (StreamMessageKind, json.RawMessage, *ErrorMessage), first, frame, last string, wantKind StreamMessageKind, decodeError bool) {
 	t.Helper()
-	defer stream.Close()
+	defer closeTestBody(t, stream)
 	if !stream.Next() || stream.Err() != nil {
 		t.Fatalf("initial frame: %v", stream.Err())
 	}
@@ -181,7 +180,7 @@ func TestPublicMarketNumericSizeIsNotStatus(t *testing.T) {
 			frame := `{"f":"` + kind + `","id":"EURUSD","p":0,"s":0,"t":0}`
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
-				_, _ = io.WriteString(w, frame+"\n")
+				writeTestString(t, w, frame+"\n")
 			}))
 			defer server.Close()
 			client, err := NewClient(server.URL)
@@ -192,7 +191,7 @@ func TestPublicMarketNumericSizeIsNotStatus(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer stream.Close()
+			defer closeTestBody(t, stream)
 			if !stream.Next() || stream.Value().Kind == StreamError || string(stream.Value().Raw) != frame || stream.Next() || stream.Err() != nil {
 				t.Fatalf("numeric size treated as error: %+v / %v", stream.Value(), stream.Err())
 			}

@@ -106,7 +106,7 @@ func TestFiniteResponseLimitBoundaryAndRaw(t *testing.T) {
 		t.Fatal(err)
 	}
 	data, err := io.ReadAll(response.Body)
-	_ = response.Body.Close()
+	closeTestBody(t, response.Body)
 	if err != nil || len(data) != 100 {
 		t.Fatalf("raw read=%d err=%v", len(data), err)
 	}

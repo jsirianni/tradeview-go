@@ -102,7 +102,8 @@ func FuzzSymbolInfoJSON(f *testing.F) {
 			check(arrays.Symbol, arrays.Pricescale, arrays.Description)
 		}
 		var response SymbolInfoResponse
-		if err := json.Unmarshal(input, &response); err == nil {
+		responseErr := json.Unmarshal(input, &response)
+		if responseErr == nil {
 			check(response.Symbol, response.Pricescale, response.Description)
 		}
 		if !bytes.Equal(input, original) {
@@ -115,7 +116,10 @@ func FuzzSymbolInfoJSON(f *testing.F) {
 				t.Fatal(err)
 			}
 			owned[0] ^= 1
-			_, _ = union.AsSymbolInfoResponse()
+			_, accessorErr := union.AsSymbolInfoResponse()
+			if (accessorErr != nil) != (responseErr != nil) {
+				t.Fatalf("union and direct model disagree: %v / %v", accessorErr, responseErr)
+			}
 			raw, err := union.MarshalJSON()
 			if err != nil || !bytes.Equal(raw, original) {
 				t.Fatalf("union accessor changed its owned raw response: %v", err)

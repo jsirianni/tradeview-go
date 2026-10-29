@@ -69,7 +69,7 @@ func TestStreamHandshakeContract(t *testing.T) {
 						t.Fatal(result[1].Interface())
 					}
 					stream := fixtureValue[readStream](t, result[0].Interface())
-					defer stream.Close()
+					defer closeTestBody(t, stream)
 					if body.closed.Load() != 0 || len(telemetry.spans.Ended()) != 0 || output.Len() != 0 {
 						t.Fatal("valid stream completed during handshake")
 					}

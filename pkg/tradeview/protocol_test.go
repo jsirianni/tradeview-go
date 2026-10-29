@@ -173,7 +173,7 @@ func TestRawMethodPreservesArbitraryResponse(t *testing.T) {
 	if err != nil || rsp == nil || body.closed {
 		t.Fatalf("raw request changed: response=%+v, error=%v, closed=%v", rsp, err, body.closed)
 	}
-	defer rsp.Body.Close()
+	defer closeTestBody(t, rsp.Body)
 	data, err := io.ReadAll(rsp.Body)
 	if err != nil || !bytes.Equal(data, []byte(payload)) {
 		t.Fatalf("raw payload=%q, error=%v", data, err)

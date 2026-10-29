@@ -138,7 +138,7 @@ func assertMarketFieldStream(t *testing.T, valid, invalid string, typeError bool
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer stream.Close()
+	defer closeTestBody(t, stream)
 	if !stream.Next() || stream.Err() != nil || string(stream.Value().Raw) != valid {
 		t.Fatalf("valid zero frame: %+v / %v", stream.Value(), stream.Err())
 	}

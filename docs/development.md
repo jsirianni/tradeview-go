@@ -37,13 +37,17 @@ make test TEST_ARGS="-run TestOperationTransport -count=1"
 | `staticcheck` | Run pinned Staticcheck analysis on all packages and normal tests. |
 | `lint` | Run Revive v1.17.1 with the committed three-rule configuration. |
 | `lint-smoke` | Prove each configured Revive rule rejects a violation. |
+| `errcheck` | Run errcheck v1.30.0 on handwritten runtime, generator, and test code, including explicit blank error assignments. |
+| `errcheck-smoke` | Prove unchecked statements, blank assignments, and test-file errors fail beside accepted buffer writes. |
+| `imports-check` | Run goimports v0.52.0 without modifying Go source, including generated files. |
+| `imports-smoke` | Prove missing imports fail for handwritten and generated files without changing the input. |
 | `security` | Run gosec v2.30.0 on handwritten production code. |
 | `security-smoke` | Prove an unsuppressed finding fails beside a narrow accepted case. |
 | `govulncheck` | Record tool versions and scan all packages for reachable known vulnerabilities. |
 | `generate` | Regenerate bindings and the operation inventory. |
 | `generate-check` | Regenerate and reject differences in tracked generated outputs. |
 | `deps` / `tidy` | Download dependencies or tidy module metadata. |
-| `check` | Check formatting, vet, Staticcheck, Revive, gosec, and the full test suite with coverage regression checks. |
+| `check` | Check formatting/imports, vet, Staticcheck, Revive, errcheck, gosec, and the full test suite with coverage regression checks. |
 | `ci` | Check generation and Go fixes, then run checks, build, race tests, vulnerability scans, gate regression fixtures, and bounded fuzzing. |
 | `clean` | Clean package build artifacts and remove coverage reports. |
 
@@ -190,6 +194,51 @@ Source analysis does not execute the application or discover new application-spe
 `make staticcheck` runs Staticcheck **v0.8.2** through a versioned `go run`, independently of client dependencies. It analyzes `./...`, including the runtime, generator, and normal tests, with recommended default checks and no exclusions or custom configuration. Diagnostics and analyzer failures fail `make check` and the required PR/main CI job. `STATICCHECK_PACKAGES` defaults to `./...`; CI overrides it only for a temporary negative fixture that must report SA1000 for an invalid regular expression. The fixture is removed afterward.
 
 When upgrading Go, update the pinned analyzer to a compatible release and verify both the clean baseline and the negative fixture. Keep suppressions narrow and document their justification.
+
+## Error checking and imports
+
+`make errcheck` runs **errcheck v1.30.0** through a versioned `go run`, with
+`-blank -excludeonly -ignoregenerated`. It checks all selected handwritten
+runtime, generator, and test code in `./...` using the current platform and
+default build tags. CI uses the supported Linux Go 1.27 toolchain. Explicit `_`
+assignments are checked; there are no package, test, file-wide cleanup, or
+default-function exclusions. Type assertion checking remains with the existing
+Revive rule, avoiding a duplicate analyzer for that concern.
+
+`scripts/errcheck-excludes.txt` is the complete exclusion policy. Each entry
+names a documented infallible `bytes.Buffer`/`strings.Builder` write or limits
+`fmt.Fprintf` to one of those concrete destinations. File, network, pipe, and
+arbitrary writer errors remain checked. Tests report setup/write/cleanup
+errors, with an explicit `os.ErrClosed` allowance only where a file-owning
+editor test deliberately closes the file before its safety cleanup. Stream
+handshake cleanup preserves both the primary failure and any body-close error;
+terminal stream closure retains its error for `Close`.
+
+Errcheck skips standard `// Code generated ... DO NOT EDIT.` source such as
+`api.gen.go`; generated error-handling behavior remains covered by the
+generator's handwritten implementation, public contract tests, and reproducible
+generation gate. Change the generator rather than hand-editing a generated
+binding. Never add an exclusion merely to silence a diagnostic; handle the
+error or justify the narrowest truly infallible operation.
+
+`make imports-check` runs **goimports v0.52.0** through a versioned `go run`.
+It checks all tracked and new non-ignored `.go` files, including tests and
+generated files, and prints import/format diffs without writing. Unlike
+gofmt, it detects missing or unused imports and import grouping. Correct a
+handwritten file with
+`go run golang.org/x/tools/cmd/goimports@v0.52.0 -w path/to/file.go`.
+If generated output differs, correct its generation path and regenerate.
+
+Both checks run once in `make check` and required `make ci`, alongside the
+existing analyzers. Their smoke targets run once in `make ci`: real errcheck
+must reject unchecked statements, explicit blank errors, and test-file
+violations beside accepted buffer writes, while honoring the generated-file
+policy. Real goimports must reject a gofmt-clean missing import in both
+handwritten and generated fixtures, leave the original bytes unchanged during
+checking, and accept the corrected source. Smoke fixtures use private temporary
+directories and are removed on success/failure. Tool/download/load failures
+cannot count as a successful negative test. Pins do not add analyzer
+dependencies to the client module; update them deliberately with the toolchain.
 
 ## Required Go modernization
 

@@ -230,7 +230,7 @@ func TestOperationTransport(t *testing.T) {
 				}
 				assertFixtureBody(t, r, mediaType, bodySample)
 				w.Header().Set("Content-Type", "application/json")
-				_, _ = io.WriteString(w, `{"s":"ok"}`)
+				writeTestString(t, w, `{"s":"ok"}`)
 			}))
 			defer server.Close()
 			client, err := NewClient(server.URL+"/fixture-api", WithBearerToken("fixture-token"), WithRequestEditorFn(func(ctx context.Context, r *http.Request) error {
@@ -278,7 +278,7 @@ func TestFiniteResponseBindings(t *testing.T) {
 			for _, responseBody := range []string{`{"s":"ok"}`, `{"s":"error","errtype":"forbidden","errmsg":"fixture denied"}`} {
 				server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					w.Header().Set("Content-Type", "application/json")
-					_, _ = io.WriteString(w, responseBody)
+					writeTestString(t, w, responseBody)
 				}))
 				client, err := NewClientWithResponses(server.URL)
 				if err != nil {
@@ -505,7 +505,7 @@ func fixtureScalar(value any) string {
 	}
 }
 
-func fixtureForm(sample any) url.Values {
+func fixtureForm(t *testing.T, sample any) url.Values {
 	object, ok := sample.(map[string]any)
 	if !ok {
 		panic(fmt.Sprintf("fixture form must be an object, got %T", sample))
@@ -527,10 +527,18 @@ func fixtureForm(sample any) url.Values {
 				}
 				continue
 			}
-			data, _ := json.Marshal(value)
+			data, err := json.Marshal(value)
+			if err != nil {
+				t.Error(err)
+				return nil
+			}
 			expected.Set(key, string(data))
 		case map[string]any:
-			data, _ := json.Marshal(value)
+			data, err := json.Marshal(value)
+			if err != nil {
+				t.Error(err)
+				return nil
+			}
 			expected.Set(key, string(data))
 		default:
 			expected.Set(key, fixtureScalar(value))
@@ -562,7 +570,7 @@ func assertFixtureBody(t *testing.T, r *http.Request, mediaType string, sample a
 			t.Error(err)
 			return
 		}
-		expected := fixtureForm(sample)
+		expected := fixtureForm(t, sample)
 		if !reflect.DeepEqual(actual, expected) {
 			t.Errorf("form: got %v want %v", actual, expected)
 		}
@@ -572,7 +580,11 @@ func assertFixtureBody(t *testing.T, r *http.Request, mediaType string, sample a
 			t.Error(err)
 			return
 		}
-		data, _ := json.Marshal(sample)
+		data, err := json.Marshal(sample)
+		if err != nil {
+			t.Error(err)
+			return
+		}
 		if err := json.Unmarshal(data, &want); err != nil {
 			t.Fatal(err)
 		}

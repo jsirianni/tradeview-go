@@ -63,7 +63,9 @@ func decodeAccountEvent[T any](frame []byte) (AccountEvent[T], error) {
 			return event, err
 		}
 		var status string
-		_ = json.Unmarshal(header["s"], &status)
+		if err := json.Unmarshal(header["s"], &status); err != nil {
+			status = "" // Nonstring/absent statuses do not select a status event.
+		}
 		switch status {
 		case "error":
 			var message ErrorMessage
@@ -127,7 +129,9 @@ func decodeMarketEvent(frame []byte) (MarketEvent, error) {
 		return event, err
 	}
 	var status, discriminator string
-	_ = json.Unmarshal(header.Status, &status)
+	if err := json.Unmarshal(header.Status, &status); err != nil {
+		status = "" // Nonstring/absent statuses do not select a status event.
+	}
 	if status == "error" {
 		var message ErrorMessage
 		if err := json.Unmarshal(frame, &message); err != nil {
