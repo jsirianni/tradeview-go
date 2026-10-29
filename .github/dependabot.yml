@@ -12,9 +12,11 @@ updates:
     groups:
       opentelemetry:
         patterns: ['go.opentelemetry.io/*']
+        update-types: [minor, patch]
       go-modules:
         patterns: ['*']
         exclude-patterns: ['go.opentelemetry.io/*']
+        update-types: [minor, patch]
       opentelemetry-security:
         applies-to: security-updates
         patterns: ['go.opentelemetry.io/*']
@@ -32,6 +34,7 @@ updates:
     groups:
       github-actions:
         patterns: ['*']
+        update-types: [minor, patch]
       github-actions-security:
         applies-to: security-updates
         patterns: ['*']

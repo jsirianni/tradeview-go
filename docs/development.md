@@ -272,6 +272,19 @@ The gate covers the generator, public package, and tests selected by `./...` on 
 dedicated group, including indirect modules; other Go modules and Actions each
 have their own group. Separate security-update groups use the same boundaries.
 
+Routine version-update groups include only patch and minor releases; major
+upgrades open separately for review. The **Dependabot auto-merge** workflow
+verifies Dependabot-authored commits and enables squash auto-merge when the
+highest update type in the PR is patch or minor. This also covers eligible
+security PRs; any group containing a major upgrade remains for manual review.
+The workflow runs on `pull_request_target` with narrowly scoped write permissions
+and never checks out or executes PR code. It does not approve PRs or bypass checks.
+
+Repository Settings > General > Pull Requests must enable **Allow auto-merge**.
+The required `Go 1.27 / Linux` check and the up-to-date branch requirement remain
+in force. Failed CI blocks merging. Existing PRs need auto-merge enabled once,
+or a new PR event after this workflow lands. Human-authored PRs are unaffected.
+
 Dependabot does not independently track Go releases for the `go` directive
 ([upstream request](https://github.com/dependabot/dependabot-core/issues/13520)).
 The **Update Go** workflow checks the official Go release feed daily at 13:41 UTC
@@ -287,7 +300,7 @@ reads `go.mod` via `go-version-file`. Other PR workflows may require approval
 in GitHub when triggered by `GITHUB_TOKEN`. The existing required status name
 `Go 1.27 / Linux` stays stable for branch protection even after a version bump.
 
-Version PRs are not automatically merged. Review CI, compatibility, and any
+Go toolchain version PRs are not automatically merged. Review CI, compatibility, and any
 modernization or analyzer changes required by a new Go release before merging.
 The updater uses only the Go standard library. Its offline tests run with the
 normal Go test suite and have a separate automation coverage regression baseline.
