@@ -272,6 +272,18 @@ The gate covers the generator, public package, and tests selected by `./...` on 
 dedicated group, including indirect modules; other Go modules and Actions each
 have their own group. Separate security-update groups use the same boundaries.
 
+The generator currently requires a compatible YAML dependency set:
+`speakeasy-api/openapi v1.25.6`, `speakeasy-api/jsonpath v0.6.3`, and
+`dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936`. Newer versions migrate
+YAML node types from `gopkg.in/yaml.v3` to `go.yaml.in/yaml/v3`, which breaks
+compilation of `oapi-codegen v2.8.1` or its `vmware-labs/yaml-jsonpath` dependency.
+Dependabot temporarily ignores versions above these ceilings, including the
+OpenAPI pseudo-version preceding v1.26.0. When a tagged generator release
+includes [upstream fix #2608](https://github.com/oapi-codegen/oapi-codegen/pull/2608),
+upgrade the generator and this dependency set together, remove all three ignore
+rules, regenerate, and run CI. The existing generation check catches this build
+failure before any dependency PR can merge.
+
 Routine version-update groups include only patch and minor releases; major
 upgrades open separately for review. The **Dependabot auto-merge** workflow
 verifies Dependabot-authored commits and enables squash auto-merge when the
