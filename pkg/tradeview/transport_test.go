@@ -83,7 +83,10 @@ func TestTokenSourceAndLocale(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, query := range []string{"", "?locale=fr"} {
-		request, _ := http.NewRequestWithContext(ctx, http.MethodGet, "https://broker.example/api/accounts"+query, nil)
+		request, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://broker.example/api/accounts"+query, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 		for _, edit := range client.RequestEditors {
 			if err := edit(ctx, request); err != nil {
 				t.Fatal(err)
@@ -127,8 +130,11 @@ func TestTokenSourceFailures(t *testing.T) {
 			if err := WithTokenSource(tc.source)(client); err != nil {
 				t.Fatal(err)
 			}
-			request, _ := http.NewRequest(http.MethodGet, "https://broker.example", nil)
-			err := client.RequestEditors[0](request.Context(), request)
+			request, err := http.NewRequest(http.MethodGet, "https://broker.example", nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			err = client.RequestEditors[0](request.Context(), request)
 			if err == nil {
 				t.Fatal("accepted invalid token")
 			}
@@ -182,13 +188,22 @@ func TestExtraOrderFields(t *testing.T) {
 	original := url.Values{"customRouting": {"venue A", "venue B"}}
 	edit := WithExtraOrderFields(original)
 	original.Set("customRouting", "mutated")
-	request, _ := http.NewRequest(http.MethodPost, "https://broker.example/accounts/a/orders", strings.NewReader("qty=0&instrument=EURUSD"))
+	request, err := http.NewRequest(http.MethodPost, "https://broker.example/accounts/a/orders", strings.NewReader("qty=0&instrument=EURUSD"))
+	if err != nil {
+		t.Fatal(err)
+	}
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
 	if err := edit(request.Context(), request); err != nil {
 		t.Fatal(err)
 	}
-	data, _ := io.ReadAll(request.Body)
-	values, _ := url.ParseQuery(string(data))
+	data, err := io.ReadAll(request.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	values, err := url.ParseQuery(string(data))
+	if err != nil {
+		t.Fatal(err)
+	}
 	if values.Get("qty") != "0" || !reflect.DeepEqual(values["customRouting"], []string{"venue A", "venue B"}) {
 		t.Fatalf("merged: %v", values)
 	}
@@ -199,8 +214,11 @@ func TestExtraOrderFields(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer replay.Close()
-	repeated, _ := io.ReadAll(replay)
+	defer closeTestBody(t, replay)
+	repeated, err := io.ReadAll(replay)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if string(data) != string(repeated) {
 		t.Fatal("GetBody does not replay modified form")
 	}
@@ -209,14 +227,20 @@ func TestExtraOrderFields(t *testing.T) {
 func TestExtraOrderFieldsRejectCollisions(t *testing.T) {
 	for _, key := range []string{"qty", "instrument", "currentAsk", "side", "type", "exitLevels", "confirmId", "orderInfoId", "customExisting", ""} {
 		t.Run(key, func(t *testing.T) {
-			request, _ := http.NewRequest(http.MethodPost, "https://broker.example", strings.NewReader("qty=1&customExisting=value"))
+			request, err := http.NewRequest(http.MethodPost, "https://broker.example", strings.NewReader("qty=1&customExisting=value"))
+			if err != nil {
+				t.Fatal(err)
+			}
 			request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 			if err := WithExtraOrderFields(url.Values{key: {"override"}})(request.Context(), request); err == nil {
 				t.Fatal("accepted collision")
 			}
 		})
 	}
-	request, _ := http.NewRequest(http.MethodPost, "https://broker.example", strings.NewReader(`{}`))
+	request, err := http.NewRequest(http.MethodPost, "https://broker.example", strings.NewReader(`{}`))
+	if err != nil {
+		t.Fatal(err)
+	}
 	request.Header.Set("Content-Type", "application/json")
 	if err := WithExtraOrderFields(url.Values{"custom": {"value"}})(request.Context(), request); err == nil {
 		t.Fatal("accepted non-form")

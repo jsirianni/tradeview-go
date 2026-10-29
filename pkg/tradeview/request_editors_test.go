@@ -302,7 +302,12 @@ func TestRequestEditorsPreserveConcreteBodyAndSeek(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				defer body.Close()
+				defer func() {
+					// Dispatch/editor cleanup owns this file; close only guards early test exits.
+					if err := body.Close(); err != nil && !errors.Is(err, os.ErrClosed) {
+						t.Error(err)
+					}
+				}()
 				payload := `{"instrument":"EURUSD"}`
 				if _, err := io.WriteString(body, payload); err != nil {
 					t.Fatal(err)

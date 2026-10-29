@@ -20,7 +20,7 @@ func TestDefaultClientRejectsDowngradeRedirects(t *testing.T) {
 				plain := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					contacts.Add(1)
 					credentials.Store(r.Header.Get("Authorization") != "")
-					io.WriteString(w, `{"s":"ok","d":[]}`)
+					writeTestString(t, w, `{"s":"ok","d":[]}`)
 				}))
 				defer plain.Close()
 				secure := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +39,7 @@ func TestDefaultClientRejectsDowngradeRedirects(t *testing.T) {
 				client.Client.(*http.Client).Transport = secure.Client().Transport
 				response, err := client.GetAccounts(context.Background(), nil)
 				if response != nil && response.Body != nil {
-					response.Body.Close()
+					closeTestBody(t, response.Body)
 				}
 				if err == nil || !strings.Contains(err.Error(), "refusing HTTPS-to-HTTP redirect") {
 					t.Fatalf("expected downgrade rejection, got %v", err)
@@ -64,7 +64,7 @@ func TestDefaultClientPermitsHTTPSRedirects(t *testing.T) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		io.WriteString(w, `{"s":"ok","d":[]}`)
+		writeTestString(t, w, `{"s":"ok","d":[]}`)
 	}))
 	defer secure.Close()
 	client, err := NewClient(secure.URL, WithBearerToken("test-token"))
@@ -76,7 +76,7 @@ func TestDefaultClientPermitsHTTPSRedirects(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer response.Body.Close()
+	defer closeTestBody(t, response.Body)
 	if response.StatusCode != 200 || contacts.Load() != 2 {
 		t.Fatalf("status=%d requests=%d", response.StatusCode, contacts.Load())
 	}
@@ -96,7 +96,7 @@ func TestDefaultClientRetainsRedirectLimit(t *testing.T) {
 	client.Client.(*http.Client).Transport = secure.Client().Transport
 	response, err := client.GetAccounts(context.Background(), nil)
 	if response != nil && response.Body != nil {
-		response.Body.Close()
+		closeTestBody(t, response.Body)
 	}
 	if err == nil || !strings.Contains(err.Error(), "stopped after 10 redirects") || contacts.Load() != 10 {
 		t.Fatalf("requests=%d error=%v", contacts.Load(), err)
@@ -139,7 +139,7 @@ func TestDefaultClientRejectsCrossOriginCredentialReplay(t *testing.T) {
 				client.Client.(*http.Client).Transport = source.Client().Transport
 				response, err := client.AuthorizeWithFormdataBody(context.Background(), AuthorizeFormdataRequestBody{Login: "test-user", Password: "test-password"})
 				if response != nil {
-					response.Body.Close()
+					closeTestBody(t, response.Body)
 				}
 				if err == nil || !strings.Contains(err.Error(), "refusing cross-origin redirect") {
 					t.Fatalf("expected cross-origin rejection, got %v", err)
@@ -197,7 +197,7 @@ func TestDefaultClientPermitsSameOriginCredentialRedirects(t *testing.T) {
 				if r.Method != http.MethodPost || string(body) != "login=test-user&password=test-password" {
 					t.Errorf("redirected method=%s body=%q", r.Method, body)
 				}
-				io.WriteString(w, `{"s":"ok"}`)
+				writeTestString(t, w, `{"s":"ok"}`)
 			}))
 			defer secure.Close()
 			client, err := NewClient(secure.URL)
@@ -209,7 +209,7 @@ func TestDefaultClientPermitsSameOriginCredentialRedirects(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer response.Body.Close()
+			defer closeTestBody(t, response.Body)
 			if response.StatusCode != http.StatusOK || contacts.Load() != 2 {
 				t.Fatalf("status=%d contacts=%d", response.StatusCode, contacts.Load())
 			}

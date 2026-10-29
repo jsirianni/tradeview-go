@@ -2,7 +2,6 @@ package tradeview
 
 import (
 	"context"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -33,7 +32,7 @@ func TestLocaleDefaultWithGeneratedFiniteRequests(t *testing.T) {
 					t.Errorf("query=%v want=%v", r.URL.Query(), tc.query)
 				}
 				w.Header().Set("Content-Type", "application/json")
-				io.WriteString(w, `{"s":"ok","d":[]}`)
+				writeTestString(t, w, `{"s":"ok","d":[]}`)
 			}))
 			defer server.Close()
 			client, err := NewClientWithResponses(server.URL, WithLocale("en"))
@@ -68,7 +67,7 @@ func TestLocaleDefaultWithGeneratedStreams(t *testing.T) {
 					t.Errorf("query=%v want=%v", r.URL.Query(), want)
 				}
 				w.Header().Set("Content-Type", "application/json")
-				io.WriteString(w, "{\"s\":\"ok\"}\n")
+				writeTestString(t, w, "{\"s\":\"ok\"}\n")
 			}))
 			defer server.Close()
 			client, err := NewClient(server.URL, WithLocale("en"))
@@ -79,7 +78,7 @@ func TestLocaleDefaultWithGeneratedStreams(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer stream.Close()
+			defer closeTestBody(t, stream)
 			if !stream.Next() || stream.Value().Kind != StreamPing {
 				t.Fatalf("missing ping: %v", stream.Err())
 			}

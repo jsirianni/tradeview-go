@@ -91,7 +91,7 @@ func openHTTPStream[T streamEvent](ctx context.Context, response *http.Response,
 	}()
 	if requestErr != nil {
 		if response != nil && response.Body != nil {
-			_ = response.Body.Close()
+			requestErr = closeStreamResponse(response.Body, requestErr)
 		}
 		return nil, requestErr
 	}
@@ -100,14 +100,13 @@ func openHTTPStream[T streamEvent](ctx context.Context, response *http.Response,
 	}
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
 		body, err := io.ReadAll(io.LimitReader(response.Body, int64(config.maxFrameBytes)))
-		_ = response.Body.Close()
 		if err != nil {
-			return nil, fmt.Errorf("tradeview: read stream error response: %w", err)
+			return nil, closeStreamResponse(response.Body, fmt.Errorf("tradeview: read stream error response: %w", err))
 		}
 		if err := responseError(body, response); err != nil {
-			return nil, err
+			return nil, closeStreamResponse(response.Body, err)
 		}
-		return nil, &HTTPError{StatusCode: response.StatusCode, Status: response.Status, Body: body}
+		return nil, closeStreamResponse(response.Body, &HTTPError{StatusCode: response.StatusCode, Status: response.Status, Body: body})
 	}
 	var handshakeErr error
 	if response.StatusCode != http.StatusOK {
@@ -117,8 +116,7 @@ func openHTTPStream[T streamEvent](ctx context.Context, response *http.Response,
 	}
 	if handshakeErr != nil {
 		body, readErr := io.ReadAll(io.LimitReader(response.Body, int64(config.maxFrameBytes)))
-		_ = response.Body.Close()
-		return nil, newProtocolError(body, response, errors.Join(handshakeErr, readErr))
+		return nil, newProtocolError(body, response, closeStreamResponse(response.Body, errors.Join(handshakeErr, readErr)))
 	}
 	scanner := bufio.NewScanner(response.Body)
 	initial := min(config.maxFrameBytes, 4096)
@@ -129,10 +127,18 @@ func openHTTPStream[T streamEvent](ctx context.Context, response *http.Response,
 	// internal opener to supply terminal semantics from its decoded event.
 	stream.terminalError = func(value T, statusCode int) error { return value.terminalAPIError(statusCode) }
 	stream.mu.Lock()
-	// #nosec G104 -- finish saves the body close error for Close; Err retains the cancellation cause.
+	// finish saves the body close error for Close; Err retains cancellation.
 	stream.stopCancel = context.AfterFunc(ctx, func() { stream.finish(ctx.Err()) })
 	stream.mu.Unlock()
 	return stream, nil
+}
+
+// Preserve both failure causes without wrapping the original when Close succeeds.
+func closeStreamResponse(body io.Closer, cause error) error {
+	if err := body.Close(); err != nil {
+		return errors.Join(cause, err)
+	}
+	return cause
 }
 
 // The wire format is one JSON value per line. JSON and NDJSON media types are
@@ -161,7 +167,6 @@ func (stream *Stream[T]) Next() bool {
 	for stream.scanner.Scan() {
 		rawFrame := stream.scanner.Bytes()
 		if len(rawFrame) > stream.maxFrameBytes {
-			// #nosec G104 -- finish saves the body close error for Close; Err retains this terminal cause.
 			stream.finish(fmt.Errorf("tradeview: stream frame exceeds %d bytes", stream.maxFrameBytes))
 			return false
 		}
@@ -171,7 +176,6 @@ func (stream *Stream[T]) Next() bool {
 		}
 		value, err := stream.decode(frame)
 		if err != nil {
-			// #nosec G104 -- finish saves the body close error for Close; Err retains this terminal cause.
 			stream.finish(fmt.Errorf("tradeview: decode stream frame: %w", err))
 			return false
 		}
@@ -184,7 +188,6 @@ func (stream *Stream[T]) Next() bool {
 		stream.mu.Unlock()
 		responseObserver(stream.response).frame()
 		if err := stream.terminalError(value, stream.response.StatusCode); err != nil {
-			// #nosec G104 -- finish saves the body close error for Close; Err retains this terminal cause.
 			stream.finish(err)
 		}
 		return true
@@ -196,7 +199,6 @@ func (stream *Stream[T]) Next() bool {
 	if stream.ctx.Err() != nil {
 		err = stream.ctx.Err()
 	}
-	// #nosec G104 -- finish saves the body close error for Close; Err retains this terminal cause.
 	stream.finish(err)
 	return false
 }
@@ -218,9 +220,12 @@ func (stream *Stream[T]) Err() error {
 }
 
 // Close releases the response body and unblocks a pending Next.
-func (stream *Stream[T]) Close() error { return stream.finish(nil) }
+func (stream *Stream[T]) Close() error {
+	stream.finish(nil)
+	return stream.closeErr
+}
 
-func (stream *Stream[T]) finish(err error) error {
+func (stream *Stream[T]) finish(err error) {
 	stream.mu.Lock()
 	if !stream.closed {
 		stream.closed = true
@@ -235,5 +240,4 @@ func (stream *Stream[T]) finish(err error) error {
 		stream.closeErr = stream.response.Body.Close()
 		finishResponseObservation(stream.response, errors.Join(terminalErr, stream.closeErr))
 	})
-	return stream.closeErr
 }

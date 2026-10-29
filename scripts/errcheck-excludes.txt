@@ -1,0 +1,10 @@
+// These bytes.Buffer methods are documented to return a nil error.
+// Keep file, HTTP, pipe, cleanup and arbitrary io.Writer errors checked.
+(*bytes.Buffer).Write
+(*bytes.Buffer).WriteByte
+(*bytes.Buffer).WriteString
+// Fprintf propagates only the destination's Write error; bytes.Buffer cannot fail.
+fmt.Fprintf(*bytes.Buffer)
+// strings.Builder.WriteString likewise always returns a nil error.
+(*strings.Builder).WriteString
+fmt.Fprintf(*strings.Builder)

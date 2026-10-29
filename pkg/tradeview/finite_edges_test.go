@@ -84,7 +84,7 @@ func TestOrderFormPrecisionAndPresence(t *testing.T) {
 			t.Errorf("custom fields: %v", form)
 		}
 		w.Header().Set("Content-Type", "application/json")
-		io.WriteString(w, `{"s":"ok","d":{"orderId":"1"}}`)
+		writeTestString(t, w, `{"s":"ok","d":{"orderId":"1"}}`)
 	}))
 	defer server.Close()
 	client, err := NewClientWithResponses(server.URL + "/api")
@@ -101,7 +101,11 @@ func TestCancelAllOrderUnionAndDeleteForm(t *testing.T) {
 	var seen atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		seen.Add(1)
-		data, _ := io.ReadAll(r.Body)
+		data, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Error(err)
+			return
+		}
 		form, err := url.ParseQuery(string(data))
 		if err != nil {
 			t.Error(err)
@@ -119,10 +123,13 @@ func TestCancelAllOrderUnionAndDeleteForm(t *testing.T) {
 			t.Errorf("unexpected URL: %s", r.URL)
 		}
 		w.Header().Set("Content-Type", "application/json")
-		io.WriteString(w, `{"s":"ok"}`)
+		writeTestString(t, w, `{"s":"ok"}`)
 	}))
 	defer server.Close()
-	client, _ := NewClientWithResponses(server.URL)
+	client, err := NewClientWithResponses(server.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
 	var body CancelAllOrdersFormdataRequestBody
 	if err := json.Unmarshal([]byte(`{"orderIds":["order 1","order/2"]}`), &body); err != nil {
 		t.Fatal(err)
@@ -148,18 +155,21 @@ func TestSymbolsCSVAndCursorPagination(t *testing.T) {
 			if !reflect.DeepEqual(query["symbols"], []string{"EURUSD,BTCUSD"}) {
 				t.Errorf("symbols not CSV: %v", query)
 			}
-			io.WriteString(w, `{"s":"ok","d":[]}`)
+			writeTestString(t, w, `{"s":"ok","d":[]}`)
 		case "/accounts/acct/executions":
 			if query.Get("startTime") != "0" || query.Get("endTime") != "100" || query.Get("maxCount") != "2" || query.Get("cursor") != "opaque+/= token" || query.Has("instrument") {
 				t.Errorf("pagination: %v", query)
 			}
-			io.WriteString(w, `{"s":"ok","d":[],"nextPageCursor":"next+/="}`)
+			writeTestString(t, w, `{"s":"ok","d":[],"nextPageCursor":"next+/="}`)
 		default:
 			t.Errorf("unexpected path: %s", r.URL.Path)
 		}
 	}))
 	defer server.Close()
-	client, _ := NewClientWithResponses(server.URL)
+	client, err := NewClientWithResponses(server.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
 	symbols := []string{"EURUSD", "BTCUSD"}
 	if _, err := client.GetInstrumentsWithResponse(context.Background(), "acct", &GetInstrumentsParams{Locale: "en", Symbols: &symbols}); err != nil {
 		t.Fatal(err)

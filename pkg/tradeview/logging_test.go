@@ -41,7 +41,7 @@ func TestLoggingEveryOperation(t *testing.T) {
 			t.Error("logging alone enabled trace propagation")
 		}
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = io.WriteString(w, `{"s":"ok"}`)
+		writeTestString(t, w, `{"s":"ok"}`)
 	}))
 	defer server.Close()
 	for _, fixture := range _operationFixtures {
@@ -76,7 +76,7 @@ func TestLoggingEveryOperation(t *testing.T) {
 					if _, err := io.ReadAll(response.Body); err != nil {
 						t.Fatal(err)
 					}
-					_ = response.Body.Close()
+					closeTestBody(t, response.Body)
 				} else if entry.Streaming {
 					if output.Len() != 0 {
 						t.Fatal("logged stream before completion")
@@ -119,7 +119,7 @@ func TestLoggingErrorsAndPrivacy(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(scenario.status)
-				_, _ = io.WriteString(w, scenario.body)
+				writeTestString(t, w, scenario.body)
 			}))
 			defer server.Close()
 			var output bytes.Buffer
@@ -177,13 +177,17 @@ func TestLoggingFileAndLevels(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Cleanup(func() { _ = file.Close() })
+	t.Cleanup(func() {
+		if file != nil {
+			closeTestBody(t, file)
+		}
+	})
 	level := new(slog.LevelVar)
 	level.Set(slog.LevelError)
 	logger := slog.New(slog.NewJSONHandler(file, &slog.HandlerOptions{Level: level}))
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = io.WriteString(w, `{"s":"ok"}`)
+		writeTestString(t, w, `{"s":"ok"}`)
 	}))
 	defer server.Close()
 	client, err := NewClientWithResponses(server.URL, WithLogger(logger))
@@ -208,6 +212,7 @@ func TestLoggingFileAndLevels(t *testing.T) {
 	if err := file.Close(); err != nil {
 		t.Fatal(err)
 	}
+	file = nil
 	data, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
@@ -246,12 +251,12 @@ func TestLoggingStreamLifecycle(t *testing.T) {
 		t.Run(mode, func(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
-				_, _ = io.WriteString(w, "{\"s\":\"ok\"}\n")
+				writeTestString(t, w, "{\"s\":\"ok\"}\n")
 				if mode == "api" {
-					_, _ = io.WriteString(w, "{\"s\":\"error\",\"errmsg\":\"secret\"}\n")
+					writeTestString(t, w, "{\"s\":\"error\",\"errmsg\":\"secret\"}\n")
 				}
 				if mode == "decode" {
-					_, _ = io.WriteString(w, "{\n")
+					writeTestString(t, w, "{\n")
 				}
 				if mode == "cancel" || mode == "close" {
 					w.(http.Flusher).Flush()
@@ -281,7 +286,7 @@ func TestLoggingStreamLifecycle(t *testing.T) {
 				go func() { stream.Next(); close(nextDone) }()
 				var group sync.WaitGroup
 				for range 8 {
-					group.Go(func() { _ = stream.Close() })
+					group.Go(func() { closeTestBody(t, stream) })
 				}
 				group.Wait()
 				<-nextDone
@@ -289,7 +294,7 @@ func TestLoggingStreamLifecycle(t *testing.T) {
 				for stream.Next() {
 				}
 			}
-			_ = stream.Close()
+			closeTestBody(t, stream)
 			records := logRecords(t, output.Bytes())
 			category := map[string]string{"api": "api", "decode": "client", "cancel": "canceled"}[mode]
 			if len(records) != 1 || records[0]["streaming"] != true || strings.Contains(output.String(), "secret") {

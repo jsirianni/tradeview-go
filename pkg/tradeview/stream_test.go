@@ -52,7 +52,7 @@ func accountTestStream(t *testing.T, ctx context.Context, body *streamObservedBo
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Cleanup(func() { _ = stream.Close() })
+	t.Cleanup(func() { closeTestBody(t, stream) })
 	return stream
 }
 
@@ -128,7 +128,7 @@ func TestStreamCancelAndCloseUnblockNext(t *testing.T) {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 			reader, writer := io.Pipe()
-			defer writer.Close()
+			defer closeTestBody(t, writer)
 			body := &streamObservedBody{Reader: reader, closeFn: reader.Close}
 			stream := accountTestStream(t, ctx, body)
 			next := make(chan bool, 1)
@@ -179,7 +179,10 @@ func TestStreamCanceledContextBeforeOpen(t *testing.T) {
 }
 
 func TestStreamHandshakeErrors(t *testing.T) {
-	config, _ := configureStream(nil)
+	config, err := configureStream(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	for _, status := range []int{401, 503} {
 		body := &streamObservedBody{Reader: strings.NewReader(`{"s":"error","errmsg":"denied","errtype":"unauthorized"}`)}
 		stream, err := openHTTPStream(context.Background(), &http.Response{StatusCode: status, Status: http.StatusText(status), Body: body}, nil, config, decodeAccountEvent[json.RawMessage])
@@ -189,12 +192,59 @@ func TestStreamHandshakeErrors(t *testing.T) {
 	}
 	body := &streamObservedBody{Reader: strings.NewReader("unused")}
 	wanted := errors.New("request failed")
-	_, err := openHTTPStream(context.Background(), &http.Response{Body: body}, wanted, config, decodeAccountEvent[json.RawMessage])
+	_, err = openHTTPStream(context.Background(), &http.Response{Body: body}, wanted, config, decodeAccountEvent[json.RawMessage])
 	if !errors.Is(err, wanted) || body.closed.Load() != 1 {
 		t.Fatalf("err=%v closes=%d", err, body.closed.Load())
 	}
 	if _, err := openHTTPStream[AccountEvent[json.RawMessage]](context.Background(), nil, nil, config, decodeAccountEvent[json.RawMessage]); err == nil {
 		t.Fatal("expected empty response error")
+	}
+}
+
+func TestStreamCleanupErrors(t *testing.T) {
+	closeErr := errors.New("body close failed")
+	requestErr := errors.New("request failed")
+	readErr := errors.New("read failed")
+	for _, scenario := range []struct {
+		name       string
+		status     int
+		media      string
+		requestErr error
+		reader     io.Reader
+	}{
+		{"request", 200, "application/json", requestErr, strings.NewReader("")},
+		{"HTTP", 503, "text/plain", nil, strings.NewReader("unavailable")},
+		{"read", 503, "text/plain", nil, finiteFailingReader{err: readErr}},
+		{"status", 204, "application/json", nil, strings.NewReader("")},
+		{"media", 200, "text/plain", nil, strings.NewReader("")},
+		{"EOF", 200, "application/json", nil, strings.NewReader("")},
+	} {
+		t.Run(scenario.name, func(t *testing.T) {
+			body := &streamObservedBody{Reader: scenario.reader, closeFn: func() error { return closeErr }}
+			config, err := configureStream(nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			stream, err := openHTTPStream(t.Context(), &http.Response{StatusCode: scenario.status, Header: http.Header{"Content-Type": {scenario.media}}, Body: body}, scenario.requestErr, config, decodeAccountEvent[json.RawMessage])
+			if stream != nil {
+				if stream.Next() || stream.Err() != nil {
+					t.Fatalf("empty stream: %v", stream.Err())
+				}
+				err = stream.Close()
+				if !errors.Is(stream.Close(), closeErr) {
+					t.Fatal("repeated close lost error")
+				}
+			}
+			if !errors.Is(err, closeErr) || body.closed.Load() != 1 {
+				t.Fatalf("err=%v closes=%d", err, body.closed.Load())
+			}
+			if scenario.requestErr != nil && !errors.Is(err, requestErr) {
+				t.Fatal("lost request failure")
+			}
+			if scenario.name == "read" && !errors.Is(err, readErr) {
+				t.Fatal("lost read failure")
+			}
+		})
 	}
 }
 
@@ -298,7 +348,8 @@ func TestTypedStreamEndpoints(t *testing.T) {
 					t.Error("missing authentication/request editor")
 				}
 				writer.Header().Set("Content-Type", "application/json")
-				fmt.Fprintln(writer, test.frame)
+				_, err := fmt.Fprintln(writer, test.frame)
+				checkTestError(t, err)
 			}))
 			defer server.Close()
 			client, err := NewClient(server.URL+"/api", WithBearerToken("token"))
@@ -309,7 +360,7 @@ func TestTypedStreamEndpoints(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer stream.Close()
+			defer closeTestBody(t, stream)
 			if !stream.Next() {
 				t.Fatalf("first frame: %v", stream.Err())
 			}

@@ -247,14 +247,15 @@ func generateWithRunner(root string, run func(root, schema, output string) error
 		return err
 	}
 	inventory = append(inventory, '\n')
-	if err := publishGenerated([]generatedOutput{
+	// Report before publication so a broken diagnostic output cannot turn a
+	// successfully published set into a failed Generate call.
+	if _, err := fmt.Printf("Generated %d operations (%d finite, %d streaming).\n", len(operations), len(operations)-len(streamNames), len(streamNames)); err != nil {
+		return fmt.Errorf("report prepared generation: %w", err)
+	}
+	return publishGenerated([]generatedOutput{
 		{path: filepath.Join(root, "pkg", "tradeview", "api.gen.go"), data: bindings},
 		{path: filepath.Join(root, "api", "operations.json"), data: inventory},
-	}, publicationOps{rename: os.Rename, remove: os.Remove}); err != nil {
-		return err
-	}
-	fmt.Printf("Generated %d operations (%d finite, %d streaming).\n", len(operations), len(operations)-len(streamNames), len(streamNames))
-	return nil
+	}, publicationOps{rename: os.Rename, remove: os.Remove})
 }
 
 func runCodegen(root, schema, output string) error {

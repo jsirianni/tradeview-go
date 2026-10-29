@@ -34,7 +34,10 @@ func newTelemetryFixture(t *testing.T) telemetryFixture {
 	tp := sdktrace.NewTracerProvider(sdktrace.WithSpanProcessor(recorder))
 	reader := sdkmetric.NewManualReader()
 	mp := sdkmetric.NewMeterProvider(sdkmetric.WithReader(reader))
-	t.Cleanup(func() { _ = tp.Shutdown(context.Background()); _ = mp.Shutdown(context.Background()) })
+	t.Cleanup(func() {
+		checkTestError(t, tp.Shutdown(context.Background()))
+		checkTestError(t, mp.Shutdown(context.Background()))
+	})
 	return telemetryFixture{WithTelemetry(TelemetryOptions{TracerProvider: tp, MeterProvider: mp, Propagator: propagation.TraceContext{}}), recorder, reader, tp}
 }
 
@@ -75,7 +78,7 @@ func TestTelemetryEveryOperation(t *testing.T) {
 	contract := loadFixtureContract(t)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = io.WriteString(w, `{"s":"ok"}`)
+		writeTestString(t, w, `{"s":"ok"}`)
 	}))
 	defer server.Close()
 	for _, fixture := range _operationFixtures {
@@ -110,7 +113,7 @@ func TestTelemetryEveryOperation(t *testing.T) {
 					if err != nil {
 						t.Fatal(err)
 					}
-					_ = response.Body.Close()
+					closeTestBody(t, response.Body)
 				} else if entry.Streaming {
 					if len(f.spans.Ended()) != 0 {
 						t.Fatal("stream ended on headers")
@@ -154,7 +157,7 @@ func TestTelemetryTypedErrorsAndPrivacy(t *testing.T) {
 				propagatedContext <- trace.SpanContextFromContext(propagation.TraceContext{}.Extract(r.Context(), propagation.HeaderCarrier(r.Header)))
 				w.Header().Set("Content-Type", scenario.contentType)
 				w.WriteHeader(scenario.status)
-				_, _ = io.WriteString(w, scenario.body)
+				writeTestString(t, w, scenario.body)
 			}))
 			defer server.Close()
 			opts := []ClientOption{f.option, WithBearerToken("secret-token")}
@@ -244,7 +247,7 @@ func TestTelemetryEditorFailureAndDisabled(t *testing.T) {
 		if r.Header.Get("traceparent") != "" {
 			t.Error("disabled propagation")
 		}
-		_, _ = io.WriteString(w, "ok")
+		writeTestString(t, w, "ok")
 	}))
 	defer server.Close()
 	disabled, err := NewClient(server.URL)
@@ -257,7 +260,7 @@ func TestTelemetryEditorFailureAndDisabled(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_ = response.Body.Close()
+	closeTestBody(t, response.Body)
 	if _, ok := response.Body.(*observedBody); ok {
 		t.Fatal("disabled telemetry wrapped body")
 	}
@@ -269,12 +272,12 @@ func TestTelemetryStreamLifecycle(t *testing.T) {
 			f := newTelemetryFixture(t)
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
-				_, _ = io.WriteString(w, "{\"s\":\"ok\"}\n")
+				writeTestString(t, w, "{\"s\":\"ok\"}\n")
 				if mode == "api" {
-					_, _ = io.WriteString(w, "{\"s\":\"error\",\"errmsg\":\"secret\"}\n")
+					writeTestString(t, w, "{\"s\":\"error\",\"errmsg\":\"secret\"}\n")
 				}
 				if mode == "decode" {
-					_, _ = io.WriteString(w, "{\n")
+					writeTestString(t, w, "{\n")
 				}
 				if mode == "cancel" || mode == "close" {
 					w.(http.Flusher).Flush()
@@ -306,7 +309,7 @@ func TestTelemetryStreamLifecycle(t *testing.T) {
 				go func() { stream.Next(); close(nextDone) }()
 				var wg sync.WaitGroup
 				for range 8 {
-					wg.Go(func() { _ = stream.Close() })
+					wg.Go(func() { closeTestBody(t, stream) })
 				}
 				wg.Wait()
 				<-nextDone
@@ -314,7 +317,7 @@ func TestTelemetryStreamLifecycle(t *testing.T) {
 				for stream.Next() {
 				}
 			}
-			_ = stream.Close()
+			closeTestBody(t, stream)
 			spans := f.spans.Ended()
 			if len(spans) != 1 {
 				t.Fatalf("spans=%d", len(spans))

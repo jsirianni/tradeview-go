@@ -2,7 +2,7 @@ package tradeview_test
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"log/slog"
 	"os"
 	"time"
@@ -18,7 +18,7 @@ func ExampleWithLogger() {
 		tradeview.WithLogger(logger),
 	)
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
 		return
 	}
 	_ = client // Use the configured client for finite calls or streams.
@@ -30,7 +30,7 @@ func ExampleClientWithResponses_GetAccountsWithResponse() {
 		tradeview.WithBearerToken("caller-supplied-token"),
 	)
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
 		return
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -39,10 +39,10 @@ func ExampleClientWithResponses_GetAccountsWithResponse() {
 		Locale: tradeview.Locale("en"),
 	})
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
 		return
 	}
-	fmt.Println(response.StatusCode())
+	log.Print(response.StatusCode())
 }
 
 func ExampleClient_OpenStreamOrders() {
@@ -51,7 +51,7 @@ func ExampleClient_OpenStreamOrders() {
 		tradeview.WithBearerToken("caller-supplied-token"),
 	)
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
 		return
 	}
 	ctx, cancel := context.WithCancel(context.Background())
@@ -60,15 +60,19 @@ func ExampleClient_OpenStreamOrders() {
 		Locale: tradeview.Locale("en"),
 	})
 	if err != nil {
-		fmt.Println(err)
+		log.Print(err)
 		return
 	}
-	defer stream.Close()
+	defer func() {
+		if err := stream.Close(); err != nil {
+			log.Print(err)
+		}
+	}()
 	for stream.Next() {
 		event := stream.Value()
-		fmt.Println(event.Kind)
+		log.Print(event.Kind)
 	}
 	if err := stream.Err(); err != nil {
-		fmt.Println(err)
+		log.Print(err)
 	}
 }

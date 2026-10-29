@@ -115,7 +115,9 @@ func fuzzStreamContract[T streamEvent](t *testing.T, wire, chunks []byte, limit 
 		var exact map[string]json.RawMessage
 		var status string
 		if json.Unmarshal(frame, &exact) == nil {
-			_ = json.Unmarshal(exact["s"], &status)
+			if err := json.Unmarshal(exact["s"], &status); err != nil {
+				status = "" // Nonstring/absent statuses do not select a status event.
+			}
 		}
 		if (kind == StreamError) != (status == "error") || !bytes.Equal(raw, frame) {
 			t.Fatalf("decoded event disagrees with exact status/raw: %s, %s", kind, raw)
@@ -133,7 +135,7 @@ func fuzzStreamContract[T streamEvent](t *testing.T, wire, chunks []byte, limit 
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer stream.Close()
+	defer closeTestBody(t, stream)
 	var retained []T
 	var last T
 	for i, expected := range want {
