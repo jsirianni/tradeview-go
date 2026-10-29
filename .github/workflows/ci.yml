@@ -27,7 +27,7 @@ jobs:
           cache-dependency-path: go.sum
       - name: List development tasks
         run: make
-      - name: Validate packages
+      - name: Validate packages and coverage regressions
         run: make ci
       - name: Verify Staticcheck rejects a known violation
         shell: bash

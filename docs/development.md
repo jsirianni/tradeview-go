@@ -30,6 +30,8 @@ make test TEST_ARGS="-run TestOperationTransport -count=1"
 | `fuzz` | Run four parser/stream fuzz targets with bounded exploration. |
 | `coverage` | Write `coverage.out` and print function coverage. |
 | `coverage-html` | Write `coverage.html` without opening a browser. |
+| `coverage-check` | Run the full uncached test suite with temporary coverage and check grouped regression baselines. |
+| `coverage-smoke` | Verify weighted classification, regression failures, and temporary profile cleanup. |
 | `fmt` / `fmt-check` | Format Go sources or check formatting. |
 | `vet` | Run Go's static checks. |
 | `staticcheck` | Run pinned Staticcheck analysis on all packages and normal tests. |
@@ -41,7 +43,7 @@ make test TEST_ARGS="-run TestOperationTransport -count=1"
 | `generate` | Regenerate bindings and the operation inventory. |
 | `generate-check` | Regenerate and reject differences in tracked generated outputs. |
 | `deps` / `tidy` | Download dependencies or tidy module metadata. |
-| `check` | Check formatting, vet, Staticcheck, Revive, gosec, and tests. |
+| `check` | Check formatting, vet, Staticcheck, Revive, gosec, and the full test suite with coverage regression checks. |
 | `ci` | Check generation and Go fixes, then run checks, build, race tests, vulnerability scans, gate regression fixtures, and bounded fuzzing. |
 | `clean` | Clean package build artifacts and remove coverage reports. |
 
@@ -117,6 +119,56 @@ all 38 finite endpoints with realistic JSON, public union accessors, and request
 expectations. Their inventory test requires every declared success alternative
 to have a fixture. Add explicit decoded-value assertions when extending this
 suite; a non-nil response wrapper alone does not verify a union's contents.
+
+## Coverage regression checks
+
+`make check` and required `make ci` run `make coverage-check` in place of the
+plain test pass. It runs all packages uncached with default build tags and
+`-covermode=atomic`; `TEST_ARGS` deliberately does not apply to this gate. Use
+`make test TEST_ARGS="..."` for selected tests. The race pass remains separate.
+
+The profile lives in a private system temporary directory and is deleted on
+success, failure, or a handled interruption. Only aggregate counts and pass/fail
+diagnostics appear in command output. Coverage profiles, reports, artifacts,
+PR reports, badges, and external-service results are never uploaded or
+published. No workflow summary or coverage artifact step is used. The optional
+`make coverage` and `make coverage-html` commands retain ignored local files for
+developer inspection; they do not upload them.
+
+`scripts/coverage-summary.awk` sums statement counts from the profile rather
+than averaging line, function, or file percentages. Classification is explicit:
+
+| Group | Selection | Baseline covered/total | Policy |
+| --- | --- | --- | --- |
+| Handwritten runtime | Direct `.go` files in `pkg/tradeview`, excluding `api.gen.go` | 817/872 (93.69%) | Gate regressions |
+| Generator | Direct `.go` files in `internal/generate` | 511/579 (88.26%) | Gate regressions |
+| Generated bindings | Exactly `pkg/tradeview/api.gen.go` | 2753/5913 (46.56%) | Informational |
+
+The baseline in `scripts/coverage-baseline.tsv` uses Linux/amd64, Go 1.27.3, and
+the uncached full suite. CI selects a supported `1.27.x` patch and prints the
+actual version and platform. Other local platforms can have different covered
+branches; the Linux result is authoritative. New files in the named packages
+automatically count. Missing groups, malformed/duplicate blocks, and unexpected
+packages fail instead of silently shrinking the denominator; update the
+classification deliberately when adding a package.
+
+A decrease exceeding **0.5 percentage points** from either handwritten
+baseline fails, using unrounded ratios. This allows small instrumentation or
+platform changes while catching meaningful regression; it is a fixed allowance
+from the committed baseline, not a fresh allowance per PR. Generated coverage
+cannot mask a runtime or generator regression and has no minimum target.
+Review baseline changes in the same PR as their cause, using Linux measurements
+from the supported toolchain. Improve behavioral tests first; explain justified
+decreases or denominator changes and ratchet the baseline upward when sustained
+improvements are established. Never lower it automatically to make CI pass.
+Go/toolchain or schema updates require the same deliberate remeasurement.
+
+Coverage is evidence of execution, not proof of correct assertions. The
+contract, stream, generator staging/publication, and metric-instrument failure
+tests retain their behavioral assertions. `make coverage-smoke` proves weighted
+classification, independent handwritten gates, rounding boundaries, malformed
+input rejection, and profile cleanup without modifying source files. The final
+CI clean-checkout check remains in place.
 
 ## Known vulnerability scanning
 
