@@ -52,6 +52,16 @@ The upstream YAML, source metadata, compatibility overlay, generator configurati
 
 The generator uses `oapi-codegen` **v2.8.1**, pinned as a Go tool dependency. `make generate` explicitly invokes the regeneration hook in the `internal/generate` package. Ordinary test runs leave generated files unchanged. Generated files are committed so module consumers do not need to regenerate them.
 
+Generation runs the pinned tool and every rewrite in a private staging directory.
+Only after the resulting Go source and operation inventory are ready does it
+prepare replacements and backups beside both output files. A publication error
+rolls back earlier replacements. Temporary files are removed on success and
+ordinary failure; if rollback itself fails, the error identifies the affected
+output and the retained original backup for manual recovery. Run generation
+without concurrent writers to the generated files. The two-file publication is
+not a crash-atomic transaction; an interrupted process may require regeneration.
+Failure tests use copied temporary modules and never rewrite committed artifacts.
+
 `make generate-check` runs generation and checks only the tracked generated files, `pkg/tradeview/api.gen.go` and `api/operations.json`. Both staged and unstaged differences cause it to fail. Other working-tree changes do not affect that target. `make ci` completes generation checking before starting readers of the generated code, including when Make runs with parallel jobs.
 
 Generation uses the committed schema and does not fetch a new API revision. To update the contract, replace the upstream schema deliberately, record its version/source/checksum, review the compatibility overlay, regenerate, and update the operation inventory and transport fixtures together. Review all resulting API changes before committing.
