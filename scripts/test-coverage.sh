@@ -10,6 +10,7 @@ trap 'exit 143' TERM
 cat > "$fixture/baseline" <<'BASELINE'
 runtime 9000 10000 50
 generator 80 100 50
+automation 90 100 50
 generated 1 100 -
 BASELINE
 cat > "$fixture/profile" <<'PROFILE'
@@ -18,6 +19,8 @@ github.com/jsirianni/tradeview-go/pkg/tradeview/client.go:1.1,2.1 8950 1
 github.com/jsirianni/tradeview-go/pkg/tradeview/client.go:3.1,4.1 1050 0
 github.com/jsirianni/tradeview-go/internal/generate/generate.go:1.1,2.1 80 1
 github.com/jsirianni/tradeview-go/internal/generate/generate.go:3.1,4.1 20 0
+github.com/jsirianni/tradeview-go/internal/updatego/main.go:1.1,2.1 90 1
+github.com/jsirianni/tradeview-go/internal/updatego/main.go:3.1,4.1 10 0
 github.com/jsirianni/tradeview-go/pkg/tradeview/api.gen.go:1.1,2.1 100 0
 PROFILE
 check() {
@@ -37,6 +40,8 @@ sed -e 's/8950 1/8949 1/' -e 's/1050 0/1051 0/' "$fixture/profile" > "$fixture/i
 reject 'a runtime regression hidden by rounding' 'runtime regressed beyond'
 sed -e 's/80 1/79 1/' -e 's/20 0/21 0/' "$fixture/profile" > "$fixture/invalid"
 reject 'a generator regression' 'generator regressed beyond'
+sed -e 's/90 1/89 1/' -e 's/10 0/11 0/' "$fixture/profile" > "$fixture/invalid"
+reject 'an automation regression' 'automation regressed beyond'
 sed '/api.gen.go/d' "$fixture/profile" > "$fixture/invalid"
 reject 'missing generated coverage' 'missing profile statements for generated'
 sed 's@pkg/tradeview/client.go@internal/new/package.go@' "$fixture/profile" > "$fixture/invalid"
@@ -67,6 +72,7 @@ case "$1" in
 mode: atomic
 github.com/jsirianni/tradeview-go/pkg/tradeview/client.go:1.1,2.1 1 1
 github.com/jsirianni/tradeview-go/internal/generate/generate.go:1.1,2.1 1 1
+github.com/jsirianni/tradeview-go/internal/updatego/main.go:1.1,2.1 1 1
 github.com/jsirianni/tradeview-go/pkg/tradeview/api.gen.go:1.1,2.1 1 1
 PROFILE
         exit "${FIXTURE_TEST_EXIT:-0}"

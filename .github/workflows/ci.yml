@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   linux:
+    # Keep this status name stable: main's branch protection requires it.
     name: Go 1.27 / Linux
     runs-on: ubuntu-latest
     env:
