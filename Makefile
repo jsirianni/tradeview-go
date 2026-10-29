@@ -12,7 +12,7 @@ FUZZ_PARALLEL ?= 2
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build test test-race fuzz coverage coverage-html fmt fmt-check fix fix-check fix-gate-test vet staticcheck govulncheck lint lint-smoke security security-smoke generate generate-check deps tidy check ci clean
+.PHONY: help build test test-race fuzz coverage coverage-html coverage-check coverage-smoke fmt fmt-check fix fix-check fix-gate-test vet staticcheck govulncheck lint lint-smoke security security-smoke generate generate-check deps tidy check ci clean
 
 help:
 	@echo make build - Build all Go packages
@@ -21,6 +21,8 @@ help:
 	@echo make fuzz - Run bounded parser and stream fuzz targets
 	@echo make coverage - Write coverage.out and print coverage
 	@echo make coverage-html - Also write coverage.html
+	@echo make coverage-check - Run all tests with temporary grouped coverage and regression checks
+	@echo make coverage-smoke - Verify coverage classification and regression failures
 	@echo make fmt - Format Go source files
 	@echo make fmt-check - Check formatting without changing files
 	@echo make vet - Run Go static analysis
@@ -56,6 +58,12 @@ coverage:
 
 coverage-html: coverage
 	$(GO) tool cover -html=coverage.out -o coverage.html
+
+coverage-check:
+	sh scripts/check-coverage.sh "$(GO)"
+
+coverage-smoke:
+	sh scripts/test-coverage.sh
 
 fmt:
 	$(GOFMT) -w .
@@ -113,12 +121,12 @@ deps:
 tidy:
 	$(GO) mod tidy
 
-check: fmt-check vet staticcheck lint security security-smoke test
+check: fmt-check vet staticcheck lint security security-smoke coverage-check
 
 # Finish generation before readers start, even when invoked with make -j.
 ci: generate-check
 	$(MAKE) fix-check
-	$(MAKE) check build test-race govulncheck fix-gate-test fuzz
+	$(MAKE) check build test-race govulncheck fix-gate-test fuzz coverage-smoke
 
 clean:
 	$(GO) clean ./...
