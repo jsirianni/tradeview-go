@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
 )
@@ -124,10 +125,10 @@ func TestGeneratedFormEditorFailureClosesReplacement(t *testing.T) {
 	}
 }
 
-func TestRequestEditorFailureTracksChangedBodies(t *testing.T) {
+func TestRequestEditorFailureClosesCurrentBody(t *testing.T) {
 	failure := errors.New("rejected")
 	closeFailure := errors.New("close failed")
-	for _, scenario := range []string{"closed input", "replace", "close then replace", "wrap", "remove", "later editor", "close failure"} {
+	for _, scenario := range []string{"closed input", "replace", "wrap", "later editor", "close failure"} {
 		t.Run(scenario, func(t *testing.T) {
 			original := &requestCleanupBody{Reader: strings.NewReader("original")}
 			replacement := &requestCleanupBody{Reader: strings.NewReader("replacement")}
@@ -142,18 +143,15 @@ func TestRequestEditorFailureTracksChangedBodies(t *testing.T) {
 					if err := request.Body.Close(); err != nil {
 						t.Fatal(err)
 					}
-				case "close then replace":
+					request.Body = nil
+				case "replace", "later editor":
 					if err := request.Body.Close(); err != nil {
 						t.Fatal(err)
 					}
-					fallthrough
-				case "replace", "later editor":
 					request.Body = replacement
 					wantReplacement = true
 				case "wrap":
 					request.Body = struct{ io.ReadCloser }{request.Body}
-				case "remove":
-					request.Body = nil
 				case "close failure":
 					original.closeErr = closeFailure
 				}
@@ -167,6 +165,7 @@ func TestRequestEditorFailureTracksChangedBodies(t *testing.T) {
 					if err := request.Body.Close(); err != nil {
 						t.Fatal(err)
 					}
+					request.Body = nil
 					return failure
 				},
 			})
@@ -190,6 +189,7 @@ func TestExtraOrderFieldsFailureClosesOnce(t *testing.T) {
 		fields     url.Values
 	}{
 		{name: "read", readErr: readFailure, fields: url.Values{"custom": {"v"}}},
+		{name: "read and close", readErr: readFailure, closeErr: closeFailure, fields: url.Values{"custom": {"v"}}},
 		{name: "close", form: "qty=1", closeErr: closeFailure, fields: url.Values{"custom": {"v"}}},
 		{name: "parse", form: "%zz", fields: url.Values{"custom": {"v"}}},
 		{name: "collision", form: "custom=v", fields: url.Values{"custom": {"v"}}},
@@ -288,6 +288,89 @@ func TestRequestEditorSuccessPreservesDoerOwnership(t *testing.T) {
 				}
 				if body.closes != 1 {
 					t.Fatalf("original body closes=%d", body.closes)
+				}
+			})
+		}
+	}
+}
+
+func TestRequestEditorsPreserveConcreteBodyAndSeek(t *testing.T) {
+	for _, typed := range []bool{false, true} {
+		for _, reject := range []bool{false, true} {
+			t.Run(fmt.Sprintf("typed=%t/reject=%t", typed, reject), func(t *testing.T) {
+				body, err := os.CreateTemp(t.TempDir(), "request-*.json")
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer body.Close()
+				payload := `{"instrument":"EURUSD"}`
+				if _, err := io.WriteString(body, payload); err != nil {
+					t.Fatal(err)
+				}
+				failure := errors.New("request editor rejected file")
+				dispatched := false
+				client, err := NewClient("https://broker.example",
+					WithRequestEditorFn(func(_ context.Context, request *http.Request) error {
+						file, ok := request.Body.(*os.File)
+						if !ok || file != body {
+							t.Fatalf("editor sees %T, want original *os.File", request.Body)
+						}
+						if _, err := file.Seek(0, io.SeekStart); err != nil {
+							t.Fatal(err)
+						}
+						prefix := make([]byte, 1)
+						if _, err := io.ReadFull(file, prefix); err != nil || prefix[0] != '{' {
+							t.Fatalf("prefix=%q err=%v", prefix, err)
+						}
+						return nil
+					}),
+					WithHTTPClient(requestCleanupDoer(func(request *http.Request) (*http.Response, error) {
+						dispatched = true
+						if request.Body != body {
+							t.Fatal("doer lost original file body")
+						}
+						data, err := io.ReadAll(request.Body)
+						if err != nil || string(data) != payload {
+							t.Fatalf("body=%q err=%v", data, err)
+						}
+						if err := request.Body.Close(); err != nil {
+							t.Fatal(err)
+						}
+						return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(`{"s":"ok","d":{"orderId":"order"}}`))}, nil
+					})),
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				editor := func(_ context.Context, request *http.Request) error {
+					seeker, ok := request.Body.(io.Seeker)
+					if !ok {
+						t.Fatalf("request editor lost io.Seeker: %T", request.Body)
+					}
+					if _, err := seeker.Seek(0, io.SeekStart); err != nil {
+						t.Fatal(err)
+					}
+					if reject {
+						return failure
+					}
+					return nil
+				}
+				if typed {
+					_, err = (&ClientWithResponses{ClientInterface: client}).PlaceOrderWithBodyWithResponse(t.Context(), "account", nil, "application/json", body, editor)
+				} else {
+					var response *http.Response
+					response, err = client.PlaceOrderWithBody(t.Context(), "account", nil, "application/json", body, editor)
+					if response != nil {
+						if closeErr := response.Body.Close(); closeErr != nil {
+							t.Fatal(closeErr)
+						}
+					}
+				}
+				if reject && err != failure || !reject && err != nil || dispatched == reject {
+					t.Fatalf("err=%v dispatched=%v", err, dispatched)
+				}
+				if _, err := body.Read(make([]byte, 1)); !errors.Is(err, os.ErrClosed) {
+					t.Fatalf("request body was not closed: %v", err)
 				}
 			})
 		}

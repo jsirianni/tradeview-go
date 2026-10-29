@@ -284,9 +284,9 @@ func WithExtraOrderFields(fields url.Values) RequestEditorFn {
 			return errors.New("tradeview: extra order fields require a request body")
 		}
 		body, err := io.ReadAll(request.Body)
-		closeErr := request.Body.Close()
+		closeErr := closeRequestBody(request)
 		if err != nil {
-			return fmt.Errorf("tradeview: read order form: %w", err)
+			return fmt.Errorf("tradeview: read order form: %w", errors.Join(err, closeErr))
 		}
 		if closeErr != nil {
 			return fmt.Errorf("tradeview: close order form: %w", closeErr)
