@@ -7,15 +7,18 @@ GOSEC_FLAGS = -exclude-generated -nosec-require-rules -nosec-require-justificati
 REVIVE = $(GO) run github.com/mgechev/revive@v1.17.1
 GOVULNCHECK_VERSION := v1.9.0
 TEST_ARGS ?=
+FUZZ_TIME ?= 1000x
+FUZZ_PARALLEL ?= 2
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build test test-race coverage coverage-html fmt fmt-check fix fix-check fix-gate-test vet staticcheck govulncheck lint lint-smoke security security-smoke generate generate-check deps tidy check ci clean
+.PHONY: help build test test-race fuzz coverage coverage-html fmt fmt-check fix fix-check fix-gate-test vet staticcheck govulncheck lint lint-smoke security security-smoke generate generate-check deps tidy check ci clean
 
 help:
 	@echo make build - Build all Go packages
 	@echo make test - Run tests, TEST_ARGS adds Go test flags
 	@echo make test-race - Run tests with the race detector
+	@echo make fuzz - Run bounded parser and stream fuzz targets
 	@echo make coverage - Write coverage.out and print coverage
 	@echo make coverage-html - Also write coverage.html
 	@echo make fmt - Format Go source files
@@ -43,6 +46,9 @@ test:
 
 test-race:
 	$(GO) test -race $(TEST_ARGS) ./...
+
+fuzz:
+	sh scripts/run-fuzz.sh "$(GO)" "$(FUZZ_TIME)" "$(FUZZ_PARALLEL)"
 
 coverage:
 	$(GO) test -coverprofile=coverage.out $(TEST_ARGS) ./...
@@ -112,7 +118,7 @@ check: fmt-check vet staticcheck lint security security-smoke test
 # Finish generation before readers start, even when invoked with make -j.
 ci: generate-check
 	$(MAKE) fix-check
-	$(MAKE) check build test-race govulncheck fix-gate-test
+	$(MAKE) check build test-race govulncheck fix-gate-test fuzz
 
 clean:
 	$(GO) clean ./...

@@ -27,6 +27,7 @@ make test TEST_ARGS="-run TestOperationTransport -count=1"
 | `build` | Compile all packages. |
 | `test` | Run all tests; accepts `TEST_ARGS`. |
 | `test-race` | Run tests with the race detector. |
+| `fuzz` | Run four parser/stream fuzz targets with bounded exploration. |
 | `coverage` | Write `coverage.out` and print function coverage. |
 | `coverage-html` | Write `coverage.html` without opening a browser. |
 | `fmt` / `fmt-check` | Format Go sources or check formatting. |
@@ -41,7 +42,7 @@ make test TEST_ARGS="-run TestOperationTransport -count=1"
 | `generate-check` | Regenerate and reject differences in tracked generated outputs. |
 | `deps` / `tidy` | Download dependencies or tidy module metadata. |
 | `check` | Check formatting, vet, Staticcheck, Revive, gosec, and tests. |
-| `ci` | Check generation and Go fixes, then run checks, build, race tests, vulnerability scans, and gate regression fixtures. |
+| `ci` | Check generation and Go fixes, then run checks, build, race tests, vulnerability scans, gate regression fixtures, and bounded fuzzing. |
 | `clean` | Clean package build artifacts and remove coverage reports. |
 
 Override `GO` and `GOFMT` to select tool executables. `TEST_ARGS` passes additional arguments to Go tests. For example, `make test TEST_ARGS="-count=1"` runs tests without cached results.
@@ -67,6 +68,49 @@ Failure tests use copied temporary modules and never rewrite committed artifacts
 Generation uses the committed schema and does not fetch a new API revision. To update the contract, replace the upstream schema deliberately, record its version/source/checksum, review the compatibility overlay, regenerate, and update the operation inventory and transport fixtures together. Review all resulting API changes before committing.
 
 CI runs one Linux job with Go 1.27, selecting the latest available patch at or above 1.27.3. It runs `make ci`, records market-stream decoding benchmarks, and verifies that the checkout stays clean. Tests use local HTTP fixtures and do not require broker credentials.
+
+## Parser and stream fuzzing
+
+`make fuzz` is part of required PR/main CI and the existing weekly CI schedule.
+It runs `FuzzSymbolInfoJSON`, `FuzzSymbolInfoBudget`, `FuzzMarketHeader`, and
+`FuzzStreamFrames` sequentially with **1,000 executions per target**, **two
+workers**, a **two-second minimization budget**, and a **two-minute process
+timeout per target**. Exploration is randomized; the committed seeds and any
+saved counterexamples reproduce deterministically in ordinary `go test` and
+race-test runs. All targets use in-memory inputs and require no broker, network,
+credentials, sleeps, or wall-clock assumptions.
+
+The symbol tests compare decoding with an independent scalar/array oracle and
+use big-integer arithmetic to check expansion limits without overflow. Header
+decoding is compared with exact-key JSON map lookups. The stream test compares
+variable reader chunks (including data returned together with EOF) against a
+split-line framing oracle, checking limits, LF/CRLF, terminal classification,
+retained values and once-only closure for both account and market events.
+Seeds include duplicate, escaped, Unicode and case-folded keys and the protocol
+regressions from the consultant audit.
+
+Raw symbol inputs are capped at 2 KiB, header/stream inputs at 4 KiB and chunk
+patterns at 64 bytes. The budget target constructs at most 65,537 symbols and
+four 1 KiB scalars; it executes large cases only when preflight must reject them,
+and caps accepted expansion estimates at 256 KiB. Each iteration terminates
+without an unbounded reader or allocation driven by unrestricted input.
+
+For a longer local run or an individual target:
+
+```sh
+make fuzz FUZZ_TIME=30s FUZZ_PARALLEL=2
+go test ./pkg/tradeview -run '^$' -fuzz '^FuzzStreamFrames$' -fuzztime 30s -parallel 2 -timeout 2m
+```
+
+On failure, Go saves the minimized input under
+`pkg/tradeview/testdata/fuzz/<target>/<hash>` and prints a reproduction command.
+The runner prints the complete native corpus files into retained CI job logs;
+it does not upload an artifact or remove the files. Copy a CI counterexample
+from those logs to the same local path, reproduce it with
+`go test ./pkg/tradeview -run 'FuzzStreamFrames/<hash>'`, fix the defect, and
+commit the corpus file as a regression seed. Successful runs change only Go's
+external fuzz cache and leave the checkout clean. Fuzzing complements the
+explicit contract tests; a bounded successful run is not proof of correctness.
 
 The [finite response fixtures](../pkg/tradeview/testdata/responses/README.md) cover
 all 38 finite endpoints with realistic JSON, public union accessors, and request
