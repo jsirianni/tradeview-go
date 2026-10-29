@@ -4,6 +4,16 @@ updates:
     directory: /
     allow:
       - dependency-type: all
+    # Temporary compatibility ceiling for oapi-codegen v2.8.1's YAML types.
+    # Remove together when a tagged generator release includes this fix:
+    # https://github.com/oapi-codegen/oapi-codegen/pull/2608
+    ignore:
+      - dependency-name: github.com/speakeasy-api/openapi
+        versions: ['> v1.25.6']
+      - dependency-name: github.com/speakeasy-api/jsonpath
+        versions: ['> v0.6.3']
+      - dependency-name: github.com/dprotaso/go-yit
+        versions: ['> v0.0.0-20220510233725-9ba8df137936']
     schedule:
       interval: weekly
       day: monday
