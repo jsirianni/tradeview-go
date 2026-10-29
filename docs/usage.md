@@ -112,6 +112,18 @@ Stream status dispatch uses the exact JSON key `s` (including its escaped JSON s
 
 `WithMaxFrameBytes(n)` adjusts the default 1 MiB maximum frame size. `WithStreamRequestEditor(editor)` adds an editor to a stream request. Close a stream when finished, or cancel its context. The package does not reconnect or accumulate snapshots into account state.
 
+All nine typed stream openers require HTTP 200 and a valid `Content-Type` of
+`application/json`, an application media type ending in `+json`,
+`application/x-ndjson`, or `application/ndjson`. Media-type parameters and case
+differences are accepted. Missing, malformed, or incompatible types (including
+`text/plain`, `text/event-stream`, and `application/json-seq`) are rejected because
+the decoder expects one JSON value per line. Undeclared 2xx statuses and rejected
+media types return `*ProtocolError` before yielding a stream, close the body, and
+record a failed operation. Diagnostics retain at most `WithMaxFrameBytes` bytes;
+underlying diagnostic-read errors remain accessible through `errors.Is`.
+Non-2xx responses retain their bounded `*HTTPError` behavior. Raw methods remain
+available to callers handling other handshake or framing conventions.
+
 ## Errors and form fields
 
 Typed finite methods return `*APIError` for an `s: "error"` response, including HTTP-200 errors. Its fields are `StatusCode`, `Code` (the upstream `errtype`), `Message` (the upstream `errmsg`), and `Body`. Non-success HTTP responses return `*HTTPError` with `StatusCode`, `Status`, and `Body`. Use `errors.As` to inspect these types. Undeclared successful status codes, missing or non-JSON content types, malformed envelopes, and incompatible model field types return `*ProtocolError` with `StatusCode`, `ContentType`, `Body`, and `Err`. Its `Unwrap` method preserves underlying JSON errors. Typed finite responses require HTTP 200 and `application/json` or an application media type ending in `+json`; media-type parameters are supported. Raw methods remain available for inspecting arbitrary responses. Transport failures also return errors.

@@ -67,6 +67,7 @@ func TestLocaleDefaultWithGeneratedStreams(t *testing.T) {
 				if !reflect.DeepEqual(r.URL.Query(), want) {
 					t.Errorf("query=%v want=%v", r.URL.Query(), want)
 				}
+				w.Header().Set("Content-Type", "application/json")
 				io.WriteString(w, "{\"s\":\"ok\"}\n")
 			}))
 			defer server.Close()

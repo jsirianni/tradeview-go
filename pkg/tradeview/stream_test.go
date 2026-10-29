@@ -48,7 +48,7 @@ func accountTestStream(t *testing.T, ctx context.Context, body *streamObservedBo
 	if err != nil {
 		t.Fatal(err)
 	}
-	stream, err := openHTTPStream(ctx, &http.Response{StatusCode: 200, Status: "200 OK", Body: body}, nil, config, decodeAccountEvent[json.RawMessage])
+	stream, err := openHTTPStream(ctx, &http.Response{StatusCode: 200, Status: "200 OK", Header: http.Header{"Content-Type": {"application/json"}}, Body: body}, nil, config, decodeAccountEvent[json.RawMessage])
 	if err != nil {
 		t.Fatal(err)
 	}
