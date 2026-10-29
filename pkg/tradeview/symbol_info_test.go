@@ -340,13 +340,12 @@ func TestSymbolInfoCountLimitCoversFoldedAndDuplicateKeys(t *testing.T) {
 			}
 		}
 	}
-	// Folded nulls and arrays retain encoding/json's final-key precedence;
-	// scalar compact expansion still uses the last exact canonical key only.
+	// Folded nulls and arrays retain encoding/json's final-key precedence.
 	for _, payload := range []string{
 		`{"Symbol":null}`, `{"ſymbol":["X"]}`,
 		`{"symbol":"X","Symbol":["Y"],"description":"shared"}`,
 		`{"Symbol":["Y"],"symbol":"X","description":"shared"}`,
-		`{"symbol":"X","Symbol":null,"description":"shared"}`,
+		`{"symbol":"X","Symbol":null}`,
 	} {
 		for name, factory := range symbolInfoModelFactories() {
 			t.Run(name+"/control", func(t *testing.T) {

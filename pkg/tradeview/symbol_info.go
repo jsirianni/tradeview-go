@@ -51,13 +51,6 @@ func normalizeSymbolInfoJSON(data []byte, fields []string) ([]byte, error) {
 		return data, nil
 	}
 	symbolCount := 0
-	if raw, ok := object["symbol"]; ok {
-		var err error
-		symbolCount, err = boundedSymbolInfoCount(raw)
-		if err != nil {
-			return nil, fmt.Errorf("tradeview: decode symbol metadata symbol: %w", err)
-		}
-	}
 	metadataFields := make(map[string]bool, len(fields))
 	for _, field := range fields {
 		metadataFields[field] = true
@@ -71,10 +64,11 @@ func normalizeSymbolInfoJSON(data []byte, fields []string) ([]byte, error) {
 	}
 	type expansion struct {
 		start, end, count int
+		field             string
+		symbol            bool
 		raw               json.RawMessage
 	}
 	var expansions []expansion
-	remaining := MaxSymbolInfoExpandedBytes - int64(len(data))
 	for decoder.More() {
 		token, err := decoder.Token()
 		if err != nil {
@@ -90,29 +84,21 @@ func normalizeSymbolInfoJSON(data []byte, fields []string) ([]byte, error) {
 		}
 		// encoding/json assigns Unicode case-folded aliases too. Check every
 		// occurrence before final typed decoding, including overwritten arrays.
-		// Only the last exact "symbol" key drives compact expansion as before.
-		if strings.EqualFold(field, "symbol") {
-			if _, err := boundedSymbolInfoCount(raw); err != nil {
-				return nil, err
+		// The last matching occurrence also determines the final slice length,
+		// including a null or empty array that clears an earlier symbol value.
+		isSymbol := strings.EqualFold(field, "symbol")
+		if isSymbol {
+			symbolCount, err = boundedSymbolInfoCount(raw)
+			if err != nil {
+				return nil, fmt.Errorf("tradeview: decode symbol metadata symbol: %w", err)
 			}
 		}
-		if !metadataFields[field] || !compactMetadataValue(raw) {
+		if !(metadataFields[field] || isSymbol && metadataFields["symbol"]) || !compactMetadataValue(raw) {
 			continue
-		}
-		count := symbolCount
-		if field == "symbol" {
-			count = 1
-		} else if count == 0 {
-			return nil, fmt.Errorf("tradeview: scalar symbol metadata %q requires at least one symbol", field)
 		}
 		end := int(decoder.InputOffset())
 		start := end - len(raw)
-		cost, ok := symbolInfoExpansionCost(remaining, count, len(raw))
-		if !ok {
-			return nil, &SymbolInfoSizeError{Limit: MaxSymbolInfoExpandedBytes}
-		}
-		remaining -= cost
-		expansions = append(expansions, expansion{start: start, end: end, count: count, raw: raw})
+		expansions = append(expansions, expansion{start: start, end: end, field: field, symbol: isSymbol, raw: raw})
 	}
 	if _, err := decoder.Token(); err != nil {
 		return nil, err
@@ -122,6 +108,23 @@ func normalizeSymbolInfoJSON(data []byte, fields []string) ([]byte, error) {
 	}
 	// Preflight every expansion before allocating any repeated representation.
 	// This also counts duplicate properties that the final decode overwrites.
+	// Resolve the symbol count after reading every key so metadata before a
+	// later symbol alias uses the same final count as metadata after that alias.
+	remaining := MaxSymbolInfoExpandedBytes - int64(len(data))
+	for index := range expansions {
+		item := &expansions[index]
+		item.count = symbolCount
+		if item.symbol {
+			item.count = 1
+		} else if item.count == 0 {
+			return nil, fmt.Errorf("tradeview: scalar symbol metadata %q requires at least one symbol", item.field)
+		}
+		cost, ok := symbolInfoExpansionCost(remaining, item.count, len(item.raw))
+		if !ok {
+			return nil, &SymbolInfoSizeError{Limit: MaxSymbolInfoExpandedBytes}
+		}
+		remaining -= cost
+	}
 	var output bytes.Buffer
 	copied := 0
 	for _, item := range expansions {
