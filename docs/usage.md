@@ -110,6 +110,13 @@ Account events retain typed data, ping and error variants, plus the raw JSON fra
 
 Stream status dispatch uses the exact JSON key `s` (including its escaped JSON spelling); duplicate exact keys use the last value. Case-folded extension keys such as `S` do not select a status. The decoded event's kind also determines terminal API errors, so an extension cannot independently terminate a valid event. Numeric market `s` values remain trade/ask/bid sizes.
 
+Market quotes, trades, daily bars, and legacy ask/bid messages must supply the
+selected schema's required fields with non-null values and the declared JSON
+types. Explicit numeric zeros and empty strings remain valid; no trading-value
+constraints are added. A malformed frame makes `Next` return false with a
+decoding error, closes the stream, and retains the last successfully decoded
+value. Unknown extension fields remain available in the event's `Raw` bytes.
+
 `WithMaxFrameBytes(n)` adjusts the default 1 MiB maximum frame size. `WithStreamRequestEditor(editor)` adds an editor to a stream request. Close a stream when finished, or cancel its context. The package does not reconnect or accumulate snapshots into account state.
 
 All nine typed stream openers require HTTP 200 and a valid `Content-Type` of

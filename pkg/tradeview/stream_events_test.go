@@ -25,9 +25,9 @@ func TestMarketHeaderFastPathMatchesMap(t *testing.T) {
 		{"API error", `{"s":"error","errmsg":"failed","errtype":"custom"}`},
 		{"error before heartbeat", `{"s":"error","errmsg":"failed","heartbeat":null,"f":"q"}`},
 		{"heartbeat before discriminator", `{"heartbeat":1,"f":"unknown"}`},
-		{"numeric status", `{"s":10,"f":"t"}`},
-		{"null status", `{"s":null,"f":"q"}`},
-		{"heartbeat null", `{"heartbeat":null,"f":"q"}`},
+		{"numeric status", `{"id":"","p":0,"t":0,"s":10,"f":"t"}`},
+		{"null status", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"s":null,"f":"q"}`},
+		{"heartbeat null", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"heartbeat":null,"f":"q"}`},
 		{"heartbeat string", `{"heartbeat":"bad"}`},
 		{"heartbeat fraction", `{"heartbeat":1.5}`},
 		{"discriminator missing", `{}`},
@@ -36,32 +36,32 @@ func TestMarketHeaderFastPathMatchesMap(t *testing.T) {
 		{"discriminator object", `{"f":{}}`},
 		{"discriminator unknown", `{"f":"unknown"}`},
 		{"uppercase discriminator only", `{"F":"q"}`},
-		{"discriminator case collision", `{"f":"q","F":"t"}`},
-		{"discriminator reverse case collision", `{"F":"t","f":"q"}`},
-		{"uppercase status only", `{"S":"error","f":"q"}`},
+		{"discriminator case collision", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"f":"q","F":"t"}`},
+		{"discriminator reverse case collision", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"F":"t","f":"q"}`},
+		{"uppercase status only", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"S":"error","f":"q"}`},
 		{"status case collision", `{"s":"error","S":"ignored","errmsg":"failed"}`},
 		{"status reverse case collision", `{"S":"ignored","s":"error","errmsg":"failed"}`},
-		{"uppercase heartbeat only", `{"HEARTBEAT":1,"f":"q"}`},
-		{"mixed heartbeat only", `{"HeartBeat":1,"f":"q"}`},
-		{"heartbeat case collision", `{"heartbeat":1,"HeartBeat":2,"f":"q"}`},
-		{"heartbeat reverse case collision", `{"HeartBeat":2,"heartbeat":1,"f":"q"}`},
-		{"duplicate discriminator", `{"f":"t","f":"q"}`},
+		{"uppercase heartbeat only", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"HEARTBEAT":1,"f":"q"}`},
+		{"mixed heartbeat only", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"HeartBeat":1,"f":"q"}`},
+		{"heartbeat case collision", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"heartbeat":1,"HeartBeat":2,"f":"q"}`},
+		{"heartbeat reverse case collision", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"HeartBeat":2,"heartbeat":1,"f":"q"}`},
+		{"duplicate discriminator", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"f":"t","f":"q"}`},
 		{"duplicate discriminator null last", `{"f":"q","f":null}`},
-		{"duplicate discriminator null first", `{"f":null,"f":"q"}`},
-		{"duplicate status null last", `{"s":"error","s":null,"f":"q"}`},
+		{"duplicate discriminator null first", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"f":null,"f":"q"}`},
+		{"duplicate status null last", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"s":"error","s":null,"f":"q"}`},
 		{"duplicate status null first", `{"s":null,"s":"error","errmsg":"failed"}`},
-		{"duplicate heartbeat null last", `{"heartbeat":1,"heartbeat":null,"f":"q"}`},
-		{"duplicate heartbeat null first", `{"heartbeat":null,"heartbeat":1,"f":"q"}`},
-		{"escaped canonical key", `{"\u0066":"q"}`},
-		{"escaped uppercase collision", `{"f":"q","\u0046":"t"}`},
-		{"escaped uppercase reverse collision", `{"\u0046":"t","f":"q"}`},
+		{"duplicate heartbeat null last", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"heartbeat":1,"heartbeat":null,"f":"q"}`},
+		{"duplicate heartbeat null first", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"heartbeat":null,"heartbeat":1,"f":"q"}`},
+		{"escaped canonical key", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"\u0066":"q"}`},
+		{"escaped uppercase collision", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"f":"q","\u0046":"t"}`},
+		{"escaped uppercase reverse collision", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"\u0046":"t","f":"q"}`},
 		{"escaped heartbeat", `{"\u0068eartbeat":1}`},
-		{"unicode folded status", `{"ſ":"error","f":"q"}`},
-		{"unicode symbol", `{"f":"q","id":"€USD"}`},
-		{"escaped value", `{"f":"q","id":"EUR\\USD"}`},
-		{"quoted candidate value", `{"f":"q","id":"F"}`},
-		{"nested extensions", `{"f":"q","extra":{"F":"t","heartbeat":null},"array":[{"S":"error"}]}`},
-		{"ordinary extensions", `{"f":"q","extra":{"value":1},"array":[1,2,3]}`},
+		{"unicode folded status", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"ſ":"error","f":"q"}`},
+		{"unicode symbol", `{"t":0,"ap":0,"as":0,"bp":0,"bs":0,"f":"q","id":"€USD"}`},
+		{"escaped value", `{"t":0,"ap":0,"as":0,"bp":0,"bs":0,"f":"q","id":"EUR\\USD"}`},
+		{"quoted candidate value", `{"t":0,"ap":0,"as":0,"bp":0,"bs":0,"f":"q","id":"F"}`},
+		{"nested extensions", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"f":"q","extra":{"F":"t","heartbeat":null},"array":[{"S":"error"}]}`},
+		{"ordinary extensions", `{"id":"","t":0,"ap":0,"as":0,"bp":0,"bs":0,"f":"q","extra":{"value":1},"array":[1,2,3]}`},
 		{"empty", ``},
 		{"whitespace", " \n\t"},
 		{"null", `null`},
@@ -117,7 +117,7 @@ func TestMarketHeaderEligibility(t *testing.T) {
 				spelling[i] -= 'a' - 'A'
 			}
 		}
-		frame := []byte(fmt.Sprintf(`{"%s":1,"f":"q"}`, spelling))
+		frame := []byte(fmt.Sprintf(`{"%s":1,"f":"q","id":"EURUSD","t":0,"ap":0,"as":0,"bp":0,"bs":0}`, spelling))
 		if got := marketHeaderNeedsMap(frame); got != (mask != 0) {
 			t.Fatalf("map eligibility for %s = %v", frame, got)
 		}
@@ -134,7 +134,7 @@ func TestMarketHeaderEligibility(t *testing.T) {
 }
 
 func TestMarketEventOwnsRawFrame(t *testing.T) {
-	for _, frame := range []string{`{"f":"q","id":"EURUSD"}`, `{"f":"q","id":"F"}`} {
+	for _, frame := range []string{`{"f":"q","id":"EURUSD","t":0,"ap":0,"as":0,"bp":0,"bs":0}`, `{"f":"q","id":"F","t":0,"ap":0,"as":0,"bp":0,"bs":0}`} {
 		input := []byte(frame)
 		event, err := decodeMarketEvent(input)
 		if err != nil {
@@ -189,8 +189,8 @@ func BenchmarkDecodeMarketEvent(b *testing.B) {
 	}
 }
 
-// decodeMarketEventMapBaseline preserves the pre-optimization dispatcher for
-// semantic comparisons and allocation benchmarks. Keep its header as a map.
+// decodeMarketEventMapBaseline preserves the pre-optimization header dispatcher
+// with the current market-field validation. Keep its header as a map.
 func decodeMarketEventMapBaseline(frame []byte) (MarketEvent, error) {
 	event := MarketEvent{Raw: append(json.RawMessage(nil), frame...)}
 	var header map[string]json.RawMessage
@@ -218,6 +218,9 @@ func decodeMarketEventMapBaseline(frame []byte) (MarketEvent, error) {
 		if err := json.Unmarshal(frame, &message); err != nil {
 			return event, err
 		}
+		if message.Heartbeat == nil {
+			return event, errors.New("heartbeat must be an integer")
+		}
 		event.Kind, event.Heartbeat = StreamHeartbeat, &message
 		return event, nil
 	}
@@ -226,34 +229,37 @@ func decodeMarketEventMapBaseline(frame []byte) (MarketEvent, error) {
 	}
 	switch discriminator {
 	case "q":
-		var message StreamingQuoteResponse
-		if err := json.Unmarshal(frame, &message); err != nil {
+		message, err := decodeMarketQuote(frame)
+		if err != nil {
 			return event, err
 		}
 		event.Kind, event.Quote = StreamQuote, &message
 	case "t":
-		var message StreamingTradeResponse
-		if err := json.Unmarshal(frame, &message); err != nil {
+		fields, err := decodeMarketPrice(frame)
+		if err != nil {
 			return event, err
 		}
+		message := StreamingTradeResponse{F: *fields.F, Id: *fields.Id, P: *fields.P, S: *fields.S, T: *fields.T}
 		event.Kind, event.Trade = StreamTrade, &message
 	case "d":
-		var message StreamingDailyBarResponse
-		if err := json.Unmarshal(frame, &message); err != nil {
+		message, err := decodeMarketDailyBar(frame)
+		if err != nil {
 			return event, err
 		}
 		event.Kind, event.DailyBar = StreamDailyBar, &message
 	case "a":
-		var message StreamingAskResponseDeprecated
-		if err := json.Unmarshal(frame, &message); err != nil {
+		fields, err := decodeMarketPrice(frame)
+		if err != nil {
 			return event, err
 		}
+		message := StreamingAskResponseDeprecated{F: fields.F, Id: *fields.Id, P: *fields.P, S: *fields.S, T: *fields.T}
 		event.Kind, event.Ask = StreamAsk, &message
 	case "b":
-		var message StreamingBidResponseDeprecated
-		if err := json.Unmarshal(frame, &message); err != nil {
+		fields, err := decodeMarketPrice(frame)
+		if err != nil {
 			return event, err
 		}
+		message := StreamingBidResponseDeprecated{F: fields.F, Id: *fields.Id, P: *fields.P, S: *fields.S, T: *fields.T}
 		event.Kind, event.Bid = StreamBid, &message
 	default:
 		return event, fmt.Errorf("unknown market message discriminator %q", discriminator)

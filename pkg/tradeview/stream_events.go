@@ -144,6 +144,9 @@ func decodeMarketEvent(frame []byte) (MarketEvent, error) {
 		if err := json.Unmarshal(frame, &message); err != nil {
 			return event, err
 		}
+		if message.Heartbeat == nil {
+			return event, errors.New("heartbeat must be an integer")
+		}
 		event.Kind, event.Heartbeat = StreamHeartbeat, &message
 		return event, nil
 	}
@@ -152,34 +155,37 @@ func decodeMarketEvent(frame []byte) (MarketEvent, error) {
 	}
 	switch discriminator {
 	case "q":
-		var message StreamingQuoteResponse
-		if err := json.Unmarshal(frame, &message); err != nil {
+		message, err := decodeMarketQuote(frame)
+		if err != nil {
 			return event, err
 		}
 		event.Kind, event.Quote = StreamQuote, &message
 	case "t":
-		var message StreamingTradeResponse
-		if err := json.Unmarshal(frame, &message); err != nil {
+		fields, err := decodeMarketPrice(frame)
+		if err != nil {
 			return event, err
 		}
+		message := StreamingTradeResponse{F: *fields.F, Id: *fields.Id, P: *fields.P, S: *fields.S, T: *fields.T}
 		event.Kind, event.Trade = StreamTrade, &message
 	case "d":
-		var message StreamingDailyBarResponse
-		if err := json.Unmarshal(frame, &message); err != nil {
+		message, err := decodeMarketDailyBar(frame)
+		if err != nil {
 			return event, err
 		}
 		event.Kind, event.DailyBar = StreamDailyBar, &message
 	case "a":
-		var message StreamingAskResponseDeprecated
-		if err := json.Unmarshal(frame, &message); err != nil {
+		fields, err := decodeMarketPrice(frame)
+		if err != nil {
 			return event, err
 		}
+		message := StreamingAskResponseDeprecated{F: fields.F, Id: *fields.Id, P: *fields.P, S: *fields.S, T: *fields.T}
 		event.Kind, event.Ask = StreamAsk, &message
 	case "b":
-		var message StreamingBidResponseDeprecated
-		if err := json.Unmarshal(frame, &message); err != nil {
+		fields, err := decodeMarketPrice(frame)
+		if err != nil {
 			return event, err
 		}
+		message := StreamingBidResponseDeprecated{F: fields.F, Id: *fields.Id, P: *fields.P, S: *fields.S, T: *fields.T}
 		event.Kind, event.Bid = StreamBid, &message
 	default:
 		return event, fmt.Errorf("unknown market message discriminator %q", discriminator)

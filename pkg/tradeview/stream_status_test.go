@@ -46,7 +46,7 @@ func TestPublicStreamStatusClassification(t *testing.T) {
 				first, last := `{"balance":1,"unrealizedPl":0}`, `{"balance":2,"unrealizedPl":0}`
 				wantKind := scenario.kind
 				if market {
-					base = `"f":"q","id":"EURUSD","t":0,"ap":0,"bp":0`
+					base = `"f":"q","id":"EURUSD","t":0,"ap":0,"as":0,"bp":0,"bs":0`
 					first, last = `{"heartbeat":1}`, `{"heartbeat":2}`
 					if wantKind != StreamError {
 						wantKind = StreamQuote
