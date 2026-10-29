@@ -1,6 +1,6 @@
 # Linux amd64 / Go 1.27.3, uncached default-tag tests; see docs/development.md.
-# Group       Covered  Statements  Allowed decrease (basis points); - means informational.
-runtime       817      872         50
+# Group       Covered  Statements  Allowed decrease (basis points).
+runtime       821      875         50
 generator     511      579         50
 automation    38       43          50
-generated     2753     5913        -
+generated     4303     5913        50
