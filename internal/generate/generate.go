@@ -311,6 +311,11 @@ func rewriteClient(source []byte, streamNames map[string]bool) ([]byte, error) {
 	for _, decl := range file.Decls {
 		switch d := decl.(type) {
 		case *ast.FuncDecl:
+			if d.Name.Name == "applyEditors" && d.Recv != nil {
+				edits = append(edits, edit{start: fset.Position(d.Body.Pos()).Offset, end: fset.Position(d.Body.End()).Offset,
+					text: "{ return applyRequestEditors(ctx, req, c.RequestEditors, additionalEditors) }"})
+				continue
+			}
 			if d.Name.Name == "NewClient" {
 				defaults := 0
 				ast.Inspect(d.Body, func(node ast.Node) bool {

@@ -132,6 +132,22 @@ func TestRewriteClientProtectsDotPathIdentifiers(t *testing.T) {
 
 var _writeBindings = flag.Bool("write", false, "regenerate committed broker bindings")
 
+func TestRewriteClientRoutesRequestEditorOwnership(t *testing.T) {
+	input := []byte(`package tradeview
+func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
+ for _, r := range c.RequestEditors { if err := r(ctx, req); err != nil { return err } }
+ for _, r := range additionalEditors { if err := r(ctx, req); err != nil { return err } }
+ return nil
+}`)
+	output, err := rewriteClient(input, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(output), "return applyRequestEditors(ctx, req, c.RequestEditors, additionalEditors)") || strings.Contains(string(output), "r(ctx, req)") {
+		t.Fatalf("editor dispatch bypasses body cleanup:\n%s", output)
+	}
+}
+
 // TestRegenerateBindings writes generated source only when explicitly requested
 // by go generate. The ordinary test suite keeps the checkout read-only.
 func TestRegenerateBindings(t *testing.T) {

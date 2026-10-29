@@ -66,6 +66,8 @@ The expansion count follows the last `symbol` property accepted by `encoding/jso
 
 Bindings include `/authorize` and `/logout`. Your application owns OAuth/PKCE/JWT token acquisition and renewal. Token endpoints and credentials depend on the broker. The package does not persist credentials or select a broker endpoint.
 
+After request construction succeeds, an editor or token-source failure closes the current request body before returning; cleanup errors remain accessible alongside the original error through `errors.Is`. Bodies retain their concrete types and optional interfaces such as `io.Seeker` while editors run. An editor that closes a body must set `request.Body` to nil or install its replacement, including on error. An editor that replaces a body owns the displaced body and must close it or arrange for its replacement to close it. `WithExtraOrderFields` follows this ownership convention. Once HTTP dispatch begins, the doer owns request-body closure, including when `Do` returns an error.
+
 The library-created HTTP client permits redirects only within the original origin (scheme, hostname, and effective port), rejects HTTPS-to-HTTP redirects, and stops after ten redirects. This prevents redirects from replaying passwords and other request bodies to another origin. A client supplied through `WithHTTPClient` retains its own redirect policy; configure equivalent protections before sending credentials. Cross-origin migrations require an explicitly trusted policy on that custom client.
 
 Set finite-request deadlines through contexts or your HTTP client. Streaming contexts must remain active for the desired connection lifetime. An HTTP client's overall timeout also limits a streaming connection.
