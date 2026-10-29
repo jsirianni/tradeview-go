@@ -8,7 +8,7 @@ NR == FNR {
     if ($0 ~ /^[[:space:]]*(#|$)/) next
     if (NF != 4 || $1 !~ /^(runtime|generator|automation|generated)$/ || baseline_seen[$1]++ ||
         !integer($2) || !integer($3) || $3 == 0 || $2 > $3 ||
-        ($1 == "generated" ? $4 != "-" : (!integer($4) || $4 > 10000))) {
+        !integer($4) || $4 > 10000) {
         reject("invalid baseline row " FNR)
         next
     }
@@ -52,14 +52,14 @@ END {
         if (!total[group]) reject("missing profile statements for " group)
     }
     if (invalid) exit 1
-    print "Statement-weighted coverage (generated bindings are informational):"
+    print "Statement-weighted coverage:"
     for (i = 1; i <= count; i++) {
         group = groups[i]
         percentage = 100 * covered[group] / total[group]
         printf "  %-9s %d/%d = %.2f%%; baseline %.2f%%; change %+.2f pp\n", \
             group, covered[group], total[group], percentage, baseline[group], percentage - baseline[group]
         # Compare unrounded ratios. An inclusive 0.5 pp allowance is intentional.
-        if (group != "generated" && percentage + tolerance[group] + 0.000000001 < baseline[group]) {
+        if (percentage + tolerance[group] + 0.000000001 < baseline[group]) {
             reject(group " regressed beyond " tolerance[group] " percentage points")
         }
     }

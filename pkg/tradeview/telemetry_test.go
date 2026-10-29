@@ -26,6 +26,7 @@ type telemetryFixture struct {
 	spans  *tracetest.SpanRecorder
 	reader *sdkmetric.ManualReader
 	traces *sdktrace.TracerProvider
+	meters *sdkmetric.MeterProvider
 }
 
 func newTelemetryFixture(t *testing.T) telemetryFixture {
@@ -38,7 +39,10 @@ func newTelemetryFixture(t *testing.T) telemetryFixture {
 		checkTestError(t, tp.Shutdown(context.Background()))
 		checkTestError(t, mp.Shutdown(context.Background()))
 	})
-	return telemetryFixture{WithTelemetry(TelemetryOptions{TracerProvider: tp, MeterProvider: mp, Propagator: propagation.TraceContext{}}), recorder, reader, tp}
+	return telemetryFixture{
+		option: WithTelemetry(TelemetryOptions{TracerProvider: tp, MeterProvider: mp, Propagator: propagation.TraceContext{}}),
+		spans:  recorder, reader: reader, traces: tp, meters: mp,
+	}
 }
 
 func spanAttribute(span sdktrace.ReadOnlySpan, key string) string {

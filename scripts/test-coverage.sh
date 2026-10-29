@@ -11,7 +11,7 @@ cat > "$fixture/baseline" <<'BASELINE'
 runtime 9000 10000 50
 generator 80 100 50
 automation 90 100 50
-generated 1 100 -
+generated 50 100 50
 BASELINE
 cat > "$fixture/profile" <<'PROFILE'
 mode: atomic
@@ -21,14 +21,15 @@ github.com/jsirianni/tradeview-go/internal/generate/generate.go:1.1,2.1 80 1
 github.com/jsirianni/tradeview-go/internal/generate/generate.go:3.1,4.1 20 0
 github.com/jsirianni/tradeview-go/internal/updatego/main.go:1.1,2.1 90 1
 github.com/jsirianni/tradeview-go/internal/updatego/main.go:3.1,4.1 10 0
-github.com/jsirianni/tradeview-go/pkg/tradeview/api.gen.go:1.1,2.1 100 0
+github.com/jsirianni/tradeview-go/pkg/tradeview/api.gen.go:1.1,2.1 50 1
+github.com/jsirianni/tradeview-go/pkg/tradeview/api.gen.go:3.1,4.1 50 0
 PROFILE
 check() {
     awk -f "$root/scripts/coverage-summary.awk" "$fixture/baseline" "$1"
 }
 check "$fixture/profile" > "$fixture/output"
 grep -F '8950/10000 = 89.50%' "$fixture/output"
-grep -F '100 = 0.00%' "$fixture/output"
+grep -F '50/100 = 50.00%' "$fixture/output"
 reject() {
     if check "$fixture/invalid" > "$fixture/output" 2>&1; then
         echo "Coverage accepted $1" >&2
@@ -42,6 +43,8 @@ sed -e 's/80 1/79 1/' -e 's/20 0/21 0/' "$fixture/profile" > "$fixture/invalid"
 reject 'a generator regression' 'generator regressed beyond'
 sed -e 's/90 1/89 1/' -e 's/10 0/11 0/' "$fixture/profile" > "$fixture/invalid"
 reject 'an automation regression' 'automation regressed beyond'
+sed -e '/api.gen.go:1/s/50 1/49 1/' -e '/api.gen.go:3/s/50 0/51 0/' "$fixture/profile" > "$fixture/invalid"
+reject 'a generated binding regression' 'generated regressed beyond'
 sed '/api.gen.go/d' "$fixture/profile" > "$fixture/invalid"
 reject 'missing generated coverage' 'missing profile statements for generated'
 sed 's@pkg/tradeview/client.go@internal/new/package.go@' "$fixture/profile" > "$fixture/invalid"

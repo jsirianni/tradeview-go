@@ -125,6 +125,22 @@ expectations. Their inventory test requires every declared success alternative
 to have a fixture. Add explicit decoded-value assertions when extending this
 suite; a non-nil response wrapper alone does not verify a union's contents.
 
+Public union contract tests exercise all 146 `From...`, `As...`, and `Merge...`
+methods across 61 generated union types. The examples use independently authored
+wire fixtures, including nested and streaming models. Tests check replacement,
+round trips, preservation of unrelated fields, nested merges, explicit zero
+values, integers beyond float64 precision, and invalid JSON/non-finite numbers.
+An inventory check inspects generated method declarations and rejects unions
+without registered tests. It does not derive expected behavior from method bodies.
+
+Telemetry contract tests use fresh subprocesses for OpenTelemetry's process-wide
+globals. They verify unconfigured defaults, global providers configured before
+option application, individual explicit overrides, remote parent propagation,
+and unsampled parents. Separate finite/stream tests assert instrument scope,
+units, aggregation types, cumulative temporality, histogram boundaries, exact
+attribute sets, byte/frame counts, and active-operation balance. No exporter,
+collector, broker credentials, or external network is required.
+
 ## Coverage regression checks
 
 `make check` and required `make ci` run `make coverage-check` in place of the
@@ -145,10 +161,10 @@ than averaging line, function, or file percentages. Classification is explicit:
 
 | Group | Selection | Baseline covered/total | Policy |
 | --- | --- | --- | --- |
-| Handwritten runtime | Direct `.go` files in `pkg/tradeview`, excluding `api.gen.go` | 817/872 (93.69%) | Gate regressions |
+| Handwritten runtime | Direct `.go` files in `pkg/tradeview`, excluding `api.gen.go` | 821/875 (93.83%) | Gate regressions |
 | Generator | Direct `.go` files in `internal/generate` | 511/579 (88.26%) | Gate regressions |
 | Automation | Direct `.go` files in `internal/updatego` | 38/43 (88.37%) | Gate regressions |
-| Generated bindings | Exactly `pkg/tradeview/api.gen.go` | 2753/5913 (46.56%) | Informational |
+| Generated bindings | Exactly `pkg/tradeview/api.gen.go` | 4303/5913 (72.77%) | Gate regressions |
 
 The baseline in `scripts/coverage-baseline.tsv` uses Linux/amd64, Go 1.27.3, and
 the uncached full suite. CI selects a supported `1.27.x` patch and prints the
@@ -158,11 +174,11 @@ automatically count. Missing groups, malformed/duplicate blocks, and unexpected
 packages fail instead of silently shrinking the denominator; update the
 classification deliberately when adding a package.
 
-A decrease exceeding **0.5 percentage points** from either handwritten
+A decrease exceeding **0.5 percentage points** from any group's
 baseline fails, using unrounded ratios. This allows small instrumentation or
 platform changes while catching meaningful regression; it is a fixed allowance
 from the committed baseline, not a fresh allowance per PR. Generated coverage
-cannot mask a runtime, generator, or automation regression and has no minimum target.
+has its own gate and cannot mask a runtime, generator, or automation regression.
 Review baseline changes in the same PR as their cause, using Linux measurements
 from the supported toolchain. Improve behavioral tests first; explain justified
 decreases or denominator changes and ratchet the baseline upward when sustained
@@ -172,7 +188,7 @@ Go/toolchain or schema updates require the same deliberate remeasurement.
 Coverage is evidence of execution, not proof of correct assertions. The
 contract, stream, generator staging/publication, and metric-instrument failure
 tests retain their behavioral assertions. `make coverage-smoke` proves weighted
-classification, independent handwritten gates, rounding boundaries, malformed
+classification, independent group gates, rounding boundaries, malformed
 input rejection, and profile cleanup without modifying source files. The final
 CI clean-checkout check remains in place.
 
