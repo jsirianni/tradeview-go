@@ -18413,8 +18413,6 @@ func (r GetUserInfoResponse) ContentType() string {
 //
 // Corresponds with GET /accounts (the `GetAccounts` operationId).
 func (c *ClientWithResponses) GetAccountsWithResponse(ctx context.Context, params *GetAccountsParams, reqEditors ...RequestEditorFn) (*GetAccountsResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetAccounts(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18432,8 +18430,6 @@ func (c *ClientWithResponses) GetAccountsWithResponse(ctx context.Context, param
 //
 // Corresponds with GET /accounts/{accountId}/balances (the `GetBalances` operationId).
 func (c *ClientWithResponses) GetBalancesWithResponse(ctx context.Context, accountId PathAccountId, params *GetBalancesParams, reqEditors ...RequestEditorFn) (*GetBalancesResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetBalances(ctx, accountId, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18455,8 +18451,6 @@ func (c *ClientWithResponses) GetBalancesWithResponse(ctx context.Context, accou
 //
 // Corresponds with GET /accounts/{accountId}/executions (the `GetExecutions` operationId).
 func (c *ClientWithResponses) GetExecutionsWithResponse(ctx context.Context, accountId PathAccountId, params *GetExecutionsParams, reqEditors ...RequestEditorFn) (*GetExecutionsResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetExecutions(ctx, accountId, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18473,8 +18467,6 @@ func (c *ClientWithResponses) GetExecutionsWithResponse(ctx context.Context, acc
 //
 // Corresponds with POST /accounts/{accountId}/getLeverage (the `GetLeverage` operationId).
 func (c *ClientWithResponses) GetLeverageWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *GetLeverageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetLeverageResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetLeverageWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18491,8 +18483,6 @@ func (c *ClientWithResponses) GetLeverageWithBodyWithResponse(ctx context.Contex
 //
 // Corresponds with POST /accounts/{accountId}/getLeverage (the `GetLeverage` operationId).
 func (c *ClientWithResponses) GetLeverageWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *GetLeverageParams, body GetLeverageFormdataRequestBody, reqEditors ...RequestEditorFn) (*GetLeverageResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetLeverageWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18508,8 +18498,6 @@ func (c *ClientWithResponses) GetLeverageWithFormdataBodyWithResponse(ctx contex
 //
 // Corresponds with GET /accounts/{accountId}/individualPositions (the `GetIndividualPositions` operationId).
 func (c *ClientWithResponses) GetIndividualPositionsWithResponse(ctx context.Context, accountId PathAccountId, params *GetIndividualPositionsParams, reqEditors ...RequestEditorFn) (*GetIndividualPositionsResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetIndividualPositions(ctx, accountId, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18525,8 +18513,6 @@ func (c *ClientWithResponses) GetIndividualPositionsWithResponse(ctx context.Con
 //
 // Corresponds with DELETE /accounts/{accountId}/individualPositions/{individualPositionId} (the `CloseIndividualPosition` operationId).
 func (c *ClientWithResponses) CloseIndividualPositionWithBodyWithResponse(ctx context.Context, accountId PathAccountId, individualPositionId IndividualPositionId, params *CloseIndividualPositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CloseIndividualPositionResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.CloseIndividualPositionWithBody(ctx, accountId, individualPositionId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18542,8 +18528,6 @@ func (c *ClientWithResponses) CloseIndividualPositionWithBodyWithResponse(ctx co
 //
 // Corresponds with DELETE /accounts/{accountId}/individualPositions/{individualPositionId} (the `CloseIndividualPosition` operationId).
 func (c *ClientWithResponses) CloseIndividualPositionWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, individualPositionId IndividualPositionId, params *CloseIndividualPositionParams, body CloseIndividualPositionFormdataRequestBody, reqEditors ...RequestEditorFn) (*CloseIndividualPositionResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.CloseIndividualPositionWithFormdataBody(ctx, accountId, individualPositionId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18559,8 +18543,6 @@ func (c *ClientWithResponses) CloseIndividualPositionWithFormdataBodyWithRespons
 //
 // Corresponds with PUT /accounts/{accountId}/individualPositions/{individualPositionId} (the `ModifyIndividualPosition` operationId).
 func (c *ClientWithResponses) ModifyIndividualPositionWithBodyWithResponse(ctx context.Context, accountId PathAccountId, individualPositionId IndividualPositionId, params *ModifyIndividualPositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ModifyIndividualPositionResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.ModifyIndividualPositionWithBody(ctx, accountId, individualPositionId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18576,8 +18558,6 @@ func (c *ClientWithResponses) ModifyIndividualPositionWithBodyWithResponse(ctx c
 //
 // Corresponds with PUT /accounts/{accountId}/individualPositions/{individualPositionId} (the `ModifyIndividualPosition` operationId).
 func (c *ClientWithResponses) ModifyIndividualPositionWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, individualPositionId IndividualPositionId, params *ModifyIndividualPositionParams, body ModifyIndividualPositionFormdataRequestBody, reqEditors ...RequestEditorFn) (*ModifyIndividualPositionResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.ModifyIndividualPositionWithFormdataBody(ctx, accountId, individualPositionId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18593,8 +18573,6 @@ func (c *ClientWithResponses) ModifyIndividualPositionWithFormdataBodyWithRespon
 //
 // Corresponds with GET /accounts/{accountId}/instruments (the `GetInstruments` operationId).
 func (c *ClientWithResponses) GetInstrumentsWithResponse(ctx context.Context, accountId PathAccountId, params *GetInstrumentsParams, reqEditors ...RequestEditorFn) (*GetInstrumentsResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetInstruments(ctx, accountId, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18610,8 +18588,6 @@ func (c *ClientWithResponses) GetInstrumentsWithResponse(ctx context.Context, ac
 //
 // Corresponds with GET /accounts/{accountId}/netPositions (the `GetNetPositions` operationId).
 func (c *ClientWithResponses) GetNetPositionsWithResponse(ctx context.Context, accountId PathAccountId, params *GetNetPositionsParams, reqEditors ...RequestEditorFn) (*GetNetPositionsResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetNetPositions(ctx, accountId, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18627,8 +18603,6 @@ func (c *ClientWithResponses) GetNetPositionsWithResponse(ctx context.Context, a
 //
 // Corresponds with DELETE /accounts/{accountId}/netPositions/{netPositionId} (the `CloseNetPosition` operationId).
 func (c *ClientWithResponses) CloseNetPositionWithBodyWithResponse(ctx context.Context, accountId PathAccountId, netPositionId NetPositionId, params *CloseNetPositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CloseNetPositionResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.CloseNetPositionWithBody(ctx, accountId, netPositionId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18644,8 +18618,6 @@ func (c *ClientWithResponses) CloseNetPositionWithBodyWithResponse(ctx context.C
 //
 // Corresponds with DELETE /accounts/{accountId}/netPositions/{netPositionId} (the `CloseNetPosition` operationId).
 func (c *ClientWithResponses) CloseNetPositionWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, netPositionId NetPositionId, params *CloseNetPositionParams, body CloseNetPositionFormdataRequestBody, reqEditors ...RequestEditorFn) (*CloseNetPositionResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.CloseNetPositionWithFormdataBody(ctx, accountId, netPositionId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18663,8 +18635,6 @@ func (c *ClientWithResponses) CloseNetPositionWithFormdataBodyWithResponse(ctx c
 //
 // Corresponds with POST /accounts/{accountId}/orderInfo (the `OrderInfo` operationId).
 func (c *ClientWithResponses) OrderInfoWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *OrderInfoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*OrderInfoResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.OrderInfoWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18682,8 +18652,6 @@ func (c *ClientWithResponses) OrderInfoWithBodyWithResponse(ctx context.Context,
 //
 // Corresponds with POST /accounts/{accountId}/orderInfo (the `OrderInfo` operationId).
 func (c *ClientWithResponses) OrderInfoWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *OrderInfoParams, body OrderInfoFormdataRequestBody, reqEditors ...RequestEditorFn) (*OrderInfoResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.OrderInfoWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18701,8 +18669,6 @@ func (c *ClientWithResponses) OrderInfoWithFormdataBodyWithResponse(ctx context.
 //
 // Corresponds with GET /accounts/{accountId}/orders (the `GetOrders` operationId).
 func (c *ClientWithResponses) GetOrdersWithResponse(ctx context.Context, accountId PathAccountId, params *GetOrdersParams, reqEditors ...RequestEditorFn) (*GetOrdersResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetOrders(ctx, accountId, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18718,8 +18684,6 @@ func (c *ClientWithResponses) GetOrdersWithResponse(ctx context.Context, account
 //
 // Corresponds with POST /accounts/{accountId}/orders (the `PlaceOrder` operationId).
 func (c *ClientWithResponses) PlaceOrderWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PlaceOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PlaceOrderResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.PlaceOrderWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18735,8 +18699,6 @@ func (c *ClientWithResponses) PlaceOrderWithBodyWithResponse(ctx context.Context
 //
 // Corresponds with POST /accounts/{accountId}/orders (the `PlaceOrder` operationId).
 func (c *ClientWithResponses) PlaceOrderWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PlaceOrderParams, body PlaceOrderFormdataRequestBody, reqEditors ...RequestEditorFn) (*PlaceOrderResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.PlaceOrderWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18753,8 +18715,6 @@ func (c *ClientWithResponses) PlaceOrderWithFormdataBodyWithResponse(ctx context
 //
 // Corresponds with POST /accounts/{accountId}/orders/cancelAll (the `CancelAllOrders` operationId).
 func (c *ClientWithResponses) CancelAllOrdersWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *CancelAllOrdersParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CancelAllOrdersResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.CancelAllOrdersWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18771,8 +18731,6 @@ func (c *ClientWithResponses) CancelAllOrdersWithBodyWithResponse(ctx context.Co
 //
 // Corresponds with POST /accounts/{accountId}/orders/cancelAll (the `CancelAllOrders` operationId).
 func (c *ClientWithResponses) CancelAllOrdersWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *CancelAllOrdersParams, body CancelAllOrdersFormdataRequestBody, reqEditors ...RequestEditorFn) (*CancelAllOrdersResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.CancelAllOrdersWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18788,8 +18746,6 @@ func (c *ClientWithResponses) CancelAllOrdersWithFormdataBodyWithResponse(ctx co
 //
 // Corresponds with DELETE /accounts/{accountId}/orders/{orderId} (the `CancelOrder` operationId).
 func (c *ClientWithResponses) CancelOrderWithResponse(ctx context.Context, accountId PathAccountId, orderId OrderId, params *CancelOrderParams, reqEditors ...RequestEditorFn) (*CancelOrderResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.CancelOrder(ctx, accountId, orderId, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18805,8 +18761,6 @@ func (c *ClientWithResponses) CancelOrderWithResponse(ctx context.Context, accou
 //
 // Corresponds with PUT /accounts/{accountId}/orders/{orderId} (the `ModifyOrder` operationId).
 func (c *ClientWithResponses) ModifyOrderWithBodyWithResponse(ctx context.Context, accountId PathAccountId, orderId OrderId, params *ModifyOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ModifyOrderResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.ModifyOrderWithBody(ctx, accountId, orderId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18822,8 +18776,6 @@ func (c *ClientWithResponses) ModifyOrderWithBodyWithResponse(ctx context.Contex
 //
 // Corresponds with PUT /accounts/{accountId}/orders/{orderId} (the `ModifyOrder` operationId).
 func (c *ClientWithResponses) ModifyOrderWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, orderId OrderId, params *ModifyOrderParams, body ModifyOrderFormdataRequestBody, reqEditors ...RequestEditorFn) (*ModifyOrderResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.ModifyOrderWithFormdataBody(ctx, accountId, orderId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18845,8 +18797,6 @@ func (c *ClientWithResponses) ModifyOrderWithFormdataBodyWithResponse(ctx contex
 //
 // Corresponds with GET /accounts/{accountId}/ordersHistory (the `GetOrdersHistory` operationId).
 func (c *ClientWithResponses) GetOrdersHistoryWithResponse(ctx context.Context, accountId PathAccountId, params *GetOrdersHistoryParams, reqEditors ...RequestEditorFn) (*GetOrdersHistoryResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetOrdersHistory(ctx, accountId, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18862,8 +18812,6 @@ func (c *ClientWithResponses) GetOrdersHistoryWithResponse(ctx context.Context, 
 //
 // Corresponds with GET /accounts/{accountId}/positions (the `GetPositions` operationId).
 func (c *ClientWithResponses) GetPositionsWithResponse(ctx context.Context, accountId PathAccountId, params *GetPositionsParams, reqEditors ...RequestEditorFn) (*GetPositionsResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetPositions(ctx, accountId, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18879,8 +18827,6 @@ func (c *ClientWithResponses) GetPositionsWithResponse(ctx context.Context, acco
 //
 // Corresponds with DELETE /accounts/{accountId}/positions/{positionId} (the `ClosePosition` operationId).
 func (c *ClientWithResponses) ClosePositionWithBodyWithResponse(ctx context.Context, accountId PathAccountId, positionId PositionId, params *ClosePositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClosePositionResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.ClosePositionWithBody(ctx, accountId, positionId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18896,8 +18842,6 @@ func (c *ClientWithResponses) ClosePositionWithBodyWithResponse(ctx context.Cont
 //
 // Corresponds with DELETE /accounts/{accountId}/positions/{positionId} (the `ClosePosition` operationId).
 func (c *ClientWithResponses) ClosePositionWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, positionId PositionId, params *ClosePositionParams, body ClosePositionFormdataRequestBody, reqEditors ...RequestEditorFn) (*ClosePositionResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.ClosePositionWithFormdataBody(ctx, accountId, positionId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18913,8 +18857,6 @@ func (c *ClientWithResponses) ClosePositionWithFormdataBodyWithResponse(ctx cont
 //
 // Corresponds with PUT /accounts/{accountId}/positions/{positionId} (the `ModifyPosition` operationId).
 func (c *ClientWithResponses) ModifyPositionWithBodyWithResponse(ctx context.Context, accountId PathAccountId, positionId PositionId, params *ModifyPositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ModifyPositionResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.ModifyPositionWithBody(ctx, accountId, positionId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18930,8 +18872,6 @@ func (c *ClientWithResponses) ModifyPositionWithBodyWithResponse(ctx context.Con
 //
 // Corresponds with PUT /accounts/{accountId}/positions/{positionId} (the `ModifyPosition` operationId).
 func (c *ClientWithResponses) ModifyPositionWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, positionId PositionId, params *ModifyPositionParams, body ModifyPositionFormdataRequestBody, reqEditors ...RequestEditorFn) (*ModifyPositionResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.ModifyPositionWithFormdataBody(ctx, accountId, positionId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18948,8 +18888,6 @@ func (c *ClientWithResponses) ModifyPositionWithFormdataBodyWithResponse(ctx con
 //
 // Corresponds with POST /accounts/{accountId}/previewClosePosition (the `PreviewClosePosition` operationId).
 func (c *ClientWithResponses) PreviewClosePositionWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PreviewClosePositionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PreviewClosePositionResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.PreviewClosePositionWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18966,8 +18904,6 @@ func (c *ClientWithResponses) PreviewClosePositionWithBodyWithResponse(ctx conte
 //
 // Corresponds with POST /accounts/{accountId}/previewClosePosition (the `PreviewClosePosition` operationId).
 func (c *ClientWithResponses) PreviewClosePositionWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PreviewClosePositionParams, body PreviewClosePositionFormdataRequestBody, reqEditors ...RequestEditorFn) (*PreviewClosePositionResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.PreviewClosePositionWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -18984,8 +18920,6 @@ func (c *ClientWithResponses) PreviewClosePositionWithFormdataBodyWithResponse(c
 //
 // Corresponds with POST /accounts/{accountId}/previewLeverage (the `PreviewLeverage` operationId).
 func (c *ClientWithResponses) PreviewLeverageWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PreviewLeverageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PreviewLeverageResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.PreviewLeverageWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19002,8 +18936,6 @@ func (c *ClientWithResponses) PreviewLeverageWithBodyWithResponse(ctx context.Co
 //
 // Corresponds with POST /accounts/{accountId}/previewLeverage (the `PreviewLeverage` operationId).
 func (c *ClientWithResponses) PreviewLeverageWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PreviewLeverageParams, body PreviewLeverageFormdataRequestBody, reqEditors ...RequestEditorFn) (*PreviewLeverageResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.PreviewLeverageWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19022,8 +18954,6 @@ func (c *ClientWithResponses) PreviewLeverageWithFormdataBodyWithResponse(ctx co
 //
 // Corresponds with POST /accounts/{accountId}/previewOrder (the `PreviewOrder` operationId).
 func (c *ClientWithResponses) PreviewOrderWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PreviewOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PreviewOrderResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.PreviewOrderWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19042,8 +18972,6 @@ func (c *ClientWithResponses) PreviewOrderWithBodyWithResponse(ctx context.Conte
 //
 // Corresponds with POST /accounts/{accountId}/previewOrder (the `PreviewOrder` operationId).
 func (c *ClientWithResponses) PreviewOrderWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *PreviewOrderParams, body PreviewOrderFormdataRequestBody, reqEditors ...RequestEditorFn) (*PreviewOrderResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.PreviewOrderWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19061,8 +18989,6 @@ func (c *ClientWithResponses) PreviewOrderWithFormdataBodyWithResponse(ctx conte
 //
 // Corresponds with POST /accounts/{accountId}/setLeverage (the `SetLeverage` operationId).
 func (c *ClientWithResponses) SetLeverageWithBodyWithResponse(ctx context.Context, accountId PathAccountId, params *SetLeverageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetLeverageResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.SetLeverageWithBody(ctx, accountId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19080,8 +19006,6 @@ func (c *ClientWithResponses) SetLeverageWithBodyWithResponse(ctx context.Contex
 //
 // Corresponds with POST /accounts/{accountId}/setLeverage (the `SetLeverage` operationId).
 func (c *ClientWithResponses) SetLeverageWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, params *SetLeverageParams, body SetLeverageFormdataRequestBody, reqEditors ...RequestEditorFn) (*SetLeverageResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.SetLeverageWithFormdataBody(ctx, accountId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19097,8 +19021,6 @@ func (c *ClientWithResponses) SetLeverageWithFormdataBodyWithResponse(ctx contex
 //
 // Corresponds with GET /accounts/{accountId}/state (the `GetState` operationId).
 func (c *ClientWithResponses) GetStateWithResponse(ctx context.Context, accountId PathAccountId, params *GetStateParams, reqEditors ...RequestEditorFn) (*GetStateResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetState(ctx, accountId, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19123,8 +19045,6 @@ func (c *ClientWithResponses) GetStateWithResponse(ctx context.Context, accountI
 //
 // Corresponds with POST /accounts/{accountId}/trackLatency (the `TrackLatency` operationId).
 func (c *ClientWithResponses) TrackLatencyWithBodyWithResponse(ctx context.Context, accountId PathAccountId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TrackLatencyResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.TrackLatencyWithBody(ctx, accountId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19149,8 +19069,6 @@ func (c *ClientWithResponses) TrackLatencyWithBodyWithResponse(ctx context.Conte
 //
 // Corresponds with POST /accounts/{accountId}/trackLatency (the `TrackLatency` operationId).
 func (c *ClientWithResponses) TrackLatencyWithFormdataBodyWithResponse(ctx context.Context, accountId PathAccountId, body TrackLatencyFormdataRequestBody, reqEditors ...RequestEditorFn) (*TrackLatencyResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.TrackLatencyWithFormdataBody(ctx, accountId, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19166,8 +19084,6 @@ func (c *ClientWithResponses) TrackLatencyWithFormdataBodyWithResponse(ctx conte
 //
 // Corresponds with POST /authorize (the `Authorize` operationId).
 func (c *ClientWithResponses) AuthorizeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AuthorizeResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.AuthorizeWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19183,8 +19099,6 @@ func (c *ClientWithResponses) AuthorizeWithBodyWithResponse(ctx context.Context,
 //
 // Corresponds with POST /authorize (the `Authorize` operationId).
 func (c *ClientWithResponses) AuthorizeWithFormdataBodyWithResponse(ctx context.Context, body AuthorizeFormdataRequestBody, reqEditors ...RequestEditorFn) (*AuthorizeResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.AuthorizeWithFormdataBody(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19200,8 +19114,6 @@ func (c *ClientWithResponses) AuthorizeWithFormdataBodyWithResponse(ctx context.
 //
 // Corresponds with GET /config (the `GetConfiguration` operationId).
 func (c *ClientWithResponses) GetConfigurationWithResponse(ctx context.Context, params *GetConfigurationParams, reqEditors ...RequestEditorFn) (*GetConfigurationResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetConfiguration(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19217,8 +19129,6 @@ func (c *ClientWithResponses) GetConfigurationWithResponse(ctx context.Context, 
 //
 // Corresponds with GET /depth (the `GetDepth` operationId).
 func (c *ClientWithResponses) GetDepthWithResponse(ctx context.Context, params *GetDepthParams, reqEditors ...RequestEditorFn) (*GetDepthResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetDepth(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19253,8 +19163,6 @@ func (c *ClientWithResponses) GetDepthWithResponse(ctx context.Context, params *
 //
 // Corresponds with GET /groups (the `GetGroups` operationId).
 func (c *ClientWithResponses) GetGroupsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetGroupsResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetGroups(ctx, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19286,8 +19194,6 @@ func (c *ClientWithResponses) GetGroupsWithResponse(ctx context.Context, reqEdit
 //
 // Corresponds with GET /history (the `GetHistory` operationId).
 func (c *ClientWithResponses) GetHistoryWithResponse(ctx context.Context, params *GetHistoryParams, reqEditors ...RequestEditorFn) (*GetHistoryResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetHistory(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19303,8 +19209,6 @@ func (c *ClientWithResponses) GetHistoryWithResponse(ctx context.Context, params
 //
 // Corresponds with POST /logout (the `Logout` operationId).
 func (c *ClientWithResponses) LogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LogoutResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.Logout(ctx, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19322,8 +19226,6 @@ func (c *ClientWithResponses) LogoutWithResponse(ctx context.Context, reqEditors
 //
 // Corresponds with GET /mapping (the `GetMapping` operationId).
 func (c *ClientWithResponses) GetMappingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetMappingResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetMapping(ctx, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19340,8 +19242,6 @@ func (c *ClientWithResponses) GetMappingWithResponse(ctx context.Context, reqEdi
 //
 // Corresponds with GET /permissions (the `GetPermissions` operationId).
 func (c *ClientWithResponses) GetPermissionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPermissionsResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetPermissions(ctx, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19357,8 +19257,6 @@ func (c *ClientWithResponses) GetPermissionsWithResponse(ctx context.Context, re
 //
 // Corresponds with POST /promotionReport (the `PostPromotionReport` operationId).
 func (c *ClientWithResponses) PostPromotionReportWithBodyWithResponse(ctx context.Context, params *PostPromotionReportParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostPromotionReportResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.PostPromotionReportWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19374,8 +19272,6 @@ func (c *ClientWithResponses) PostPromotionReportWithBodyWithResponse(ctx contex
 //
 // Corresponds with POST /promotionReport (the `PostPromotionReport` operationId).
 func (c *ClientWithResponses) PostPromotionReportWithResponse(ctx context.Context, params *PostPromotionReportParams, body PostPromotionReportJSONRequestBody, reqEditors ...RequestEditorFn) (*PostPromotionReportResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.PostPromotionReport(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19394,8 +19290,6 @@ func (c *ClientWithResponses) PostPromotionReportWithResponse(ctx context.Contex
 //
 // Corresponds with GET /quotes (the `GetQuotes` operationId).
 func (c *ClientWithResponses) GetQuotesWithResponse(ctx context.Context, params *GetQuotesParams, reqEditors ...RequestEditorFn) (*GetQuotesResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetQuotes(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19411,8 +19305,6 @@ func (c *ClientWithResponses) GetQuotesWithResponse(ctx context.Context, params 
 //
 // Corresponds with GET /symbol_info (the `GetSymbolInfo` operationId).
 func (c *ClientWithResponses) GetSymbolInfoWithResponse(ctx context.Context, params *GetSymbolInfoParams, reqEditors ...RequestEditorFn) (*GetSymbolInfoResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetSymbolInfo(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19428,8 +19320,6 @@ func (c *ClientWithResponses) GetSymbolInfoWithResponse(ctx context.Context, par
 //
 // Corresponds with GET /userInfo (the `GetUserInfo` operationId).
 func (c *ClientWithResponses) GetUserInfoWithResponse(ctx context.Context, params *GetUserInfoParams, reqEditors ...RequestEditorFn) (*GetUserInfoResponse, error) {
-	ctx = typedOperationContext(ctx)
-
 	rsp, err := c.GetUserInfo(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -19439,7 +19329,8 @@ func (c *ClientWithResponses) GetUserInfoWithResponse(ctx context.Context, param
 
 // ParseGetAccountsResponse parses an HTTP response from a GetAccountsWithResponse call
 func ParseGetAccountsResponse(rsp *http.Response) (result *GetAccountsResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19474,7 +19365,8 @@ func ParseGetAccountsResponse(rsp *http.Response) (result *GetAccountsResponse, 
 
 // ParseGetBalancesResponse parses an HTTP response from a GetBalancesWithResponse call
 func ParseGetBalancesResponse(rsp *http.Response) (result *GetBalancesResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19509,7 +19401,8 @@ func ParseGetBalancesResponse(rsp *http.Response) (result *GetBalancesResponse, 
 
 // ParseGetExecutionsResponse parses an HTTP response from a GetExecutionsWithResponse call
 func ParseGetExecutionsResponse(rsp *http.Response) (result *GetExecutionsResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19544,7 +19437,8 @@ func ParseGetExecutionsResponse(rsp *http.Response) (result *GetExecutionsRespon
 
 // ParseGetLeverageResponse parses an HTTP response from a GetLeverageWithResponse call
 func ParseGetLeverageResponse(rsp *http.Response) (result *GetLeverageResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19579,7 +19473,8 @@ func ParseGetLeverageResponse(rsp *http.Response) (result *GetLeverageResponse, 
 
 // ParseGetIndividualPositionsResponse parses an HTTP response from a GetIndividualPositionsWithResponse call
 func ParseGetIndividualPositionsResponse(rsp *http.Response) (result *GetIndividualPositionsResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19614,7 +19509,8 @@ func ParseGetIndividualPositionsResponse(rsp *http.Response) (result *GetIndivid
 
 // ParseCloseIndividualPositionResponse parses an HTTP response from a CloseIndividualPositionWithResponse call
 func ParseCloseIndividualPositionResponse(rsp *http.Response) (result *CloseIndividualPositionResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19649,7 +19545,8 @@ func ParseCloseIndividualPositionResponse(rsp *http.Response) (result *CloseIndi
 
 // ParseModifyIndividualPositionResponse parses an HTTP response from a ModifyIndividualPositionWithResponse call
 func ParseModifyIndividualPositionResponse(rsp *http.Response) (result *ModifyIndividualPositionResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19684,7 +19581,8 @@ func ParseModifyIndividualPositionResponse(rsp *http.Response) (result *ModifyIn
 
 // ParseGetInstrumentsResponse parses an HTTP response from a GetInstrumentsWithResponse call
 func ParseGetInstrumentsResponse(rsp *http.Response) (result *GetInstrumentsResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19719,7 +19617,8 @@ func ParseGetInstrumentsResponse(rsp *http.Response) (result *GetInstrumentsResp
 
 // ParseGetNetPositionsResponse parses an HTTP response from a GetNetPositionsWithResponse call
 func ParseGetNetPositionsResponse(rsp *http.Response) (result *GetNetPositionsResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19754,7 +19653,8 @@ func ParseGetNetPositionsResponse(rsp *http.Response) (result *GetNetPositionsRe
 
 // ParseCloseNetPositionResponse parses an HTTP response from a CloseNetPositionWithResponse call
 func ParseCloseNetPositionResponse(rsp *http.Response) (result *CloseNetPositionResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19789,7 +19689,8 @@ func ParseCloseNetPositionResponse(rsp *http.Response) (result *CloseNetPosition
 
 // ParseOrderInfoResponse parses an HTTP response from a OrderInfoWithResponse call
 func ParseOrderInfoResponse(rsp *http.Response) (result *OrderInfoResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19824,7 +19725,8 @@ func ParseOrderInfoResponse(rsp *http.Response) (result *OrderInfoResponse, resu
 
 // ParseGetOrdersResponse parses an HTTP response from a GetOrdersWithResponse call
 func ParseGetOrdersResponse(rsp *http.Response) (result *GetOrdersResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19859,7 +19761,8 @@ func ParseGetOrdersResponse(rsp *http.Response) (result *GetOrdersResponse, resu
 
 // ParsePlaceOrderResponse parses an HTTP response from a PlaceOrderWithResponse call
 func ParsePlaceOrderResponse(rsp *http.Response) (result *PlaceOrderResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19894,7 +19797,8 @@ func ParsePlaceOrderResponse(rsp *http.Response) (result *PlaceOrderResponse, re
 
 // ParseCancelAllOrdersResponse parses an HTTP response from a CancelAllOrdersWithResponse call
 func ParseCancelAllOrdersResponse(rsp *http.Response) (result *CancelAllOrdersResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19929,7 +19833,8 @@ func ParseCancelAllOrdersResponse(rsp *http.Response) (result *CancelAllOrdersRe
 
 // ParseCancelOrderResponse parses an HTTP response from a CancelOrderWithResponse call
 func ParseCancelOrderResponse(rsp *http.Response) (result *CancelOrderResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19964,7 +19869,8 @@ func ParseCancelOrderResponse(rsp *http.Response) (result *CancelOrderResponse, 
 
 // ParseModifyOrderResponse parses an HTTP response from a ModifyOrderWithResponse call
 func ParseModifyOrderResponse(rsp *http.Response) (result *ModifyOrderResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -19999,7 +19905,8 @@ func ParseModifyOrderResponse(rsp *http.Response) (result *ModifyOrderResponse, 
 
 // ParseGetOrdersHistoryResponse parses an HTTP response from a GetOrdersHistoryWithResponse call
 func ParseGetOrdersHistoryResponse(rsp *http.Response) (result *GetOrdersHistoryResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20034,7 +19941,8 @@ func ParseGetOrdersHistoryResponse(rsp *http.Response) (result *GetOrdersHistory
 
 // ParseGetPositionsResponse parses an HTTP response from a GetPositionsWithResponse call
 func ParseGetPositionsResponse(rsp *http.Response) (result *GetPositionsResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20069,7 +19977,8 @@ func ParseGetPositionsResponse(rsp *http.Response) (result *GetPositionsResponse
 
 // ParseClosePositionResponse parses an HTTP response from a ClosePositionWithResponse call
 func ParseClosePositionResponse(rsp *http.Response) (result *ClosePositionResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20104,7 +20013,8 @@ func ParseClosePositionResponse(rsp *http.Response) (result *ClosePositionRespon
 
 // ParseModifyPositionResponse parses an HTTP response from a ModifyPositionWithResponse call
 func ParseModifyPositionResponse(rsp *http.Response) (result *ModifyPositionResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20139,7 +20049,8 @@ func ParseModifyPositionResponse(rsp *http.Response) (result *ModifyPositionResp
 
 // ParsePreviewClosePositionResponse parses an HTTP response from a PreviewClosePositionWithResponse call
 func ParsePreviewClosePositionResponse(rsp *http.Response) (result *PreviewClosePositionResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20174,7 +20085,8 @@ func ParsePreviewClosePositionResponse(rsp *http.Response) (result *PreviewClose
 
 // ParsePreviewLeverageResponse parses an HTTP response from a PreviewLeverageWithResponse call
 func ParsePreviewLeverageResponse(rsp *http.Response) (result *PreviewLeverageResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20209,7 +20121,8 @@ func ParsePreviewLeverageResponse(rsp *http.Response) (result *PreviewLeverageRe
 
 // ParsePreviewOrderResponse parses an HTTP response from a PreviewOrderWithResponse call
 func ParsePreviewOrderResponse(rsp *http.Response) (result *PreviewOrderResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20244,7 +20157,8 @@ func ParsePreviewOrderResponse(rsp *http.Response) (result *PreviewOrderResponse
 
 // ParseSetLeverageResponse parses an HTTP response from a SetLeverageWithResponse call
 func ParseSetLeverageResponse(rsp *http.Response) (result *SetLeverageResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20279,7 +20193,8 @@ func ParseSetLeverageResponse(rsp *http.Response) (result *SetLeverageResponse, 
 
 // ParseGetStateResponse parses an HTTP response from a GetStateWithResponse call
 func ParseGetStateResponse(rsp *http.Response) (result *GetStateResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20314,7 +20229,8 @@ func ParseGetStateResponse(rsp *http.Response) (result *GetStateResponse, result
 
 // ParseTrackLatencyResponse parses an HTTP response from a TrackLatencyWithResponse call
 func ParseTrackLatencyResponse(rsp *http.Response) (result *TrackLatencyResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20349,7 +20265,8 @@ func ParseTrackLatencyResponse(rsp *http.Response) (result *TrackLatencyResponse
 
 // ParseAuthorizeResponse parses an HTTP response from a AuthorizeWithResponse call
 func ParseAuthorizeResponse(rsp *http.Response) (result *AuthorizeResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20384,7 +20301,8 @@ func ParseAuthorizeResponse(rsp *http.Response) (result *AuthorizeResponse, resu
 
 // ParseGetConfigurationResponse parses an HTTP response from a GetConfigurationWithResponse call
 func ParseGetConfigurationResponse(rsp *http.Response) (result *GetConfigurationResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20419,7 +20337,8 @@ func ParseGetConfigurationResponse(rsp *http.Response) (result *GetConfiguration
 
 // ParseGetDepthResponse parses an HTTP response from a GetDepthWithResponse call
 func ParseGetDepthResponse(rsp *http.Response) (result *GetDepthResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20454,7 +20373,8 @@ func ParseGetDepthResponse(rsp *http.Response) (result *GetDepthResponse, result
 
 // ParseGetGroupsResponse parses an HTTP response from a GetGroupsWithResponse call
 func ParseGetGroupsResponse(rsp *http.Response) (result *GetGroupsResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20489,7 +20409,8 @@ func ParseGetGroupsResponse(rsp *http.Response) (result *GetGroupsResponse, resu
 
 // ParseGetHistoryResponse parses an HTTP response from a GetHistoryWithResponse call
 func ParseGetHistoryResponse(rsp *http.Response) (result *GetHistoryResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20524,7 +20445,8 @@ func ParseGetHistoryResponse(rsp *http.Response) (result *GetHistoryResponse, re
 
 // ParseLogoutResponse parses an HTTP response from a LogoutWithResponse call
 func ParseLogoutResponse(rsp *http.Response) (result *LogoutResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20559,7 +20481,8 @@ func ParseLogoutResponse(rsp *http.Response) (result *LogoutResponse, resultErr 
 
 // ParseGetMappingResponse parses an HTTP response from a GetMappingWithResponse call
 func ParseGetMappingResponse(rsp *http.Response) (result *GetMappingResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20594,7 +20517,8 @@ func ParseGetMappingResponse(rsp *http.Response) (result *GetMappingResponse, re
 
 // ParseGetPermissionsResponse parses an HTTP response from a GetPermissionsWithResponse call
 func ParseGetPermissionsResponse(rsp *http.Response) (result *GetPermissionsResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20629,7 +20553,8 @@ func ParseGetPermissionsResponse(rsp *http.Response) (result *GetPermissionsResp
 
 // ParsePostPromotionReportResponse parses an HTTP response from a PostPromotionReportWithResponse call
 func ParsePostPromotionReportResponse(rsp *http.Response) (result *PostPromotionReportResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20664,7 +20589,8 @@ func ParsePostPromotionReportResponse(rsp *http.Response) (result *PostPromotion
 
 // ParseGetQuotesResponse parses an HTTP response from a GetQuotesWithResponse call
 func ParseGetQuotesResponse(rsp *http.Response) (result *GetQuotesResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20699,7 +20625,8 @@ func ParseGetQuotesResponse(rsp *http.Response) (result *GetQuotesResponse, resu
 
 // ParseGetSymbolInfoResponse parses an HTTP response from a GetSymbolInfoWithResponse call
 func ParseGetSymbolInfoResponse(rsp *http.Response) (result *GetSymbolInfoResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()
@@ -20734,7 +20661,8 @@ func ParseGetSymbolInfoResponse(rsp *http.Response) (result *GetSymbolInfoRespon
 
 // ParseGetUserInfoResponse parses an HTTP response from a GetUserInfoWithResponse call
 func ParseGetUserInfoResponse(rsp *http.Response) (result *GetUserInfoResponse, resultErr error) {
-	defer func() { finishResponseObservation(rsp, resultErr) }()
+	observation := beginTypedResponseObservation(rsp)
+	defer func() { observation.finish(resultErr) }()
 
 	bodyBytes, err := readFiniteResponse(rsp)
 	defer func() { _ = rsp.Body.Close() }()

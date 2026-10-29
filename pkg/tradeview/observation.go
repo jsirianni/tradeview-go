@@ -10,12 +10,6 @@ import (
 	"time"
 )
 
-type typedOperationKey struct{}
-
-func typedOperationContext(ctx context.Context) context.Context {
-	return context.WithValue(ctx, typedOperationKey{}, true)
-}
-
 // operationObservation owns the common request/response lifetime. Logging and
 // OpenTelemetry are optional, independent consumers of its terminal outcome.
 type operationObservation struct {
@@ -43,7 +37,7 @@ func (client *Client) startObservation(ctx context.Context, operation, method, r
 	o := &operationObservation{
 		telemetry: telemetry, logger: client.logger, ctx: ctx,
 		operation: operation, method: method, route: route, streaming: streaming,
-		start: time.Now(), typed: ctx.Value(typedOperationKey{}) == true,
+		start: time.Now(),
 	}
 	return ctx, o
 }
@@ -83,8 +77,9 @@ func (body *observedBody) Read(p []byte) (int, error) {
 	o := body.observation
 	o.mu.Lock()
 	o.bytes += int64(n)
+	typed := o.typed
 	o.mu.Unlock()
-	if err != nil && !o.typed {
+	if err != nil && !typed {
 		o.finish(err)
 	}
 	return n, err
@@ -92,13 +87,15 @@ func (body *observedBody) Read(p []byte) (int, error) {
 
 func (body *observedBody) Close() error {
 	err := body.ReadCloser.Close()
+	o := body.observation
+	o.mu.Lock()
 	if err != nil {
-		body.observation.mu.Lock()
-		body.observation.closeErr = err
-		body.observation.mu.Unlock()
+		o.closeErr = err
 	}
-	if !body.observation.typed {
-		body.observation.finish(err)
+	typed := o.typed
+	o.mu.Unlock()
+	if !typed {
+		o.finish(err)
 	}
 	return err
 }
@@ -110,6 +107,20 @@ func responseObserver(response *http.Response) *operationObservation {
 		}
 	}
 	return nil
+}
+
+// beginTypedResponseObservation hands this response's completion to its parser
+// or stream before body consumption. Context values never control ownership:
+// nested requests from editors, token sources, or client adapters retain their
+// own raw or typed lifecycle.
+func beginTypedResponseObservation(response *http.Response) *operationObservation {
+	o := responseObserver(response)
+	if o != nil {
+		o.mu.Lock()
+		o.typed = true
+		o.mu.Unlock()
+	}
+	return o
 }
 
 func finishResponseObservation(response *http.Response, err error) {

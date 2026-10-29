@@ -46,9 +46,15 @@ construction, authentication, and request editors.
   bodies, including bodies you choose not to read.
 - Typed streams remain open until EOF, a terminal frame/decode error, context
   cancellation, or `Close`. Closing is idempotent and ends telemetry once.
-- Standalone response parsers do not start new spans. Deferred union accessor
+- Standalone response parsers do not start new spans. Parsing an unconsumed raw
+  response transfers its existing operation's completion to that parser.
+  Deferred union accessor
   errors occur after the typed call returns and are outside its operation span.
 - Invalid stream options fail before opening an operation and produce no span.
+
+Completion ownership belongs to the response being parsed or streamed. Requests
+made inside editors, token sources, or client adapters retain their own lifetimes
+and tracing parentage, even when they reuse the outer request's context.
 
 Error status uses a bounded category: `api`, `http`, `protocol`, `response_size`,
 `canceled`, `deadline_exceeded`, or `client`. Error messages and exception events

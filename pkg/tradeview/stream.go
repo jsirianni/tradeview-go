@@ -83,9 +83,10 @@ type streamEvent interface {
 }
 
 func openHTTPStream[T streamEvent](ctx context.Context, response *http.Response, requestErr error, config streamConfig, decode func([]byte) (T, error)) (result *Stream[T], resultErr error) {
+	observation := beginTypedResponseObservation(response)
 	defer func() {
 		if result == nil {
-			finishResponseObservation(response, resultErr)
+			observation.finish(resultErr)
 		}
 	}()
 	if requestErr != nil {

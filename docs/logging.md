@@ -64,8 +64,14 @@ strings.
   Individual frames do not produce logs. Duration includes time between reads.
 - Request construction, token-source, and request-editor failures produce an
   error record. Invalid stream options fail before an operation starts.
-- Standalone response parsers do not start operations. Deferred union-accessor
+- Standalone response parsers do not start operations. Parsing an unconsumed raw
+  response transfers its existing operation's completion to that parser.
+  Deferred union-accessor
   errors occur after the typed operation has already completed.
+
+Requests made inside editors, token sources, or client adapters log their own
+completion. Reusing an outer typed request's context does not turn nested raw
+requests into typed operations.
 
 Routes are fixed templates from the pinned schema. Client-generated attributes
 exclude actual URLs, IDs, symbols, query values, headers, request/response
