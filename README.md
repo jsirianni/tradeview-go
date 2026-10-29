@@ -14,3 +14,13 @@ A Go client for the official TradingView broker REST API, connecting application
 - Optional structured logging to stdout or files with standard Go `slog`.
 
 [Usage](docs/usage.md) | [Logging](docs/logging.md) | [OpenTelemetry](docs/telemetry.md) | [Development](docs/development.md)
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## Development disclosure and disclaimer
+
+This project is primarily developed using AI-assisted coding tools.
+
+The software is provided "as is", without warranty or guarantee of any kind, express or implied. No guarantee is made regarding its accuracy, reliability, security, or fitness for any particular purpose. Use it at your own risk. See the [MIT License](LICENSE) for the full warranty disclaimer and limitation of liability.
