@@ -133,13 +133,50 @@ func finiteResponseError(body []byte, response *http.Response) error {
 		return newProtocolError(body, response, errors.New("unexpected success status; expected HTTP 200"))
 	}
 	// Preserve broker errors even when a proxy supplies an incorrect media type.
-	if err := responseError(body, response); err != nil {
+	if err := finiteBrokerError(body, response); err != nil {
 		return err
 	}
 	if !isJSONMediaType(response.Header.Get("Content-Type")) {
 		return newProtocolError(body, response, fmt.Errorf("expected a JSON Content-Type, received %q", response.Header.Get("Content-Type")))
 	}
 	return nil
+}
+
+// Decode the discriminator independently so malformed error details cannot turn
+// a known broker failure into a successful opaque response union.
+func finiteBrokerError(body []byte, response *http.Response) error {
+	var envelope struct {
+		S       json.RawMessage `json:"s"`
+		Code    json.RawMessage `json:"errtype"`
+		Message json.RawMessage `json:"errmsg"`
+	}
+	if err := json.Unmarshal(body, &envelope); err != nil {
+		return nil // The finite model validator supplies JSON/type diagnostics.
+	}
+	var status string
+	if json.Unmarshal(envelope.S, &status) != nil || status != "error" {
+		return nil
+	}
+	apiErr := &APIError{StatusCode: response.StatusCode, Body: bytes.Clone(body)}
+	for _, field := range []struct {
+		name  string
+		raw   json.RawMessage
+		value *string
+	}{
+		{"errtype", envelope.Code, &apiErr.Code},
+		{"errmsg", envelope.Message, &apiErr.Message},
+	} {
+		if len(field.raw) == 0 {
+			continue
+		}
+		if bytes.Equal(field.raw, []byte("null")) {
+			return newProtocolError(body, response, fmt.Errorf("null broker error %s", field.name))
+		}
+		if err := json.Unmarshal(field.raw, field.value); err != nil {
+			return newProtocolError(body, response, responseJSONFieldError(err, field.name))
+		}
+	}
+	return apiErr
 }
 
 func isJSONMediaType(contentType string) bool {

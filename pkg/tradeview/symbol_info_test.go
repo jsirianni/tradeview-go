@@ -201,16 +201,14 @@ func TestSymbolInfoInvalidCompactMetadata(t *testing.T) {
 	}
 }
 
-func TestSymbolInfoInvalidCompactUnionAccessor(t *testing.T) {
+func TestSymbolInfoInvalidCompactFiniteResponse(t *testing.T) {
 	response, err := ParseGetSymbolInfoResponse(&http.Response{
 		StatusCode: http.StatusOK,
 		Header:     http.Header{"Content-Type": {"application/json"}},
 		Body:       io.NopCloser(strings.NewReader(`{"s":"ok","symbol":[],"pricescale":100}`)),
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err := response.JSON200.AsSymbolInfoResponse(); err == nil || !strings.Contains(err.Error(), "pricescale") {
+	var protocolErr *ProtocolError
+	if response != nil || !errors.As(err, &protocolErr) || !strings.Contains(err.Error(), "pricescale") {
 		t.Fatalf("missing contextual compact metadata error: %v", err)
 	}
 }
@@ -267,6 +265,15 @@ func TestSymbolInfoRejectsCompactAmplification(t *testing.T) {
 	symbols := strings.Repeat(`"X",`, 2047) + `"X"`
 	scalar := `"` + strings.Repeat("A", 32768) + `"`
 	payload := []byte(`{"s":"ok","symbol":[` + symbols + `],"description":` + scalar + `}`)
+	response, err := ParseGetSymbolInfoResponse(&http.Response{
+		StatusCode: 200, Header: http.Header{"Content-Type": {"application/json"}},
+		Body: io.NopCloser(bytes.NewReader(payload)),
+	})
+	var protocolErr *ProtocolError
+	var parserSizeErr *SymbolInfoSizeError
+	if response != nil || !errors.As(err, &protocolErr) || !errors.As(err, &parserSizeErr) {
+		t.Fatalf("finite parser bypassed expansion preflight: %v", err)
+	}
 	for name, factory := range symbolInfoModelFactories() {
 		t.Run(name, func(t *testing.T) {
 			var sizeErr *SymbolInfoSizeError

@@ -66,26 +66,18 @@ func TestFiniteResponseFixtureFailures(t *testing.T) {
 	}
 }
 
-func TestFiniteResponseFixtureDeferredTypeError(t *testing.T) {
+func TestFiniteResponseFixtureRejectsDeferredTypeError(t *testing.T) {
 	body := readResponseFixture(t, "wrong-account-field")
 	request := responseRequest{method: http.MethodGet, path: "/accounts", query: url.Values{"locale": {"en"}}}
 	client, ctx := newResponseFixture(t, request, http.StatusOK, "application/json", body)
 	response, err := client.GetAccountsWithResponse(ctx, &GetAccountsParams{Locale: "en"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	responseEqual(t, response.StatusCode(), http.StatusOK)
-	responseEqual(t, response.Body, body)
-	if response.JSON200 == nil {
-		t.Fatal("missing response union")
-	}
-	// The HTTP parser stores this valid JSON in a union. Its concrete account
-	// shape is decoded only when the caller selects the public accessor.
-	_, err = response.JSON200.AsAccountResponse()
+	var protocolErr *ProtocolError
 	var typeErr *json.UnmarshalTypeError
-	if !errors.As(err, &typeErr) {
-		t.Fatalf("expected field type error from accessor, got %T: %v", err, err)
+	if response != nil || !errors.As(err, &protocolErr) || !errors.As(err, &typeErr) {
+		t.Fatalf("expected protocol/type error from parser, got %T: %v", err, err)
 	}
+	responseEqual(t, protocolErr.StatusCode, http.StatusOK)
+	responseEqual(t, protocolErr.Body, body)
 	responseEqual(t, typeErr.Field, "d.0.id")
 	responseEqual(t, typeErr.Value, "number")
 }
