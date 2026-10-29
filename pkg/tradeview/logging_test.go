@@ -245,6 +245,7 @@ func TestLoggingStreamLifecycle(t *testing.T) {
 	for _, mode := range []string{"eof", "api", "decode", "cancel", "close"} {
 		t.Run(mode, func(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
 				_, _ = io.WriteString(w, "{\"s\":\"ok\"}\n")
 				if mode == "api" {
 					_, _ = io.WriteString(w, "{\"s\":\"error\",\"errmsg\":\"secret\"}\n")

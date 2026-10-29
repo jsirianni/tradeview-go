@@ -7,7 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
+	"strings"
 	"sync"
 )
 
@@ -106,6 +108,17 @@ func openHTTPStream[T streamEvent](ctx context.Context, response *http.Response,
 		}
 		return nil, &HTTPError{StatusCode: response.StatusCode, Status: response.Status, Body: body}
 	}
+	var handshakeErr error
+	if response.StatusCode != http.StatusOK {
+		handshakeErr = errors.New("unexpected stream success status; expected HTTP 200")
+	} else if !isStreamMediaType(response.Header.Get("Content-Type")) {
+		handshakeErr = fmt.Errorf("expected a JSON or NDJSON stream Content-Type, received %q", response.Header.Get("Content-Type"))
+	}
+	if handshakeErr != nil {
+		body, readErr := io.ReadAll(io.LimitReader(response.Body, int64(config.maxFrameBytes)))
+		_ = response.Body.Close()
+		return nil, newProtocolError(body, response, errors.Join(handshakeErr, readErr))
+	}
 	scanner := bufio.NewScanner(response.Body)
 	initial := min(config.maxFrameBytes, 4096)
 	// Scanner counts the newline against its token limit; leave room for CRLF.
@@ -119,6 +132,20 @@ func openHTTPStream[T streamEvent](ctx context.Context, response *http.Response,
 	stream.stopCancel = context.AfterFunc(ctx, func() { stream.finish(ctx.Err()) })
 	stream.mu.Unlock()
 	return stream, nil
+}
+
+// The wire format is one JSON value per line. JSON and NDJSON media types are
+// compatible; JSON text sequences and event streams use different framing.
+func isStreamMediaType(contentType string) bool {
+	if isJSONMediaType(contentType) {
+		return true
+	}
+	mediaType, _, err := mime.ParseMediaType(contentType)
+	if err != nil {
+		return false
+	}
+	mediaType = strings.ToLower(mediaType)
+	return mediaType == "application/x-ndjson" || mediaType == "application/ndjson"
 }
 
 // Next advances to the next frame. A server error frame is yielded once so its

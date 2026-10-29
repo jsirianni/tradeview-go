@@ -268,6 +268,7 @@ func TestTelemetryStreamLifecycle(t *testing.T) {
 		t.Run(mode, func(t *testing.T) {
 			f := newTelemetryFixture(t)
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
 				_, _ = io.WriteString(w, "{\"s\":\"ok\"}\n")
 				if mode == "api" {
 					_, _ = io.WriteString(w, "{\"s\":\"error\",\"errmsg\":\"secret\"}\n")

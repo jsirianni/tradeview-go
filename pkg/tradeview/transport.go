@@ -100,8 +100,9 @@ func (e *HTTPError) Error() string {
 	return fmt.Sprintf("tradeview: HTTP %d %s", e.StatusCode, http.StatusText(e.StatusCode))
 }
 
-// ProtocolError reports a response that cannot be decoded as a declared finite
-// response. Body retains the original payload; Err describes the failure.
+// ProtocolError reports a response that violates the declared finite-response
+// or stream-handshake contract. Body retains the original payload (bounded by
+// the finite response limit or stream frame limit); Err describes the failure.
 // Unwrap preserves access to underlying JSON decoding errors.
 type ProtocolError struct {
 	StatusCode  int
@@ -124,7 +125,7 @@ func newProtocolError(body []byte, response *http.Response, err error) *Protocol
 }
 
 // finiteResponseError validates the pinned contract's HTTP 200 JSON response.
-// Streams have their own status/frame handling and use responseError directly.
+// Streams have their own handshake and frame handling.
 func finiteResponseError(body []byte, response *http.Response) error {
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return responseError(body, response)
