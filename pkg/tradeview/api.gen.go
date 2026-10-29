@@ -19458,6 +19458,10 @@ func ParseGetAccountsResponse(rsp *http.Response) (result *GetAccountsResponse, 
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetAccounts200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetAccounts200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19489,6 +19493,10 @@ func ParseGetBalancesResponse(rsp *http.Response) (result *GetBalancesResponse, 
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetBalances200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetBalances200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19520,6 +19528,10 @@ func ParseGetExecutionsResponse(rsp *http.Response) (result *GetExecutionsRespon
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetExecutions200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetExecutions200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19551,6 +19563,10 @@ func ParseGetLeverageResponse(rsp *http.Response) (result *GetLeverageResponse, 
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetLeverage200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetLeverage200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19582,6 +19598,10 @@ func ParseGetIndividualPositionsResponse(rsp *http.Response) (result *GetIndivid
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetIndividualPositions200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetIndividualPositions200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19613,6 +19633,10 @@ func ParseCloseIndividualPositionResponse(rsp *http.Response) (result *CloseIndi
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest CloseIndividualPosition200JSONResponseBody
+		if err := validateFiniteResponseJSON[CloseIndividualPosition200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19644,6 +19668,10 @@ func ParseModifyIndividualPositionResponse(rsp *http.Response) (result *ModifyIn
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest ModifyIndividualPosition200JSONResponseBody
+		if err := validateFiniteResponseJSON[ModifyIndividualPosition200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19675,6 +19703,10 @@ func ParseGetInstrumentsResponse(rsp *http.Response) (result *GetInstrumentsResp
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetInstruments200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetInstruments200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19706,6 +19738,10 @@ func ParseGetNetPositionsResponse(rsp *http.Response) (result *GetNetPositionsRe
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetNetPositions200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetNetPositions200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19737,6 +19773,10 @@ func ParseCloseNetPositionResponse(rsp *http.Response) (result *CloseNetPosition
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest CloseNetPosition200JSONResponseBody
+		if err := validateFiniteResponseJSON[CloseNetPosition200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19768,6 +19808,10 @@ func ParseOrderInfoResponse(rsp *http.Response) (result *OrderInfoResponse, resu
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest OrderInfo200JSONResponseBody
+		if err := validateFiniteResponseJSON[OrderInfo200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19799,6 +19843,10 @@ func ParseGetOrdersResponse(rsp *http.Response) (result *GetOrdersResponse, resu
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetOrders200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetOrders200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19830,6 +19878,10 @@ func ParsePlaceOrderResponse(rsp *http.Response) (result *PlaceOrderResponse, re
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest PlaceOrder200JSONResponseBody
+		if err := validateFiniteResponseJSON[PlaceOrder200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19861,6 +19913,10 @@ func ParseCancelAllOrdersResponse(rsp *http.Response) (result *CancelAllOrdersRe
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest CancelAllOrders200JSONResponseBody
+		if err := validateFiniteResponseJSON[CancelAllOrders200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19892,6 +19948,10 @@ func ParseCancelOrderResponse(rsp *http.Response) (result *CancelOrderResponse, 
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest CancelOrder200JSONResponseBody
+		if err := validateFiniteResponseJSON[CancelOrder200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19923,6 +19983,10 @@ func ParseModifyOrderResponse(rsp *http.Response) (result *ModifyOrderResponse, 
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest ModifyOrder200JSONResponseBody
+		if err := validateFiniteResponseJSON[ModifyOrder200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19954,6 +20018,10 @@ func ParseGetOrdersHistoryResponse(rsp *http.Response) (result *GetOrdersHistory
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetOrdersHistory200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetOrdersHistory200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -19985,6 +20053,10 @@ func ParseGetPositionsResponse(rsp *http.Response) (result *GetPositionsResponse
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetPositions200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetPositions200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20016,6 +20088,10 @@ func ParseClosePositionResponse(rsp *http.Response) (result *ClosePositionRespon
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest ClosePosition200JSONResponseBody
+		if err := validateFiniteResponseJSON[ClosePosition200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20047,6 +20123,10 @@ func ParseModifyPositionResponse(rsp *http.Response) (result *ModifyPositionResp
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest ModifyPosition200JSONResponseBody
+		if err := validateFiniteResponseJSON[ModifyPosition200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20078,6 +20158,10 @@ func ParsePreviewClosePositionResponse(rsp *http.Response) (result *PreviewClose
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest PreviewClosePosition200JSONResponseBody
+		if err := validateFiniteResponseJSON[PreviewClosePosition200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20109,6 +20193,10 @@ func ParsePreviewLeverageResponse(rsp *http.Response) (result *PreviewLeverageRe
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest PreviewLeverage200JSONResponseBody
+		if err := validateFiniteResponseJSON[PreviewLeverage200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20140,6 +20228,10 @@ func ParsePreviewOrderResponse(rsp *http.Response) (result *PreviewOrderResponse
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest PreviewOrder200JSONResponseBody
+		if err := validateFiniteResponseJSON[PreviewOrder200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20171,6 +20263,10 @@ func ParseSetLeverageResponse(rsp *http.Response) (result *SetLeverageResponse, 
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest SetLeverage200JSONResponseBody
+		if err := validateFiniteResponseJSON[SetLeverage200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20202,6 +20298,10 @@ func ParseGetStateResponse(rsp *http.Response) (result *GetStateResponse, result
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetState200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetState200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20233,6 +20333,10 @@ func ParseTrackLatencyResponse(rsp *http.Response) (result *TrackLatencyResponse
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest SuccessResponse
+		if err := validateFiniteResponseJSON[SuccessResponse](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20264,6 +20368,10 @@ func ParseAuthorizeResponse(rsp *http.Response) (result *AuthorizeResponse, resu
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest Authorize200JSONResponseBody
+		if err := validateFiniteResponseJSON[Authorize200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20295,6 +20403,10 @@ func ParseGetConfigurationResponse(rsp *http.Response) (result *GetConfiguration
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetConfiguration200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetConfiguration200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20326,6 +20438,10 @@ func ParseGetDepthResponse(rsp *http.Response) (result *GetDepthResponse, result
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetDepth200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetDepth200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20357,6 +20473,10 @@ func ParseGetGroupsResponse(rsp *http.Response) (result *GetGroupsResponse, resu
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetGroups200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetGroups200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20388,6 +20508,10 @@ func ParseGetHistoryResponse(rsp *http.Response) (result *GetHistoryResponse, re
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetHistory200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetHistory200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20419,6 +20543,10 @@ func ParseLogoutResponse(rsp *http.Response) (result *LogoutResponse, resultErr 
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest Logout200JSONResponseBody
+		if err := validateFiniteResponseJSON[Logout200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20450,6 +20578,10 @@ func ParseGetMappingResponse(rsp *http.Response) (result *GetMappingResponse, re
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest MappingResponse
+		if err := validateFiniteResponseJSON[MappingResponse](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20481,6 +20613,10 @@ func ParseGetPermissionsResponse(rsp *http.Response) (result *GetPermissionsResp
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetPermissions200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetPermissions200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20512,6 +20648,10 @@ func ParsePostPromotionReportResponse(rsp *http.Response) (result *PostPromotion
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest PostPromotionReport200JSONResponseBody
+		if err := validateFiniteResponseJSON[PostPromotionReport200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20543,6 +20683,10 @@ func ParseGetQuotesResponse(rsp *http.Response) (result *GetQuotesResponse, resu
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetQuotes200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetQuotes200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20574,6 +20718,10 @@ func ParseGetSymbolInfoResponse(rsp *http.Response) (result *GetSymbolInfoRespon
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetSymbolInfo200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetSymbolInfo200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20605,6 +20753,10 @@ func ParseGetUserInfoResponse(rsp *http.Response) (result *GetUserInfoResponse, 
 	switch {
 	case rsp.StatusCode == http.StatusOK:
 		var dest GetUserInfo200JSONResponseBody
+		if err := validateFiniteResponseJSON[GetUserInfo200JSONResponseBody](bodyBytes); err != nil {
+			return nil, newProtocolError(bodyBytes, rsp, err)
+		}
+
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, newProtocolError(bodyBytes, rsp, err)
 		}
@@ -20717,4 +20869,69 @@ func (value *SymbolInfoResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	return json.Unmarshal(normalized, (*plain)(value))
+}
+
+// _responseJSONUnions describes the concrete models behind opaque JSON unions.
+var _responseJSONUnions = map[responseJSONType][]responseJSONType{
+	responseJSONTypeOf[Authorize200JSONResponseBody]():                  {responseJSONTypeOf[AuthorizePayload]()},
+	responseJSONTypeOf[CancelAllOrders200JSONResponseBody]():            {responseJSONTypeOf[SuccessResponse]()},
+	responseJSONTypeOf[CancelAllOrdersFormdataBody]():                   {responseJSONTypeOf[CancelAllOrdersByIdsRequestBody](), responseJSONTypeOf[CancelAllOrdersBySymbolRequestBody]()},
+	responseJSONTypeOf[CancelOrder200JSONResponseBody]():                {responseJSONTypeOf[SuccessResponse](), responseJSONTypeOf[SuccessResponseWithTransactionId]()},
+	responseJSONTypeOf[CloseIndividualPosition200JSONResponseBody]():    {responseJSONTypeOf[SuccessResponse](), responseJSONTypeOf[SuccessResponseWithTransactionId]()},
+	responseJSONTypeOf[CloseNetPosition200JSONResponseBody]():           {responseJSONTypeOf[SuccessResponse](), responseJSONTypeOf[SuccessResponseWithTransactionId]()},
+	responseJSONTypeOf[ClosePosition200JSONResponseBody]():              {responseJSONTypeOf[SuccessResponse](), responseJSONTypeOf[SuccessResponseWithTransactionId]()},
+	responseJSONTypeOf[GetAccounts200JSONResponseBody]():                {responseJSONTypeOf[AccountResponse]()},
+	responseJSONTypeOf[GetBalances200JSONResponseBody]():                {responseJSONTypeOf[CryptoBalancesResponse]()},
+	responseJSONTypeOf[GetConfiguration200JSONResponseBody]():           {responseJSONTypeOf[ConfigResponse]()},
+	responseJSONTypeOf[GetDepth200JSONResponseBody]():                   {responseJSONTypeOf[DepthResponse]()},
+	responseJSONTypeOf[GetExecutions200JSONResponseBody]():              {responseJSONTypeOf[ExecutionsResponse]()},
+	responseJSONTypeOf[GetGroups200JSONResponseBody]():                  {responseJSONTypeOf[GroupListResponse]()},
+	responseJSONTypeOf[GetHistory200JSONResponseBody]():                 {responseJSONTypeOf[HistorySuccessResponse](), responseJSONTypeOf[HistoryEmptyBarResponse]()},
+	responseJSONTypeOf[GetIndividualPositions200JSONResponseBody]():     {responseJSONTypeOf[IndividualPositionsResponse]()},
+	responseJSONTypeOf[GetInstruments200JSONResponseBody]():             {responseJSONTypeOf[InstrumentsResponse]()},
+	responseJSONTypeOf[GetLeverage200JSONResponseBody]():                {responseJSONTypeOf[GetLeveragePayload]()},
+	responseJSONTypeOf[GetNetPositions200JSONResponseBody]():            {responseJSONTypeOf[NetPositionsResponse]()},
+	responseJSONTypeOf[GetOrders200JSONResponseBody]():                  {responseJSONTypeOf[OrdersResponse]()},
+	responseJSONTypeOf[GetOrdersHistory200JSONResponseBody]():           {responseJSONTypeOf[OrdersHistoryResponse]()},
+	responseJSONTypeOf[GetPermissions200JSONResponseBody]():             {responseJSONTypeOf[PermissionsResponse]()},
+	responseJSONTypeOf[GetPositions200JSONResponseBody]():               {responseJSONTypeOf[PositionsResponse]()},
+	responseJSONTypeOf[GetQuotes200JSONResponseBody]():                  {responseJSONTypeOf[QuotesResponse]()},
+	responseJSONTypeOf[GetState200JSONResponseBody]():                   {responseJSONTypeOf[AccountStateResponse]()},
+	responseJSONTypeOf[GetSymbolInfo200JSONResponseBody]():              {responseJSONTypeOf[SymbolInfoResponse]()},
+	responseJSONTypeOf[GetUserInfo200JSONResponseBody]():                {responseJSONTypeOf[UserInfoResponse]()},
+	responseJSONTypeOf[Instrument_Ui_ValidationRules_Item]():            {responseJSONTypeOf[StopPercentValidationRule](), responseJSONTypeOf[LimitPercentValidationRule](), responseJSONTypeOf[StopLossPercentValidationRule](), responseJSONTypeOf[TakeProfitPercentValidationRule](), responseJSONTypeOf[GuaranteedStopPercentValidationRule]()},
+	responseJSONTypeOf[Logout200JSONResponseBody]():                     {responseJSONTypeOf[SuccessResponse]()},
+	responseJSONTypeOf[MarkupText_Item]():                               {responseJSONTypeOf[MarkupText0](), responseJSONTypeOf[Hyperlink]()},
+	responseJSONTypeOf[ModifyIndividualPosition200JSONResponseBody]():   {responseJSONTypeOf[SuccessResponse](), responseJSONTypeOf[SuccessResponseWithTransactionId]()},
+	responseJSONTypeOf[ModifyOrder200JSONResponseBody]():                {responseJSONTypeOf[SuccessResponse](), responseJSONTypeOf[SuccessResponseWithTransactionId]()},
+	responseJSONTypeOf[ModifyOrderFormdataBody_ExitLevels_Item]():       {responseJSONTypeOf[ExitLevel](), responseJSONTypeOf[PlacedExitLevel]()},
+	responseJSONTypeOf[ModifyPosition200JSONResponseBody]():             {responseJSONTypeOf[SuccessResponse](), responseJSONTypeOf[SuccessResponseWithTransactionId]()},
+	responseJSONTypeOf[OrderInfo200JSONResponseBody]():                  {responseJSONTypeOf[OrderInfoPayload]()},
+	responseJSONTypeOf[OrderInfo_Disclaimer]():                          {responseJSONTypeOf[OrderInfoDisclaimer0](), responseJSONTypeOf[MarkupText]()},
+	responseJSONTypeOf[OrderInfo_Rows_Item]():                           {responseJSONTypeOf[OrderInfoRow](), responseJSONTypeOf[OrderInfoDivider](), responseJSONTypeOf[OrderInfoSubheading]()},
+	responseJSONTypeOf[PlaceModifyPreviewOrderCommon_ExitLevels_Item](): {responseJSONTypeOf[ExitLevel](), responseJSONTypeOf[PlacedExitLevel]()},
+	responseJSONTypeOf[PlaceOrder200JSONResponseBody]():                 {responseJSONTypeOf[PostOrderResponse]()},
+	responseJSONTypeOf[PlaceOrderFormdataBody_ExitLevels_Item]():        {responseJSONTypeOf[ExitLevel](), responseJSONTypeOf[PlacedExitLevel]()},
+	responseJSONTypeOf[PostPromotionReport200JSONResponseBody]():        {responseJSONTypeOf[SuccessResponse]()},
+	responseJSONTypeOf[PreviewClosePosition200JSONResponseBody]():       {responseJSONTypeOf[PreviewClosePositionPayload]()},
+	responseJSONTypeOf[PreviewClosePosition_Disclaimer]():               {responseJSONTypeOf[PreviewClosePositionDisclaimer0](), responseJSONTypeOf[MarkupText]()},
+	responseJSONTypeOf[PreviewClosePosition_Rows_Item]():                {responseJSONTypeOf[PreviewClosePositionRow](), responseJSONTypeOf[PreviewClosePositionDivider]()},
+	responseJSONTypeOf[PreviewLeverage200JSONResponseBody]():            {responseJSONTypeOf[PreviewLeveragePayload]()},
+	responseJSONTypeOf[PreviewOrder200JSONResponseBody]():               {responseJSONTypeOf[PreviewOrderPayload]()},
+	responseJSONTypeOf[PreviewOrderFormdataBody_ExitLevels_Item]():      {responseJSONTypeOf[ExitLevel](), responseJSONTypeOf[PlacedExitLevel]()},
+	responseJSONTypeOf[PreviewOrder_Errors_Item]():                      {responseJSONTypeOf[PreviewOrderErrors0](), responseJSONTypeOf[MarkupText]()},
+	responseJSONTypeOf[PreviewOrder_Warnings_Item]():                    {responseJSONTypeOf[PreviewOrderWarnings0](), responseJSONTypeOf[MarkupText]()},
+	responseJSONTypeOf[SetLeverage200JSONResponseBody]():                {responseJSONTypeOf[SetLeveragePayload]()},
+	responseJSONTypeOf[StreamDepth200JSONResponseBody]():                {responseJSONTypeOf[Depth](), responseJSONTypeOf[PingMessage](), responseJSONTypeOf[ErrorMessage]()},
+	responseJSONTypeOf[StreamIndividualPositions200JSONResponseBody]():  {responseJSONTypeOf[StreamIndividualPositionsMessage](), responseJSONTypeOf[PingMessage](), responseJSONTypeOf[ErrorMessage]()},
+	responseJSONTypeOf[StreamIndividualPositionsMessage_Item]():         {responseJSONTypeOf[IndividualPosition](), responseJSONTypeOf[StreamClosedPosition]()},
+	responseJSONTypeOf[StreamNetPositions200JSONResponseBody]():         {responseJSONTypeOf[StreamNetPositionsMessage](), responseJSONTypeOf[PingMessage](), responseJSONTypeOf[ErrorMessage]()},
+	responseJSONTypeOf[StreamNetPositionsMessage_Item]():                {responseJSONTypeOf[NetPosition](), responseJSONTypeOf[StreamClosedPosition]()},
+	responseJSONTypeOf[StreamNotifications200JSONResponseBody]():        {responseJSONTypeOf[StreamNotificationsMessage](), responseJSONTypeOf[PingMessage](), responseJSONTypeOf[ErrorMessage]()},
+	responseJSONTypeOf[StreamOrders200JSONResponseBody]():               {responseJSONTypeOf[OrdersMessage](), responseJSONTypeOf[PingMessage](), responseJSONTypeOf[ErrorMessage]()},
+	responseJSONTypeOf[StreamPositions200JSONResponseBody]():            {responseJSONTypeOf[StreamPositionsMessage](), responseJSONTypeOf[PingMessage](), responseJSONTypeOf[ErrorMessage]()},
+	responseJSONTypeOf[StreamPositionsMessage_Item]():                   {responseJSONTypeOf[Position](), responseJSONTypeOf[StreamClosedPosition]()},
+	responseJSONTypeOf[StreamQuotes200JSONResponseBody]():               {responseJSONTypeOf[QuotesMessage](), responseJSONTypeOf[PingMessage](), responseJSONTypeOf[ErrorMessage]()},
+	responseJSONTypeOf[StreamState200JSONResponseBody]():                {responseJSONTypeOf[AccountStateMessage](), responseJSONTypeOf[PingMessage](), responseJSONTypeOf[ErrorMessage]()},
+	responseJSONTypeOf[Streaming200JSONResponseBody]():                  {responseJSONTypeOf[StreamingQuoteResponse](), responseJSONTypeOf[StreamingTradeResponse](), responseJSONTypeOf[StreamingDailyBarResponse](), responseJSONTypeOf[StreamingHeartbeatResponse](), responseJSONTypeOf[StreamingAskResponseDeprecated](), responseJSONTypeOf[StreamingBidResponseDeprecated]()},
 }

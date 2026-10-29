@@ -234,6 +234,9 @@ func Generate(root string) error {
 	if err := addSymbolInfoDecoders(outputPath, rules.SymbolInfoScalarModels); err != nil {
 		return err
 	}
+	if err := addResponseValidation(outputPath); err != nil {
+		return err
+	}
 	inventory, err := json.MarshalIndent(operations, "", "  ")
 	if err != nil {
 		return err

@@ -40,7 +40,8 @@ Important fixture pairs:
 - `order-info-text` / `order-info-markup` and `preview-close-text` /
   `preview-close-markup`: both disclaimer representations.
 - `broker-error`: intentional HTTP 200 API error; `wrong-account-field`:
-  intentionally invalid account ID type that fails when the union accessor runs.
+  intentionally invalid account ID type rejected by the finite parser before it
+  returns a successful response union.
 
 To add coverage, author a JSON payload, register its operation and original
 upstream response schema name in `finiteResponseOperations`, and add explicit
