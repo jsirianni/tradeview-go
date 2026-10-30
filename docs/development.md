@@ -5,6 +5,8 @@ Development requires Linux, the Go version declared in `go.mod`, Git, and GNU Ma
 ## Packages
 
 - `pkg/tradeview/` contains the public client, generated bindings, and client tests.
+- `pkg/alerts/` contains the provider-neutral alert value and sender interface.
+- `pkg/alerts/slack/` contains the Slack bot sender, its tests, and a composition example.
 - `internal/generate/` contains schema generation support and its tests.
 - `internal/updatego/` contains the scheduled Go version updater command and its tests.
 - `api/` contains the pinned schema, generation rules, and operation inventory.
@@ -74,7 +76,7 @@ Failure tests use copied temporary modules and never rewrite committed artifacts
 
 Generation uses the committed schema and does not fetch a new API revision. To update the contract, replace the upstream schema deliberately, record its version/source/checksum, review the compatibility overlay, regenerate, and update the operation inventory and transport fixtures together. Review all resulting API changes before committing.
 
-CI runs one Linux job with the Go version declared in `go.mod`. It runs `make ci`, records market-stream decoding benchmarks, and verifies that the checkout stays clean. Tests use local HTTP fixtures and do not require broker credentials.
+CI runs one Linux job with the Go version declared in `go.mod`. It runs `make ci`, records market-stream decoding benchmarks, and verifies that the checkout stays clean. Tests use local HTTP fixtures and do not require broker or Slack credentials.
 
 ## Parser and stream fuzzing
 
@@ -161,7 +163,7 @@ than averaging line, function, or file percentages. Classification is explicit:
 
 | Group | Selection | Baseline covered/total | Policy |
 | --- | --- | --- | --- |
-| Handwritten runtime | Direct `.go` files in `pkg/tradeview`, excluding `api.gen.go` | 821/875 (93.83%) | Gate regressions |
+| Handwritten runtime | Direct `.go` files in `pkg/tradeview`, `pkg/alerts`, and `pkg/alerts/slack`, excluding `pkg/tradeview/api.gen.go` | 821/875 (93.83%) | Gate regressions |
 | Generator | Direct `.go` files in `internal/generate` | 511/579 (88.26%) | Gate regressions |
 | Automation | Direct `.go` files in `internal/updatego` | 38/43 (88.37%) | Gate regressions |
 | Generated bindings | Exactly `pkg/tradeview/api.gen.go` | 4303/5913 (72.77%) | Gate regressions |
@@ -188,7 +190,7 @@ Go/toolchain or schema updates require the same deliberate remeasurement.
 Coverage is evidence of execution, not proof of correct assertions. The
 contract, stream, generator staging/publication, and metric-instrument failure
 tests retain their behavioral assertions. `make coverage-smoke` proves weighted
-classification, independent group gates, rounding boundaries, malformed
+classification across the broker and alert packages, independent group gates, rounding boundaries, malformed
 input rejection, and profile cleanup without modifying source files. The final
 CI clean-checkout check remains in place.
 
