@@ -34,7 +34,7 @@ FNR == 1 {
     }
     file = substr(file, length(prefix) + 1)
     if (file == "pkg/tradeview/api.gen.go") group = "generated"
-    else if (file ~ /^pkg\/tradeview\/[^/]+\.go$/) group = "runtime"
+    else if (file ~ /^pkg\/(tradeview|alerts|alerts\/slack)\/[^/]+\.go$/) group = "runtime"
     else if (file ~ /^internal\/generate\/[^/]+\.go$/) group = "generator"
     else if (file ~ /^internal\/updatego\/[^/]+\.go$/) group = "automation"
     else {
